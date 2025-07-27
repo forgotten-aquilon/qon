@@ -10,25 +10,25 @@ Because Unity3D still does not support the latest .NET versions (therefore the l
 
 ## Terminology
 
-* Variables — objects of the `SuperpositionVariable<T>` class. Variables can be defined and undefined. A defined variable has a value of `T` type, and an undefined variable has a domain of `T` type values.
+* **Variables** — objects of the `SuperpositionVariable<T>` class. Variables can be defined and undefined. A defined variable has a value of `T` type, and an undefined variable has a **domain** of `T` type values.
 
-* Field of variables — all variables of a specific solution machine.
+* **Field of variables** — all **variables** of a specific **solution machine**.
 
-* Domain — objects of classes implementing the `IDomain<T>` interface. Encapsulate mechanisms to work with sets of potential variable values.
+* **Domain** — objects of classes implementing the `IDomain<T>` interface. Encapsulate mechanisms to work with sets of potential variable values.
 
-* Collapse — process of reducing a variable's domain to a single value and making it defined.
+* **Collapse** — process of reducing a variable's **domain** to a single value and making it defined.
 
-* Solution machine — object of `QMachine<T>` or derived class. It is used for solving problems defined with rules and variables.
+* **Solution machine** — object of `QMachine<T>` or derived class. It is used for solving problems defined with **rules** and **variables**.
 
-* Rules — objects of classes implementing `IGlobalRule<T>` or `ILocalRule<T>` interfaces. Global Rules are applied to the whole field of variables. Global Rules are defined by Aggregators and Filters. Local Rules are applied to some subset of a field based on specific variables. Local Rules are defined by Guards, Aggregators and Filters.
+* **Rules** — objects of classes implementing `IGlobalRule<T>` or `ILocalRule<T>` interfaces. Global Rules are applied to the whole **field of variables**. Global Rules are defined by **Aggregators** and **Filters**. Local Rules are applied to some subset of a field based on specific variables. Local Rules are defined by **Guards**, **Aggregators** and **Filters**.
 
-* Aggregators — objects of classes `GroupingAggregator<T>` or `SelectingAggregator<T>`. Grouping Aggregators take variables and group them by specified function. Selecting Aggregators select a subset of variables.
+* **Aggregators** — objects of classes `GroupingAggregator<T>` or `SelectingAggregator<T>`. Grouping Aggregators take variables and group them by specified function. Selecting Aggregators select a subset of variables.
 
-* Filters — objects of class `Filter<T>`. Filters check variables prepared by Aggregators applying some function and return Constraint Result.
+* **Filters** — objects of class `Filter<T>`. Filters check variables prepared by **Aggregators** applying some function and return **Constraint Result**.
 
-* Guards — objects of class `Guard<T>`. Guards are used for the definition of Local Rules. They check can this specific rule be applied based on a certain variable.
+* **Guards** — objects of class `Guard<T>`. Guards are used for the definition of Local Rules. They check can this specific rule be applied based on a certain variable.
 
-* Constraint Result — objects of `ConstraintResult` struct. They are returned as a result of Filter application. `ConstraintResult` has a `PropagationOutcome` enum property, which states how successful the filter was applied.
+* **Constraint Result** — objects of `ConstraintResult` struct. They are returned as a result of **Filter** application. `ConstraintResult` has a `PropagationOutcome` enum property, which states how successful the filter was applied.
 
 ## Examples && Explanation
 
@@ -41,7 +41,6 @@ var parameter = new QMachineParameter<char>()
 {
     GlobalRules = new()
     {
-
         new GlobalRule<char>(Aggregators.All<char>(), Filters.AllDistinct<char>())
     },
 };
