@@ -22,6 +22,10 @@ Because Unity3D still does not support the latest .NET versions (therefore the l
 
 * **Rules** — objects of classes implementing `IGlobalRule<T>` or `ILocalRule<T>` interfaces. Global Rules are applied to the whole **field of variables**. Global Rules are defined by **Aggregators** and **Filters**. Local Rules are applied to some subset of a field based on specific variables. Local Rules are defined by **Guards**, **Aggregators** and **Filters**.
 
+* **General Rules** — rules, which are applied in the process of problem solution. 
+
+* **Validation Rules** — rules, which are applied as a final check is problem solved or not.
+
 * **Aggregators** — objects of classes `GroupingAggregator<T>` or `SelectingAggregator<T>`. Grouping Aggregators take variables and group them by specified function. Selecting Aggregators select a subset of variables.
 
 * **Filters** — objects of class `Filter<T>`. Filters check variables prepared by **Aggregators** applying some function and return **Constraint Result**.
@@ -39,17 +43,16 @@ You can find all these examples in the Program.cs file.
 ```C#
 var parameter = new QMachineParameter<char>()
 {
-    GlobalRules = new()
+    GeneralRules = new()
     {
-        new GlobalRule<char>(Aggregators.All<char>(), Filters.AllDistinct<char>())
-    },
+        GlobalRules = new() { new GlobalRule<char>(Aggregators.All<char>(), Filters.AllDistinct<char>()) }
+    }
 };
 
 var machine = new QMachine<char>(parameter);
 
 List<char> letters = new() { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
-
-machine.GenerateField(new DiscreteDomain<char>(letters), new []{"V1", "V2", "V3", "V4"});
+machine.GenerateField(new DiscreteDomain<char>(letters), new[] { "V1", "V2", "V3", "V4" });
 
 foreach (var state in machine.States)
 {
@@ -61,10 +64,13 @@ To solve a problem, you need to set variables. Variables are undefined by defaul
 
 `QMachineParameter<T>` is a generic class, which is used for initialisation. Parameter `T` states the type of variables.
 
-In this example we set only `GlobalRules`. These rules are applied to all variables. 
+In this example we set only `GlobalRules` in General Rules. These rules are applied to all variables in a cycle to solve the problem. 
 
 ```C#
-new GlobalRule<char>(Aggregators.All<char>(), Filters.AllDistinct<char>())
+GeneralRules = new()
+{
+    GlobalRules = new() { new GlobalRule<char>(Aggregators.All<char>(), Filters.AllDistinct<char>()) }
+}
 ```
 
 Global rules are created based on Aggregator and Filter. Aggregators apply some functions to select a subset of variables. Filters check these variables for compliance with specified function and remove unnecessary values from domains.
@@ -97,13 +103,17 @@ The problem is solved not in a single function like `Solve()`, but in a finite, 
 
 ```C#
 List<int> domain = new List<int>() { 1, 2, 3, 4 };
-var p = new QMachineParameter<int>()
 
+var p = new QMachineParameter<int>()
 {
-    GlobalRules = new List<IGlobalRule<int>>() {
-        new GlobalRule<int>(Aggregators.GroupByTag<int>("x"), Filters.AllDistinct<int>()),
-        new GlobalRule<int>(Aggregators.GroupByTag<int>("y"), Filters.AllDistinct<int>()),
-        new GlobalRule<int>(EuclideanAggregators.GroupByRectangle<int>(2,2), Filters.AllDistinct<int>())
+    GeneralRules = new()
+    {
+        GlobalRules = new()
+        {
+            new GlobalRule<int>(Aggregators.GroupByTag<int>("x"), Filters.AllDistinct<int>()),
+            new GlobalRule<int>(Aggregators.GroupByTag<int>("y"), Filters.AllDistinct<int>()),
+            new GlobalRule<int>(EuclideanAggregators.GroupByRectangle<int>(2,2), Filters.AllDistinct<int>())
+        }
     }
 };
 
@@ -111,6 +121,7 @@ var w = new WFCMachine<int>(p);
 w.CreateEuclideanSpace((4, 4, 1), new DiscreteDomain<int>(domain));
 
 int step = 0;
+
 foreach (var state in w.States)
 {
     Console.Clear();
@@ -158,13 +169,15 @@ w[6, 2].Collapse(2, true);
 
 We get specific variables by their coordinates, collapse them with values we want, and mark them as constants (other variables collapsed in the solution will be marked as defined. It can be used for easier field analysis).
 
+'Everest sudoku' is allegedly the most hardest sudoku puzzle, so I used it as kind of benchmark.
+
 ### 2D maze
 
 ```C#
-List<string> domain = new(){ "╬", "║", "═", "╔", "╗", "╚", "╝", "╠", "╣", "╩", "╦", " " };
+List<string> domain = new() { "╬", "║", "═", "╔", "╗", "╚", "╝", "╠", "╣", "╩", "╦", " " };
 
-List<string> leftConn = new(){ "╬", "═", "╔", "╚", "╠", "╩", "╦" };
-List<string> leftWall = new(){ "║", "╗", "╝", "╣", " " };
+List<string> leftConn = new() { "╬", "═", "╔", "╚", "╠", "╩", "╦" };
+List<string> leftWall = new() { "║", "╗", "╝", "╣", " " };
 
 List<string> rightConn = new() { "╬", "═", "╗", "╝", "╣", "╩", "╦" };
 List<string> rightWall = new() { "║", "╚", "╔", "╠", " " };
@@ -177,107 +190,112 @@ List<string> bottomWall = new() { "╔", "╗", "═", "╦", " " };
 
 var p = new QMachineParameter<string>()
 {
-    VariableRules = new() {
-        new EuclideanRule<string>(new(){Guards.Equals("╬")},
-            new EuclideanRuleParameter<string>(){
-                Left = leftConn,
-                Right = rightConn,
-                Front = topConn,
-                Back = bottomConn,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("║") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftWall,
-                Right = rightWall,
-                Front = topConn,
-                Back = bottomConn,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("═") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftConn,
-                Right = rightConn,
-                Front = topWall,
-                Back = bottomWall,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╔") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftWall,
-                Right = rightConn,
-                Front = topWall,
-                Back = bottomConn,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╗") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftConn,
-                Right = rightWall,
-                Front = topWall,
-                Back = bottomConn,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╚") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftWall,
-                Right = rightConn,
-                Front = topConn,
-                Back = bottomWall,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╝") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftConn,
-                Right = rightWall,
-                Front = topConn,
-                Back = bottomWall,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╠") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftWall,
-                Right = rightConn,
-                Front = topConn,
-                Back = bottomConn,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╣") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftConn,
-                Right = rightWall,
-                Front = topConn,
-                Back = bottomConn,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╦") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftConn,
-                Right = rightConn,
-                Front = topWall,
-                Back = bottomConn,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals("╩") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftConn,
-                Right = rightConn,
-                Front = topConn,
-                Back = bottomWall,
-            }),
-        new EuclideanRule<string>(new() { Guards.Equals(" ") },
-            new EuclideanRuleParameter<string>(){
-                Left = leftWall,
-                Right = rightWall,
-                Front = topWall,
-                Back = bottomWall,
-            }),
+    GeneralRules = new()
+    {
+        LocalRules = new()
+        {
+            new EuclideanRule<string>(new(){Guards.Equals("╬")},
+                new EuclideanRuleParameter<string>(){
+                    Left = leftConn,
+                    Right = rightConn,
+                    Front = topConn,
+                    Back = bottomConn,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("║") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftWall,
+                    Right = rightWall,
+                    Front = topConn,
+                    Back = bottomConn,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("═") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftConn,
+                    Right = rightConn,
+                    Front = topWall,
+                    Back = bottomWall,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╔") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftWall,
+                    Right = rightConn,
+                    Front = topWall,
+                    Back = bottomConn,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╗") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftConn,
+                    Right = rightWall,
+                    Front = topWall,
+                    Back = bottomConn,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╚") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftWall,
+                    Right = rightConn,
+                    Front = topConn,
+                    Back = bottomWall,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╝") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftConn,
+                    Right = rightWall,
+                    Front = topConn,
+                    Back = bottomWall,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╠") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftWall,
+                    Right = rightConn,
+                    Front = topConn,
+                    Back = bottomConn,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╣") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftConn,
+                    Right = rightWall,
+                    Front = topConn,
+                    Back = bottomConn,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╦") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftConn,
+                    Right = rightConn,
+                    Front = topWall,
+                    Back = bottomConn,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals("╩") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftConn,
+                    Right = rightConn,
+                    Front = topConn,
+                    Back = bottomWall,
+                }),
+            new EuclideanRule<string>(new() { Guards.Equals(" ") },
+                new EuclideanRuleParameter<string>(){
+                    Left = leftWall,
+                    Right = rightWall,
+                    Front = topWall,
+                    Back = bottomWall,
+                }),
+        }
     }
 };
 
 WFCMachine<string> w = new WFCMachine<string>(p);
 
-w.CreateEuclideanSpace((10, 10, 1), new DiscreteDomain<string>(domain));
+w.CreateEuclideanSpace((20, 20, 1), new DiscreteDomain<string>(domain));
 
 foreach (var variable in w.State.Field)
 {
-    variable.Domain.UpdateWeight(" ", 5);
+    variable.Domain.UpdateWeight("╠", 51);
+    variable.Domain.UpdateWeight("╣", 51);
 }
 
 foreach (var state in w.States)
 {
     Console.Clear();
-    Print(state, 10);
+    Print(state, 20);
 }
 ```
 
@@ -317,3 +335,69 @@ variable.Domain.UpdateWeight(" ", 5);
 ```
 
 Additionally, we change the probability weight of a ` ` value, increasing it by 5 (the base probability weight is 1).
+
+###Eight Queens
+
+```C#
+var domain = new DiscreteDomain<char>(new List<char>() { 'Q', '.' });
+
+var p = new QMachineParameter<char>
+{
+    GeneralRules = new()
+    {
+        LocalRules = new()
+        {
+            new LocalRule<char>(
+                new() { Guards.Equals('Q') },
+                new()
+                {
+                    o => new SelectingAggregator<char>(
+                        v => v.Properties["x"].Equals(o.Properties["x"])
+                                && v != o),
+                    o => new SelectingAggregator<char>(
+                        v => v.Properties["y"].Equals(o.Properties["y"])
+                                && v != o),
+                    o => new SelectingAggregator<char>(
+                        v => Math.Abs(
+                                    (int)v.Properties["x"]
+                                    - (int)o.Properties["x"])
+                                == Math.Abs(
+                                    (int)v.Properties["y"]
+                                    - (int)o.Properties["y"])
+                                && v != o)
+                },
+                Filters.DomainIntersection<char>(new[] { '.' })
+            )
+        }
+    },
+    ValidationRules = new()
+    {
+        GlobalRules = new()
+        {
+            new GlobalRule<char>(Aggregators.EqualsToValue('Q'), Filters.AmountCheck<char>(8, Comparison.EQ))
+        }
+    }
+
+};
+
+var wfc = new WFCMachine<char>(p);
+wfc.CreateEuclideanSpace((8, 8, 1), domain); 
+
+foreach (var state in wfc.States)
+{
+    Console.Clear();
+    Print(state, 8, true);
+}
+```
+
+Here we additionally define Validation Rules, which will be executed after the successfull solution. In this case General Rules determine how exactly Queens can be placed, but not their amount which is checked by Validation Rules.
+
+```C#
+ValidationRules = new()
+{
+    GlobalRules = new()
+    {
+        new GlobalRule<char>(Aggregators.EqualsToValue('Q'), Filters.AmountCheck<char>(8, Comparison.EQ))
+    }
+}
+```
