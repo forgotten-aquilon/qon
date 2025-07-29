@@ -10,7 +10,7 @@ namespace qon.Domains
         bool IsEmpty();
         bool ContainsValue(T value);
         int Remove(T item);
-        int Remove(List<T> items);
+        int Remove(IEnumerable<T> items);
         void Clear();
         int Set(Dictionary<T, int> domain);
         double GetEntropy();

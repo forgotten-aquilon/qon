@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace qon.Rules
+namespace qon.Rules.Guards
 {
     public class Guard<T>
     {
@@ -13,14 +13,6 @@ namespace qon.Rules
         public bool ApplyTo(SuperpositionVariable<T> variable)
         {
             return Condition(variable);
-        }
-    }
-
-    public static class Guards
-    {
-        public static Guard<T> Equals<T>(T value)
-        {
-            return new Guard<T>(variable => variable.Value.CheckValue(value));
         }
     }
 }

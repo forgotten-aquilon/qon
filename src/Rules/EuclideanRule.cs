@@ -1,19 +1,12 @@
-﻿using System;
+﻿using qon.Rules.Aggregators;
+using qon.Rules.Guards;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using qon.Rules.Filters;
 
 namespace qon.Rules
 {
-    public class EuclideanRuleParameter<T>
-    {
-        public List<T> Left { get; set; } = new();
-        public List<T> Right { get; set; } = new();
-        public List<T> Front { get; set; } = new();
-        public List<T> Back { get; set; } = new();
-        public List<T> Top { get; set; } = new();
-        public List<T> Bottom { get; set; } = new();
-    }
-
     public class EuclideanRule<T> : LocalRuleBase<T>
     {
         private readonly Func<SuperpositionVariable<T>, SelectingAggregator<T>> _leftAggregation = EuclideanAggregators.SelectRegion<T>((1, 0, 0), (0, 0, 0));
@@ -41,15 +34,15 @@ namespace qon.Rules
             var back = aggregation.Where(_backAggregation(variable).ApplyTo);
             var top = aggregation.Where(_topAggregation(variable).ApplyTo);
             var bottom = aggregation.Where(_bottomAggregation(variable).ApplyTo);
-
+            
             List<ConstraintResult> results = new()
             {
-                Filters.Intersection(_parameter.Left).ApplyTo(left.ToList()),
-                Filters.Intersection(_parameter.Right).ApplyTo(right.ToList()),
-                Filters.Intersection(_parameter.Front).ApplyTo(front.ToList()),
-                Filters.Intersection(_parameter.Back).ApplyTo(back.ToList()),
-                Filters.Intersection(_parameter.Top).ApplyTo(top.ToList()),
-                Filters.Intersection(_parameter.Bottom).ApplyTo(bottom.ToList())
+                Filters.Filters.DomainIntersection(_parameter.Left).ApplyTo(left.ToList()),
+                Filters.Filters.DomainIntersection(_parameter.Right).ApplyTo(right.ToList()),
+                Filters.Filters.DomainIntersection(_parameter.Front).ApplyTo(front.ToList()),
+                Filters.Filters.DomainIntersection(_parameter.Back).ApplyTo(back.ToList()),
+                Filters.Filters.DomainIntersection(_parameter.Top).ApplyTo(top.ToList()),
+                Filters.Filters.DomainIntersection(_parameter.Bottom).ApplyTo(bottom.ToList())
             };
 
             foreach (var result in results)
@@ -58,11 +51,11 @@ namespace qon.Rules
 
                 if (result.Outcome == PropagationOutcome.Conflict)
                 {
-                    return new ConstraintResult() { ChangesAmount = changes, Outcome = PropagationOutcome.Conflict };
+                    return result;
                 }
             }
 
-            return new ConstraintResult(){ChangesAmount = changes, Outcome = PropagationOutcome.UnderConstrained};
+            return new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
         }
     }
 }

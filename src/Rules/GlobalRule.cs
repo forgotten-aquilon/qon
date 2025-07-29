@@ -1,4 +1,6 @@
-﻿using System;
+﻿using qon.Rules.Aggregators;
+using qon.Rules.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -47,8 +49,8 @@ namespace qon.Rules
                     }
 
                     return unsolvedChanges == 0
-                        ? new ConstraintResult { Outcome = PropagationOutcome.Converged, ChangesAmount = changes }
-                        : new ConstraintResult { Outcome = PropagationOutcome.UnderConstrained, ChangesAmount = changes };
+                        ? new ConstraintResult(PropagationOutcome.Converged, changes)
+                        : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
 
                 case AggregationType.Selecting:
                     var aggregation = field.Where(SelectingAggregator!.ApplyTo).ToList();

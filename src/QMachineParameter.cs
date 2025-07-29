@@ -12,11 +12,17 @@ namespace qon
         public IEnumerable<SuperpositionVariable<T>> Field { get; set; }
     }
 
+    public class RuleHandler<T>
+    {
+        public List<IGlobalRule<T>> GlobalRules { get; set; } = new List<IGlobalRule<T>>();
+        public List<ILocalRule<T>> LocalRules { get; set; } = new List<ILocalRule<T>>();
+    }
+
     public class QMachineParameter<T>
     {
         public FieldParameter<T>? FieldParameter { get; set; } = null;
-        public List<IGlobalRule<T>> GlobalRules { get; set; } = new List<IGlobalRule<T>>();
-        public List<ILocalRule<T>> VariableRules { get; set; } = new List<ILocalRule<T>>();
+        public RuleHandler<T> GeneralRules { get; set; } = new();
+        public RuleHandler<T>? ValidationRules { get; set; }
         public Random Random { get; set; } = new Random();
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using qon.Rules;
+using qon.Rules.Filters;
 
 namespace qon
 {
@@ -46,7 +48,7 @@ namespace qon
 
         private IEnumerable<SuperpositionVariable<T>> Search(string name, object value)
         {
-            return Result.Where(x => x.Properties[name].Item2.Equals(value));
+            return Result.Where(x => x.Properties[name].Equals(value));
         }
     }
 
@@ -105,8 +107,8 @@ namespace qon
             }
 
             return unsolvedChanges == 0
-                ? new ConstraintResult { Outcome = PropagationOutcome.Converged, ChangesAmount = changes }
-                : new ConstraintResult { Outcome = PropagationOutcome.UnderConstrained, ChangesAmount = changes };
+                ? new ConstraintResult(PropagationOutcome.Converged, changes)
+                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
         }
 
         public ConstraintResult ExecuteLocalRules(List<ILocalRule<T>> rules)
@@ -141,8 +143,8 @@ namespace qon
             }
 
             return unsolvedChanges == 0
-                ? new ConstraintResult { Outcome = PropagationOutcome.Converged, ChangesAmount = changes }
-                : new ConstraintResult { Outcome = PropagationOutcome.UnderConstrained, ChangesAmount = changes };
+                ? new ConstraintResult(PropagationOutcome.Converged, changes)
+                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
         }
 
         public int AutoCollapse()
@@ -196,23 +198,22 @@ namespace qon
         {
             get
             {
-                var result = Field.Where(x => x.Properties[name].Item2.Equals(value));
+                var result = Field.Where(x => x.Properties[name].Equals(value));
                 return new SearchResult<T>(result);
             }
         }
 
         public override string ToString()
         {
-            string result = "{ ";
+            StringBuilder result = new StringBuilder("{ ");
 
-            foreach (var variable in Field)
-            {
-                result += variable.State != SuperpositionState.Uncertain ? $"{variable.Name}:[{variable.Value}] " : $"{variable.Name}:[{variable.Domain}] ";
-            }
+            var fieldRepresentation = Field.Select(v =>
+                v.State != SuperpositionState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{v.Domain}]");
 
-            result += "}";
+            result.AppendJoin(" ", fieldRepresentation);
+            result.Append("}");
 
-            return result;
+            return result.ToString();
         }
 
         private IEnumerable<SuperpositionVariable<T>> SearchByProperties(List<(string, object)> filteringProperties)
@@ -221,7 +222,7 @@ namespace qon
 
             foreach (var (name, value) in filteringProperties)
             {
-                filteringList = filteringList.Where(x => x.Properties[name].Item2.Equals(value));
+                filteringList = filteringList.Where(x => x.Properties[name].Equals(value));
             }
 
             return filteringList;

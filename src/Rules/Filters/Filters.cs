@@ -1,25 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
-namespace qon.Rules
+namespace qon.Rules.Filters
 {
-    public class Filter<T>
-    {
-        public Func<List<SuperpositionVariable<T>>, ConstraintResult> FilterFunction { get; }
-
-        public Filter(Func<List<SuperpositionVariable<T>>, ConstraintResult> filterFunction)
-        {
-            FilterFunction = filterFunction;
-        }
-
-        public ConstraintResult ApplyTo(List<SuperpositionVariable<T>> filteringList)
-        {
-            return FilterFunction(filteringList);
-        }
-    }
-
     public static class Filters
     {
         public static ConstraintResult AllDistinctFilter<T>(List<SuperpositionVariable<T>> filteringList)
@@ -33,7 +16,7 @@ namespace qon.Rules
 
             if (certainVariablesCount != distinctVariables.Count())
             {
-                return new ConstraintResult { Outcome = PropagationOutcome.Conflict, ChangesAmount = 0 };
+                return new ConstraintResult(PropagationOutcome.Conflict, 0);
             }
 
             var openVariables = filteringList.Where(x => x.State == SuperpositionState.Uncertain);
@@ -45,10 +28,10 @@ namespace qon.Rules
             }
             
 
-            return (!filteringList.Any(x => x.State == SuperpositionState.Uncertain)) switch
+            return !filteringList.Any(x => x.State == SuperpositionState.Uncertain) switch
             {
-                true => new ConstraintResult { Outcome = PropagationOutcome.Converged, ChangesAmount = changes },
-                false => new ConstraintResult { Outcome = PropagationOutcome.UnderConstrained, ChangesAmount = changes }
+                true => new ConstraintResult(PropagationOutcome.Converged, changes),
+                false => new ConstraintResult(PropagationOutcome.UnderConstrained, changes)
             };
         }
 
@@ -57,7 +40,7 @@ namespace qon.Rules
             return new Filter<T>(AllDistinctFilter);
         }
 
-        public static Filter<T> Intersection<T>(IEnumerable<T> filteringCollection)
+        public static Filter<T> DomainIntersection<T>(IEnumerable<T> filteringCollection)
         {
             return new Filter<T>(list =>
             {
@@ -65,6 +48,11 @@ namespace qon.Rules
                 
                 foreach (var variable in list)
                 {
+                    if (variable.State != SuperpositionState.Uncertain)
+                    {
+                        continue;
+                    }
+
 #pragma warning disable CS8714
                     Dictionary<T, int> intersection = new();
 #pragma warning restore CS8714
@@ -82,7 +70,7 @@ namespace qon.Rules
 
                     if (variable.Domain.IsEmpty())
                     {
-                        return new ConstraintResult { Outcome = PropagationOutcome.Conflict, ChangesAmount = 0 };
+                        return new ConstraintResult(PropagationOutcome.Conflict, 0);
                     }
 
                     if (variable.AutoCollapse() != Optional<T>.Empty)
@@ -91,11 +79,33 @@ namespace qon.Rules
                     }
                 }
 
-                return (list.All(x => x.State != SuperpositionState.Uncertain)) switch
+                return list.All(x => x.State != SuperpositionState.Uncertain) switch
                 {
-                    true => new ConstraintResult { Outcome = PropagationOutcome.Converged, ChangesAmount = changes },
-                    false => new ConstraintResult
-                        { Outcome = PropagationOutcome.UnderConstrained, ChangesAmount = changes }
+                    true => new ConstraintResult(PropagationOutcome.Converged, changes),
+                    false => new ConstraintResult(PropagationOutcome.UnderConstrained, changes)
+                };
+            });
+        }
+
+        public static Filter<T> AmountCheck<T>(int value, Comparison condition)
+        {
+            return new Filter<T>(list =>
+            {
+                bool result = condition switch
+                {
+                    Comparison.EQ => list.Count == value,
+                    Comparison.NE => list.Count != value,
+                    Comparison.LT => list.Count < value,
+                    Comparison.LE => list.Count <= value,
+                    Comparison.GT => list.Count > value,
+                    Comparison.GE => list.Count >= value,
+                    _ => throw new InternalLogicException("Passed nonexistent enum value"),
+                };
+
+                return result switch
+                {
+                    true => new ConstraintResult(PropagationOutcome.Converged, 0),
+                    false => new ConstraintResult(PropagationOutcome.Conflict, 0)
                 };
             });
         }

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Rules;
+using qon.Rules.Filters;
 
 namespace qon
 {
@@ -120,7 +120,7 @@ namespace qon
 
                     break;
                 case MachineStateType.Validation:
-                    var validation = _machine.ApplyConstraints();
+                    var validation = _machine.ApplyConstraints(_machine.ValidationRules is not null);
 
                     if (validation.Outcome == PropagationOutcome.Conflict)
                     {
@@ -135,9 +135,9 @@ namespace qon
                     
                     break;
                 case MachineStateType.Finished:
-                    break;
+                    return false;
                 case MachineStateType.Error:
-                    break;
+                    return false;
                 default:
                     break;
             }

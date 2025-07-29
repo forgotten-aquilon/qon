@@ -39,7 +39,7 @@ namespace qon.Domains
             throw new InternalLogicException("Should never be called");
         }
 
-        public int Remove(List<T> items)
+        public int Remove(IEnumerable<T> items)
         {
             throw new InternalLogicException("Should never be called");
         }
@@ -91,7 +91,8 @@ namespace qon.Domains
 
         public bool TryGetWeight(T value, out int weight)
         {
-            throw new InternalLogicException("Should never be called");
+            weight = -1;
+            return false;
         }
     }
 }

@@ -19,15 +19,15 @@ namespace qon
         {
             get 
             {
-                return Properties["@Name"].Item2.ToString() ?? "";
+                return Properties["@Name"] as string ?? "";
             } 
             protected set
             {
-                Properties["@Name"] = (typeof(string), value);
+                Properties["@Name"] = value;
             }
         }
         public IDomain<T> Domain { get; set; }
-        public Dictionary<string, (Type, object)> Properties { get; set; } = new Dictionary<string, (Type, object)>();
+        public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
         public SuperpositionState State { get; private set; }
         public Optional<T> Value { get; private set; } = Optional<T>.Empty;
 
@@ -69,7 +69,6 @@ namespace qon
             State = SuperpositionState.Uncertain;
             Domain = domain.Copy();
         }
-
  
         public SuperpositionVariable(IDomain<T>? domain, T value, string name = "") : this(domain, name)
         {
@@ -79,6 +78,18 @@ namespace qon
             {
                 State = SuperpositionState.Constant;
             }
+        }
+
+        //TODO: Properly implement
+        public SuperpositionVariable<T> WithProperty(string name, object value)
+        {
+            if (Properties.ContainsKey(name))
+            {
+                throw new InternalLogicException("Property with this name already exists");
+            }
+
+            Properties[name] = value;
+            return this;
         }
 
         public int SetDomain(IDomain<T> domain)
@@ -97,14 +108,7 @@ namespace qon
 
         public int RemoveFromDomain(IEnumerable<T> items)
         {
-            int changeCount = 0;
-
-            foreach (var item in items)
-            {
-                changeCount += Domain.Remove(item);
-            }
-
-            return changeCount;
+            return Domain.Remove(items);
         }
 
 
@@ -138,7 +142,7 @@ namespace qon
             SuperpositionVariable<T> clone = new()
             {
                 Domain = Domain.Copy(),
-                Properties = new Dictionary<string, (Type, object)>(Properties),
+                Properties = new Dictionary<string, object>(Properties),
                 Value = Value.Copy(),
                 State = State,
                 Name = Name,

@@ -44,7 +44,7 @@ namespace qon.Domains
             return Domain.Remove(item) ? 1 : 0;
         }
 
-        public int Remove(List<T> items)
+        public int Remove(IEnumerable<T> items)
         {
             int changeCount = 0;
 

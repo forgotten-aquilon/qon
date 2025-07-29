@@ -42,14 +42,9 @@ namespace qon
                     {
                         string name = $"{x}x{y}x{z}";
                         var v = new SuperpositionVariable<T>(domain, name)
-                            {
-                                Properties =
-                                {
-                                    ["x"] = (typeof(int), x),
-                                    ["y"] = (typeof(int), y),
-                                    ["z"] = (typeof(int), z)
-                                }
-                            };
+                            .WithProperty("x", x)
+                            .WithProperty("y", y)
+                            .WithProperty("z", z);
 
                         variables.Add(v);
                     }
