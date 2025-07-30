@@ -336,7 +336,7 @@ variable.Domain.UpdateWeight(" ", 5);
 
 Additionally, we change the probability weight of a ` ` value, increasing it by 5 (the base probability weight is 1).
 
-###Eight Queens
+### Eight Queens
 
 ```C#
 var domain = new DiscreteDomain<char>(new List<char>() { 'Q', '.' });
