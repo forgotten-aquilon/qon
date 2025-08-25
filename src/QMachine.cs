@@ -4,6 +4,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using qon.Solvers;
+using qon.Variables;
 
 namespace qon
 {
@@ -57,7 +59,7 @@ namespace qon
 
             State = new MachineState<T>();
             StateType = MachineStateType.Created;
-            Enumerator = new Solver<T>(this);
+            Enumerator = new FiniteSolver<T>(this);
             States = new States<T>(this);
             Random = parameter.Random;
 
@@ -80,78 +82,6 @@ namespace qon
 
                 SetField(parameter.FieldParameter.Field);
             }
-        }
-
-        public virtual ConstraintResult ApplyConstraints(bool validation = false)
-        {
-            int filterChanges = 0;
-            bool isConverged = true;
-
-            int changes;
-            do
-            {
-                changes = 0;
-
-                var globalResult = State.ExecuteGlobalRules(GeneralRules.GlobalRules);
-
-                if (globalResult.Outcome == PropagationOutcome.Conflict)
-                {
-                    return globalResult;
-                }
-
-                if (globalResult.Outcome == PropagationOutcome.UnderConstrained)
-                {
-                    isConverged = false;
-                }
-
-                changes += globalResult.ChangesAmount;
-                changes += State.AutoCollapse();
-
-                var localResult = State.ExecuteLocalRules(GeneralRules.LocalRules);
-
-                if (localResult.Outcome == PropagationOutcome.Conflict)
-                {
-                    return localResult;
-                }
-
-                if (localResult.Outcome == PropagationOutcome.UnderConstrained)
-                {
-                    isConverged = false;
-                }
-
-                changes += localResult.ChangesAmount;
-                changes += State.AutoCollapse();
-
-                filterChanges += changes;
-            }
-            while (changes != 0);
-
-            if (!validation)
-            {
-                return isConverged switch
-                {
-                    true => new ConstraintResult(PropagationOutcome.Converged, filterChanges),
-                    false => new ConstraintResult(PropagationOutcome.UnderConstrained, filterChanges)
-                };
-            }
-
-            var globalValidation = State.ExecuteGlobalRules(ValidationRules!.GlobalRules);
-
-            if (globalValidation.Outcome == PropagationOutcome.Conflict)
-            {
-                return globalValidation;
-            }
-
-            var localValidation = State.ExecuteLocalRules(ValidationRules!.LocalRules);
-
-            if (localValidation.Outcome == PropagationOutcome.Conflict)
-            {
-                return localValidation;
-            }
-
-            int validationChanges = globalValidation.ChangesAmount + localValidation.ChangesAmount;
-
-            return new ConstraintResult(PropagationOutcome.Converged, validationChanges);
         }
 
         public void SetField(IEnumerable<SuperpositionVariable<T>> field)

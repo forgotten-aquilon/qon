@@ -1,4 +1,5 @@
-﻿using System;
+﻿using qon.Variables;
+using System;
 using System.Collections.Generic;
 
 namespace qon.Rules.Filters

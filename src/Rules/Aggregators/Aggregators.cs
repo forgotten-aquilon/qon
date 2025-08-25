@@ -1,4 +1,6 @@
-﻿namespace qon.Rules.Aggregators
+﻿using qon.Variables;
+
+namespace qon.Rules.Aggregators
 {
     public static class Aggregators
     {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using qon.Variables;
+using System;
 
 namespace qon.Rules.Guards
 {

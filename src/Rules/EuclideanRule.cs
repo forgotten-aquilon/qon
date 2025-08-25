@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using qon.Rules.Filters;
+using qon.Variables;
 
 namespace qon.Rules
 {

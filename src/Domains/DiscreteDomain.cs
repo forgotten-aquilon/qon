@@ -19,7 +19,7 @@ namespace qon.Domains
             Domain = d;
         }
 
-        public DiscreteDomain(List<T> d)
+        public DiscreteDomain(IEnumerable<T> d)
         {
             Domain = d.ToDictionary(x => x, _ => 1);
         }
@@ -72,9 +72,9 @@ namespace qon.Domains
         {
             double entropy = 0.0;
 
-            foreach (var domain in Domain)
+            foreach (var value in Domain)
             {
-                double e = domain.Value / (double)Domain.Count;
+                double e = value.Value / (double)Domain.Count;
                 entropy -= e * Math.Log(e, 2);
             }
 
