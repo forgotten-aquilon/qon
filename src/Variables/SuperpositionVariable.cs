@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using qon.Domains;
 
-namespace qon
+namespace qon.Variables
 {
     public enum SuperpositionState
     {
@@ -26,6 +26,7 @@ namespace qon
                 Properties["@Name"] = value;
             }
         }
+
         public IDomain<T> Domain { get; set; }
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
         public SuperpositionState State { get; private set; }
@@ -127,14 +128,14 @@ namespace qon
 
         public Optional<T> AutoCollapse()
         {
-            if (Domain.Size() == 1)
-            {
-                Collapse(Domain.GetIEnumerable().FirstOrDefault().Key, false);
+            var value = Domain.SingleOrEmptyValue();
 
-                return Value;
+            if (value.HasValue)
+            {
+                Collapse(value.Value);
             }
 
-            return Optional<T>.Empty;
+            return value;
         }
 
         public object Clone()

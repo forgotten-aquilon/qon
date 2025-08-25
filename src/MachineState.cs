@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using qon.Rules;
 using qon.Rules.Filters;
+using qon.Variables;
 
 namespace qon
 {
@@ -82,69 +83,6 @@ namespace qon
         public MachineState(List<SuperpositionVariable<T>> field)
         {
             Field = field;
-        }
-
-        public ConstraintResult ExecuteGlobalRules(List<IGlobalRule<T>> rules)
-        {
-            int changes = 0;
-            int unsolvedChanges = 0;
-            foreach (var rule in rules)
-            {
-                var result = rule.Execute(Field);
-
-                switch (result.Outcome)
-                {
-                    case PropagationOutcome.UnderConstrained:
-                        unsolvedChanges++;
-                        break;
-                    case PropagationOutcome.Converged:
-                        break;
-                    case PropagationOutcome.Conflict:
-                        return result;
-                }
-
-                changes += result.ChangesAmount;
-            }
-
-            return unsolvedChanges == 0
-                ? new ConstraintResult(PropagationOutcome.Converged, changes)
-                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
-        }
-
-        public ConstraintResult ExecuteLocalRules(List<ILocalRule<T>> rules)
-        {
-            int changes = 0;
-            int unsolvedChanges = 0;
-
-            foreach (var variable in Field)
-            {
-                foreach (var rule in rules)
-                {
-                    if (!rule.CanApplyTo(variable)) 
-                        continue;
-
-                    var result = rule.Execute(Field, variable);
-
-                    switch (result.Outcome)
-                    {
-                        case PropagationOutcome.UnderConstrained:
-                            unsolvedChanges++;
-                            break;
-                        case PropagationOutcome.Converged:
-                            break;
-                        case PropagationOutcome.Conflict:
-                            return result;
-                        default:
-                            throw new NotImplementedException();
-                    }
-
-                    changes += result.ChangesAmount;
-                }
-            }
-
-            return unsolvedChanges == 0
-                ? new ConstraintResult(PropagationOutcome.Converged, changes)
-                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
         }
 
         public int AutoCollapse()

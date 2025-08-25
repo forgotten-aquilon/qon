@@ -11,8 +11,29 @@ using qon.Rules;
 using qon.Rules.Aggregators;
 using qon.Rules.Filters;
 using qon.Rules.Guards;
+using qon.Variables;
 
-SimplestExample();
+Maze();
+
+void NumberExample()
+{
+    var parameter = new QMachineParameter<int>()
+    {
+        GeneralRules = new()
+        {
+            GlobalRules = new() { new GlobalRule<int>(Aggregators.All<int>(), Filters.AllDistinct<int>()) }
+        }
+    };
+
+    var machine = new QMachine<int>(parameter);
+
+    machine.GenerateField(new NumericalDomain<int>(), new[] { "V1", "V2", "V3", "V4" });
+
+    foreach (var state in machine.States)
+    {
+        Console.WriteLine(state);
+    }
+}
 
 void SimplestExample()
 {
@@ -49,11 +70,13 @@ void SimpleSudoku()
                 new GlobalRule<int>(Aggregators.GroupByTag<int>("y"), Filters.AllDistinct<int>()),
                 new GlobalRule<int>(EuclideanAggregators.GroupByRectangle<int>(2,2), Filters.AllDistinct<int>())
             }
-        }
+        },
+        Random = new Random(12)
     };
-
+    var nd = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 4) });
+    var d = new DiscreteDomain<int>(domain);
     var w = new WFCMachine<int>(p);
-    w.CreateEuclideanSpace((4, 4, 1), new DiscreteDomain<int>(domain));
+    w.CreateEuclideanSpace((4, 4, 1), nd);
 
     int step = 0;
 
@@ -85,7 +108,8 @@ void Sudoku()
     };
 
     var w = new WFCMachine<int>(p);
-    w.CreateEuclideanSpace((9, 9, 1), new DiscreteDomain<int>(domain));
+    var nd = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 9) });
+    w.CreateEuclideanSpace((9, 9, 1), nd);
 
     #region Field init
     w[0, 0].Collapse(9, true);
@@ -206,6 +230,7 @@ void EverestSudoku()
 void PrintSudoku<T>(MachineState<T> s, int size)
 {
     string result = "";
+    int space = (int)Math.Sqrt(size);
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
@@ -216,7 +241,7 @@ void PrintSudoku<T>(MachineState<T> s, int size)
 
             result += $"{b} ";
 
-            if ((j + 1) % 3 == 0)
+            if ((j + 1) % space == 0)
             {
                 result += $" ";
             }
@@ -224,7 +249,7 @@ void PrintSudoku<T>(MachineState<T> s, int size)
 
         result += "\n";
 
-        if ((i + 1) % 3 == 0)
+        if ((i + 1) % space == 0)
         {
             result += "\n";
         }
@@ -349,8 +374,9 @@ void Maze()
 
     foreach (var variable in w.State.Field)
     {
-        variable.Domain.UpdateWeight("╠", 51);
-        variable.Domain.UpdateWeight("╣", 51);
+        var localDomain = variable.Domain as DiscreteDomain<string>;
+        localDomain.UpdateWeight("╠", 51);
+        localDomain.UpdateWeight("╣", 51);
     }
 
     foreach (var state in w.States)

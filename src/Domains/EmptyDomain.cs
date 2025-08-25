@@ -49,11 +49,6 @@ namespace qon.Domains
             throw new InternalLogicException("Should never be called");
         }
 
-        public int Set(Dictionary<T, int> domain)
-        {
-            throw new InternalLogicException("Should never be called");
-        }
-
         public double GetEntropy()
         {
             throw new InternalLogicException("Should never be called");
@@ -77,22 +72,6 @@ namespace qon.Domains
         public IEnumerable<KeyValuePair<T, int>> GetIEnumerable()
         {
             throw new InternalLogicException("Should never be called");
-        }
-
-        public void SetWeight(T value, int weight)
-        {
-            throw new InternalLogicException("Should never be called");
-        }
-
-        public bool UpdateWeight(T value, int weight)
-        {
-            throw new InternalLogicException("Should never be called");
-        }
-
-        public bool TryGetWeight(T value, out int weight)
-        {
-            weight = -1;
-            return false;
         }
     }
 }

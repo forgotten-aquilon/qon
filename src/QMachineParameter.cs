@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using qon.Domains;
 using qon.Rules;
+using qon.Variables;
 
 namespace qon
 {
     public class FieldParameter<T>
     {
-        public IDomain<T> Domain { get; set; }
+        public IDomain<T>? Domain { get; set; }
 
-        public IEnumerable<SuperpositionVariable<T>> Field { get; set; }
+        public IEnumerable<SuperpositionVariable<T>>? Field { get; set; }
     }
 
     public class RuleHandler<T>

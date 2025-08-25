@@ -12,11 +12,7 @@ namespace qon.Domains
         int Remove(T item);
         int Remove(IEnumerable<T> items);
         void Clear();
-        int Set(Dictionary<T, int> domain);
         double GetEntropy();
-        void SetWeight(T value, int  weight);
-        bool TryGetWeight(T value, out int weight);
-        bool UpdateWeight(T value, int weight);
         T GetRandomValue(Random random);
         Optional<T> SingleOrEmptyValue();
         IDomain<T> Copy();

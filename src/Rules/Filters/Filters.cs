@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using qon.Domains;
+using qon.Variables;
 
 namespace qon.Rules.Filters
 {
@@ -42,10 +44,15 @@ namespace qon.Rules.Filters
 
         public static Filter<T> DomainIntersection<T>(IEnumerable<T> filteringCollection)
         {
+            return DomainIntersection(new DiscreteDomain<T>(filteringCollection));
+        }
+
+        public static Filter<T> DomainIntersection<T>(DiscreteDomain<T> filteringDomain)
+        {
             return new Filter<T>(list =>
             {
                 int changes = 0;
-                
+
                 foreach (var variable in list)
                 {
                     if (variable.State != SuperpositionState.Uncertain)
@@ -54,21 +61,10 @@ namespace qon.Rules.Filters
                     }
 
 #pragma warning disable CS8714
-                    Dictionary<T, int> intersection = new();
-#pragma warning restore CS8714
+                    IDomain<T> newDomain = DomainHelper<T>.DomainIntersection(variable.Domain, filteringDomain);
+                    variable.Domain = newDomain;
 
-                    foreach (var value in filteringCollection)
-                    {
-                        if (variable.Domain.TryGetWeight(value, out int weight))
-                        {
-                            intersection[value] = weight;
-                        }
-                    }
-
-                    variable.Domain.Set(intersection);
-                    
-
-                    if (variable.Domain.IsEmpty())
+                    if (newDomain.IsEmpty())
                     {
                         return new ConstraintResult(PropagationOutcome.Conflict, 0);
                     }

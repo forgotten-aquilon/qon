@@ -1,12 +1,14 @@
-﻿using System;
+﻿using qon.Rules;
+using qon.Rules.Filters;
+using qon.Variables;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Rules.Filters;
 
-namespace qon
+namespace qon.Solvers
 {
-    public class Solver<T> : IEnumerator<MachineState<T>>
+    public class FiniteSolver<T> : IEnumerator<MachineState<T>>
     {
         internal sealed class Node
         {
@@ -21,7 +23,7 @@ namespace qon
 
         object IEnumerator.Current => Current;
 
-        public Solver(QMachine<T> machine) 
+        public FiniteSolver(QMachine<T> machine) 
         {
             _machine = machine;
             _solutionStack = new Stack<Node>();
@@ -72,7 +74,7 @@ namespace qon
                     _machine.StateType = MachineStateType.IsSolving;
                     break;
                 case MachineStateType.IsSolving:
-                    var result = _machine.ApplyConstraints();
+                    var result = ApplyConstraints();
                     changes += result.ChangesAmount;
 
                     if (Current.CurrentState == SolutionState.MaybeSolved)
@@ -120,7 +122,7 @@ namespace qon
 
                     break;
                 case MachineStateType.Validation:
-                    var validation = _machine.ApplyConstraints(_machine.ValidationRules is not null);
+                    var validation = ApplyConstraints(_machine.ValidationRules is not null);
 
                     if (validation.Outcome == PropagationOutcome.Conflict)
                     {
@@ -143,6 +145,141 @@ namespace qon
             }
 
             return changes != 0;
+        }
+
+        public ConstraintResult ApplyConstraints(bool validation = false)
+        {
+            int filterChanges = 0;
+            bool isConverged = true;
+
+            int changes;
+            do
+            {
+                changes = 0;
+
+                var globalResult = ExecuteGlobalRules(_machine.GeneralRules.GlobalRules);
+
+                if (globalResult.Outcome == PropagationOutcome.Conflict)
+                {
+                    return globalResult;
+                }
+
+                if (globalResult.Outcome == PropagationOutcome.UnderConstrained)
+                {
+                    isConverged = false;
+                }
+
+                changes += globalResult.ChangesAmount;
+                changes += Current.AutoCollapse();
+
+                var localResult = ExecuteLocalRules(_machine.GeneralRules.LocalRules);
+
+                if (localResult.Outcome == PropagationOutcome.Conflict)
+                {
+                    return localResult;
+                }
+
+                if (localResult.Outcome == PropagationOutcome.UnderConstrained)
+                {
+                    isConverged = false;
+                }
+
+                changes += localResult.ChangesAmount;
+                changes += Current.AutoCollapse();
+
+                filterChanges += changes;
+            }
+            while (changes != 0);
+
+            if (!validation)
+            {
+                return isConverged switch
+                {
+                    true => new ConstraintResult(PropagationOutcome.Converged, filterChanges),
+                    false => new ConstraintResult(PropagationOutcome.UnderConstrained, filterChanges)
+                };
+            }
+
+            var globalValidation = ExecuteGlobalRules(_machine.ValidationRules!.GlobalRules);
+
+            if (globalValidation.Outcome == PropagationOutcome.Conflict)
+            {
+                return globalValidation;
+            }
+
+            var localValidation = ExecuteLocalRules(_machine.ValidationRules!.LocalRules);
+
+            if (localValidation.Outcome == PropagationOutcome.Conflict)
+            {
+                return localValidation;
+            }
+
+            int validationChanges = globalValidation.ChangesAmount + localValidation.ChangesAmount;
+
+            return new ConstraintResult(PropagationOutcome.Converged, validationChanges);
+        }
+
+        public ConstraintResult ExecuteGlobalRules(List<IGlobalRule<T>> rules)
+        {
+            int changes = 0;
+            int unsolvedChanges = 0;
+            foreach (var rule in rules)
+            {
+                var result = rule.Execute(Current.Field);
+
+                switch (result.Outcome)
+                {
+                    case PropagationOutcome.UnderConstrained:
+                        unsolvedChanges++;
+                        break;
+                    case PropagationOutcome.Converged:
+                        break;
+                    case PropagationOutcome.Conflict:
+                        return result;
+                }
+
+                changes += result.ChangesAmount;
+            }
+
+            return unsolvedChanges == 0
+                ? new ConstraintResult(PropagationOutcome.Converged, changes)
+                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
+        }
+
+        public ConstraintResult ExecuteLocalRules(List<ILocalRule<T>> rules)
+        {
+            int changes = 0;
+            int unsolvedChanges = 0;
+
+            foreach (var variable in Current.Field)
+            {
+                foreach (var rule in rules)
+                {
+                    if (!rule.CanApplyTo(variable))
+                        continue;
+
+                    var result = rule.Execute(Current.Field, variable);
+
+                    switch (result.Outcome)
+                    {
+                        case PropagationOutcome.UnderConstrained:
+                            unsolvedChanges++;
+                            break;
+                        case PropagationOutcome.Converged:
+                            break;
+                        case PropagationOutcome.Conflict:
+                            return result;
+                        default:
+                            throw new NotImplementedException();
+                    }
+
+                    changes += result.ChangesAmount;
+                }
+            }
+
+            return unsolvedChanges == 0
+                ? new ConstraintResult(PropagationOutcome.Converged, changes)
+                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
         }
 
         public void Reset()
