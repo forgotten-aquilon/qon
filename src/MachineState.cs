@@ -57,43 +57,36 @@ namespace qon
 
     public class MachineState<T> : ICloneable
     {
-        public List<SuperpositionVariable<T>> Field { get; 
-            protected set; }
+        public SuperpositionVariable<T>[] Field { get; protected set; }
 
         public SolutionState CurrentState
         {
             get
             {
-                int uncertainCounter = 0;
                 foreach (var variable in Field)
                 {
                     if (variable.Domain.IsEmpty() && variable.State == SuperpositionState.Uncertain)
                         return SolutionState.Unsolvable;
 
                     if (variable.State == SuperpositionState.Uncertain)
-                        uncertainCounter++;
+                        return SolutionState.NotSolved;
                 }
 
-                if (uncertainCounter == 0)
-                {
-                    return SolutionState.MaybeSolved;
-                }
-
-                return SolutionState.NotSolved;
+                return SolutionState.MaybeSolved;
             }
         }
 
         public MachineState()
         {
-            Field = new List<SuperpositionVariable<T>>();
+            Field = Array.Empty<SuperpositionVariable<T>>();
         }
 
-        public MachineState(List<SuperpositionVariable<T>> field)
+        public MachineState(SuperpositionVariable<T>[] field)
         {
             Field = field;
         }
 
-        public void SetField(List<SuperpositionVariable<T>> field)
+        public void SetField(SuperpositionVariable<T>[] field)
         {
             Field = field;
         }
@@ -118,7 +111,7 @@ namespace qon
 
         public object Clone()
         {
-            var clone = new MachineState<T>(Field.Select(x => x.Copy()).ToList());
+            var clone = new MachineState<T>(Field.Select(x => x.Copy()).ToArray());
             return clone;
         }
 

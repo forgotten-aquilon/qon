@@ -8,9 +8,9 @@ namespace qon.Rules
 {
     public abstract class LocalRuleBase<T> : ILocalRule<T>
     {
-        public List<Guard<T>> VariableGuards { get; set; }
+        public Guard<T>[] VariableGuards { get; set; }
 
-        protected LocalRuleBase(List<Guard<T>> guards)
+        protected LocalRuleBase(Guard<T>[] guards)
         {
             VariableGuards = guards;
         }
@@ -20,6 +20,6 @@ namespace qon.Rules
             return VariableGuards.All(guard => guard.ApplyTo(variable));
         }
 
-        public abstract ConstraintResult Execute(List<SuperpositionVariable<T>> field, SuperpositionVariable<T> variable);
+        public abstract ConstraintResult Execute(SuperpositionVariable<T>[] field, SuperpositionVariable<T> variable);
     }
 }

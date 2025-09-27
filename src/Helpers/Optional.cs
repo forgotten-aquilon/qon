@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace qon.Helpers
 {
@@ -43,10 +44,10 @@ namespace qon.Helpers
             HasValue = true;
         }
 
-        public bool CheckValue(T value)
+        public bool CheckValue(in T value)
         {
 #pragma warning disable CS8602
-            return HasValue && Value.Equals(value);
+            return HasValue && EqualityComparer<T>.Default.Equals(Value, value);
 #pragma warning restore CS8602 
         }
 

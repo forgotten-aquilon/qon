@@ -24,7 +24,7 @@ namespace qon.Rules
             Filter = method;
         }
 
-        public override ConstraintResult Execute(List<SuperpositionVariable<T>> field)
+        public override ConstraintResult Execute(SuperpositionVariable<T>[] field)
         {
             switch (AggregationType)
             {
@@ -35,7 +35,7 @@ namespace qon.Rules
 
                     foreach (var group in groups)
                     {
-                        var result = Filter.ApplyTo(group.ToList());
+                        var result = Filter.ApplyTo(group.ToArray());
                         changes += result.ChangesAmount;
 
                         if (!result.TryHandleOutcome(ref unsolvedChanges, out var conflictResult))

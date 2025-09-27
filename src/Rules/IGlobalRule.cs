@@ -6,6 +6,6 @@ namespace qon.Rules
 {
     public interface IGlobalRule<T>
     {
-        public ConstraintResult Execute(List<SuperpositionVariable<T>> field);
+        public ConstraintResult Execute(SuperpositionVariable<T>[] field);
     }
 }

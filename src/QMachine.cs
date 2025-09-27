@@ -92,11 +92,11 @@ namespace qon
 
         public void SetField(IEnumerable<SuperpositionVariable<T>> field)
         {
-            State.SetField(field.ToList());
+            State.SetField(field.ToArray());
 
             _indexer.Clear();
 
-            for (int i = 0; i < State.Field.Count; i++)
+            for (int i = 0; i < State.Field.Length; i++)
             {
                 _indexer[State.Field[i].Name] = i;
             }

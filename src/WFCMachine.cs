@@ -29,7 +29,7 @@ namespace qon
         public void CreateEuclideanSpace((int x, int y, int z) dimensions, IDomain<T> domain)
         {
             FieldType = FieldType.Euclidean;
-
+                
             List<SuperpositionVariable<T>> variables = new();
 
             if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
@@ -53,7 +53,7 @@ namespace qon
                             Z = z
                         };
 
-                        FieldGrid[x, y, z] = $"{x}x{y}x{z}";
+                        FieldGrid[x, y, z] = name;
 
                         variables.Add(v);
                     }

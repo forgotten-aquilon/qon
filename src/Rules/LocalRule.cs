@@ -12,20 +12,12 @@ namespace qon.Rules
 {
     public class LocalRule<T> : LocalRuleBase<T>
     {
-        sealed class Me
-        {
-            private Me() { }
-            private void Self() { Console.WriteLine("self"); }
-        }
-
-        
-
         public Func<SuperpositionVariable<T>, SelectingAggregator<T>> AggregationFactory { get; set; }
 
         protected Filter<T> Filter { get; set; }
 
         public LocalRule(
-            List<Guard<T>> guards,
+            Guard<T>[] guards,
             Func<SuperpositionVariable<T>, SelectingAggregator<T>> factory, 
             Filter<T> filter) : base(guards)
         {
@@ -33,7 +25,7 @@ namespace qon.Rules
             Filter = filter;
         }
 
-        public override ConstraintResult Execute(List<SuperpositionVariable<T>> field, SuperpositionVariable<T> variable)
+        public override ConstraintResult Execute(SuperpositionVariable<T>[] field, SuperpositionVariable<T> variable)
         {
             var aggregator = AggregationFactory(variable);
 

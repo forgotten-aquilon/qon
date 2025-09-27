@@ -240,7 +240,7 @@ namespace qon.Rules
             foreach (VerticalConnection vConn1 in item1.block.VerticalPools[slab])
             {
                 //Iterating over avaiable connections of the second block
-                foreach (VerticalConnection vConn2 in item1.block.VerticalPools[oppositeSlab])
+                foreach (VerticalConnection vConn2 in item2.block.VerticalPools[oppositeSlab])
                 {
                     if (vConn1.Name == vConn2.Name 
                         && IsDirectionsCompatible(vConn1.Dir, vConn2.Dir) 
