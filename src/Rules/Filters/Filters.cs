@@ -1,36 +1,43 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using qon.Domains;
+using qon.Exceptions;
+using qon.Helpers;
 using qon.Variables;
 
 namespace qon.Rules.Filters
 {
     public static class Filters
     {
-        public static ConstraintResult AllDistinctFilter<T>(List<SuperpositionVariable<T>> filteringList)
+        public static ConstraintResult AllDistinctFilter<T>(IEnumerable<SuperpositionVariable<T>> filteringList)
         {
             int changes = 0;
 
             var decided = filteringList.Where(x => x.State != SuperpositionState.Uncertain).Select(y => y.Value.Value);
 
             var certainVariablesCount = decided.Count();
-            var distinctVariables = decided.Distinct();
+            var distinctVariables = decided.ToHashSet();
 
-            if (certainVariablesCount != distinctVariables.Count())
+            if (certainVariablesCount != distinctVariables.Count)
             {
                 return new ConstraintResult(PropagationOutcome.Conflict, 0);
             }
 
             var openVariables = filteringList.Where(x => x.State == SuperpositionState.Uncertain);
-            
+
+            int convergedCount = 0;
+            int openVariablesCount = 0;
             foreach (var variable in openVariables)
             {
                 changes += variable.RemoveFromDomain(distinctVariables);
-                variable.AutoCollapse();
+                if (variable.AutoCollapse().HasValue)
+                {
+                    convergedCount++;
+                }
+                openVariablesCount++;
             }
-            
 
-            return !filteringList.Any(x => x.State == SuperpositionState.Uncertain) switch
+            return (convergedCount == openVariablesCount) switch
             {
                 true => new ConstraintResult(PropagationOutcome.Converged, changes),
                 false => new ConstraintResult(PropagationOutcome.UnderConstrained, changes)
@@ -44,6 +51,7 @@ namespace qon.Rules.Filters
 
         public static Filter<T> DomainIntersection<T>(IEnumerable<T> filteringCollection)
         {
+            //Add equal discrete domain
             return DomainIntersection(new DiscreteDomain<T>(filteringCollection));
         }
 
@@ -60,6 +68,8 @@ namespace qon.Rules.Filters
                         continue;
                     }
 
+                    int originalSize = variable.Domain.Size();
+
 #pragma warning disable CS8714
                     IDomain<T> newDomain = DomainHelper<T>.DomainIntersection(variable.Domain, filteringDomain);
                     variable.Domain = newDomain;
@@ -69,7 +79,7 @@ namespace qon.Rules.Filters
                         return new ConstraintResult(PropagationOutcome.Conflict, 0);
                     }
 
-                    if (variable.AutoCollapse() != Optional<T>.Empty)
+                    if (variable.AutoCollapse() != Optional<T>.Empty || originalSize-newDomain.Size() != 0)
                     {
                         changes++;
                     }
@@ -87,14 +97,15 @@ namespace qon.Rules.Filters
         {
             return new Filter<T>(list =>
             {
+                int count = list.Count();
                 bool result = condition switch
                 {
-                    Comparison.EQ => list.Count == value,
-                    Comparison.NE => list.Count != value,
-                    Comparison.LT => list.Count < value,
-                    Comparison.LE => list.Count <= value,
-                    Comparison.GT => list.Count > value,
-                    Comparison.GE => list.Count >= value,
+                    Comparison.EQ => count == value,
+                    Comparison.NE => count != value,
+                    Comparison.LT => count < value,
+                    Comparison.LE => count <= value,
+                    Comparison.GT => count > value,
+                    Comparison.GE => count >= value,
                     _ => throw new InternalLogicException("Passed nonexistent enum value"),
                 };
 

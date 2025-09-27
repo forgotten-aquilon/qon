@@ -37,15 +37,10 @@ namespace qon.Rules
                     {
                         var result = Filter.ApplyTo(group.ToList());
                         changes += result.ChangesAmount;
-                        switch (result.Outcome)
+
+                        if (!result.TryHandleOutcome(ref unsolvedChanges, out var conflictResult))
                         {
-                            case PropagationOutcome.UnderConstrained:
-                                unsolvedChanges++;
-                                break;
-                            case PropagationOutcome.Converged:
-                                break;
-                            case PropagationOutcome.Conflict:
-                                return result;
+                            return conflictResult;
                         }
                     }
 

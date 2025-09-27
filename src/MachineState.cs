@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using qon.Rules;
@@ -43,30 +44,37 @@ namespace qon
         {
             get
             {
-                return new SearchResult<T>(Search(name, value));
+                return Search(Result, name, value);
             }
         }
 
-        private IEnumerable<SuperpositionVariable<T>> Search(string name, object value)
+        public static SearchResult<T> Search(IEnumerable<SuperpositionVariable<T>> variables, string name, object value)
         {
-            return Result.Where(x => x.Properties[name].Equals(value));
+            var result = variables.Where(x => object.Equals(x.GetNullOrValueProperty(name), value));
+            return new SearchResult<T>(result);
         }
     }
 
     public class MachineState<T> : ICloneable
     {
-        public List<SuperpositionVariable<T>> Field { get; set; }
+        public List<SuperpositionVariable<T>> Field { get; 
+            protected set; }
 
         public SolutionState CurrentState
         {
             get
             {
-                if (Field.Any(x => x.Domain.IsEmpty() && x.State == SuperpositionState.Uncertain))
+                int uncertainCounter = 0;
+                foreach (var variable in Field)
                 {
-                    return SolutionState.Unsolvable;
+                    if (variable.Domain.IsEmpty() && variable.State == SuperpositionState.Uncertain)
+                        return SolutionState.Unsolvable;
+
+                    if (variable.State == SuperpositionState.Uncertain)
+                        uncertainCounter++;
                 }
 
-                if (!Field.Any(x => x.State == SuperpositionState.Uncertain))
+                if (uncertainCounter == 0)
                 {
                     return SolutionState.MaybeSolved;
                 }
@@ -81,6 +89,11 @@ namespace qon
         }
 
         public MachineState(List<SuperpositionVariable<T>> field)
+        {
+            Field = field;
+        }
+
+        public void SetField(List<SuperpositionVariable<T>> field)
         {
             Field = field;
         }
@@ -109,35 +122,11 @@ namespace qon
             return clone;
         }
 
-        public T this[List<(string Name, object Value)> filteringProperties, bool isConstant]
-        {
-            set
-            {
-                IEnumerable<SuperpositionVariable<T>> filteringList = SearchByProperties(filteringProperties);
-
-                foreach (var variable in filteringList)
-                {
-                    variable.Collapse(value, isConstant);
-                }
-            }
-        }
-
-        public List<SuperpositionVariable<T>> this[List<(string Name, object Value)> filteringProperties]
-        {
-            get
-            {
-                IEnumerable<SuperpositionVariable<T>> filteringList = SearchByProperties(filteringProperties);
-
-                return filteringList.ToList();
-            }
-        }
-
         public SearchResult<T> this[string name, object value]
         {
             get
             {
-                var result = Field.Where(x => x.Properties[name].Equals(value));
-                return new SearchResult<T>(result);
+                return SearchResult<T>.Search(Field, name, value);
             }
         }
 
@@ -152,18 +141,6 @@ namespace qon
             result.Append("}");
 
             return result.ToString();
-        }
-
-        private IEnumerable<SuperpositionVariable<T>> SearchByProperties(List<(string, object)> filteringProperties)
-        {
-            IEnumerable<SuperpositionVariable<T>> filteringList = Field;
-
-            foreach (var (name, value) in filteringProperties)
-            {
-                filteringList = filteringList.Where(x => x.Properties[name].Equals(value));
-            }
-
-            return filteringList;
         }
     }
 }

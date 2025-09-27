@@ -1,4 +1,5 @@
-﻿using qon.Rules;
+﻿using qon.Exceptions;
+using qon.Rules;
 using qon.Rules.Filters;
 using qon.Variables;
 using System;
@@ -31,9 +32,9 @@ namespace qon.Solvers
 
         public int PushStack((string name, T value)? usedValue = null)
         {
-            if (_solutionStack.TryPeek(out var node) && usedValue is not null)
+            if (_solutionStack.TryPeek(out var node) && usedValue is (string, T) v)
             {
-                node.Field.FirstOrDefault(x => x.Name == usedValue?.name)?.RemoveFromDomain(new List<T>(){ usedValue.Value.value });
+                node.Field[_machine.Indexer[v.name]].RemoveFromDomain(v.value);
             }
 
             _solutionStack.Push(new Node { Field = Current.Field.Select(x => x.Copy()).ToList() });
@@ -58,10 +59,7 @@ namespace qon.Solvers
 
         public bool MoveNext()
         {
-            if (_machine == null)
-            {
-                throw new FieldNullException(nameof(_machine));
-            }
+            ExceptionHelper.ThrowIfFieldIsNull(_machine, nameof(_machine));
 
             int changes = 0;
 
@@ -94,29 +92,41 @@ namespace qon.Solvers
                         }
                         else
                         {
+                            double ent = double.MaxValue;
+                            SuperpositionVariable<T>? candidate = null;
+
+                            foreach (var item in Current.Field) if (item.State == SuperpositionState.Uncertain)
+                            {
+                                if (item.Entropy < ent)
+                                {
+                                    ent = item.Entropy;
+                                    candidate = item;
+                                }
+                            }
+
+                            /*
                             var variablesByEntropy =
                                 Current.Field
                                     .Where(z => z.State == SuperpositionState.Uncertain)
-                                    .GroupBy(x => x.Entropy);
-
+                                    .GroupBy(x => x.Entropy)
+                                    .OrderBy(g => g.Key)
+                                    .FirstOrDefault();
+                            
                             //TODO: Update this to use MinBy when it will be available in .NET 6+
-                            var minimalEntropyVariables = variablesByEntropy
-                                    .FirstOrDefault(v => v.Key == variablesByEntropy
-                                    .Min(g => g.Key));
 
+                            //TODO: Add functionality to change selection of variables with equal entropy, e.g. random or by some algorithm 
                             //var minimalEntropyVariable = minimalEntropyVariables?.MinBy(_ => _machine.Random.Next());
+                            //var minimalEntropyVariable = variablesByEntropy?.FirstOrDefault();
+                            var variablesByEntropyCollection = variablesByEntropy as ICollection<SuperpositionVariable<T>>;
 
-                            var minimalEntropyVariable = minimalEntropyVariables?.FirstOrDefault();
+                            var minimalEntropyVariable = variablesByEntropyCollection!.RandomItem(_machine.Random);
+                            */
+                            ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
 
-                            if (minimalEntropyVariable is null)
-                            {       
-                                throw new InternalNullException(nameof(minimalEntropyVariable));
-                            }
+                            var newValue = candidate.Domain.GetRandomValue(_machine.Random);
 
-                            var newValue = minimalEntropyVariable.Domain.GetRandomValue(_machine.Random);
-
-                            minimalEntropyVariable.Collapse(newValue);
-                            changes += PushStack((minimalEntropyVariable.Name, newValue));
+                            candidate.Collapse(newValue);
+                            changes += PushStack((candidate.Name, newValue));
                         }
                     }
 
@@ -227,15 +237,9 @@ namespace qon.Solvers
             {
                 var result = rule.Execute(Current.Field);
 
-                switch (result.Outcome)
+                if (!result.TryHandleOutcome(ref unsolvedChanges, out var conflictResult))
                 {
-                    case PropagationOutcome.UnderConstrained:
-                        unsolvedChanges++;
-                        break;
-                    case PropagationOutcome.Converged:
-                        break;
-                    case PropagationOutcome.Conflict:
-                        return result;
+                    return conflictResult;
                 }
 
                 changes += result.ChangesAmount;
@@ -260,17 +264,9 @@ namespace qon.Solvers
 
                     var result = rule.Execute(Current.Field, variable);
 
-                    switch (result.Outcome)
+                    if (!result.TryHandleOutcome(ref unsolvedChanges, out var conflictResult))
                     {
-                        case PropagationOutcome.UnderConstrained:
-                            unsolvedChanges++;
-                            break;
-                        case PropagationOutcome.Converged:
-                            break;
-                        case PropagationOutcome.Conflict:
-                            return result;
-                        default:
-                            throw new NotImplementedException();
+                        return conflictResult;
                     }
 
                     changes += result.ChangesAmount;

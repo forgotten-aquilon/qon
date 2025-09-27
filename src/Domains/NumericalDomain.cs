@@ -1,4 +1,6 @@
-﻿using System;
+﻿using qon.Exceptions;
+using qon.Helpers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,6 +86,8 @@ namespace qon.Domains
 
     public class NumericalDomain<T> : IDomain<T> //TODO: Refactor this shit with INumber<T> as soon as available in Unity3D
     {
+        private static readonly IComparer<T> Comparer = Comparer<T>.Default;
+
         private readonly bool _isSigned = true;
         private readonly Type _type = typeof(T);
 
@@ -127,6 +131,9 @@ namespace qon.Domains
 
         public UInt64 TrueSize()
         {
+            if (Domain.Count == 0)
+                return 0;
+
             return Domain.Select(x => x.Length).Aggregate((a, b) => a+b);
         }
 
@@ -230,6 +237,9 @@ namespace qon.Domains
 
         public double GetEntropy()
         {
+            if (IsEmpty())
+                throw new InternalLogicException("Should not be called in this case");
+
             return Math.Log(TrueSize(), 2);
         }
 
@@ -237,6 +247,10 @@ namespace qon.Domains
         public T GetRandomValue(Random random)
         {
             UInt64 topProbabilityLimit = TrueSize();
+
+            if (topProbabilityLimit == 0 || IsEmpty())
+                throw new InternalLogicException("Domain should have at least one non-zero weighted value");
+
             Span<byte> bytes = stackalloc byte[8];
             random.NextBytes(bytes);
 
@@ -253,7 +267,7 @@ namespace qon.Domains
                 }
             }
 
-            throw new InternalLogicException("");
+            throw new UnreachableException();
         }
 
         public Optional<T> SingleOrEmptyValue()
@@ -358,54 +372,30 @@ namespace qon.Domains
             if (_isSigned)
             {
                 Int64 number = Convert.ToInt64(value);
-                switch (operation)
+                return operation switch
                 {
-                    case Operation.Increment:
-                        return (T)Convert.ChangeType(number + (Int64)operand, _type);
-                    case Operation.Decrement:
-                        return (T)Convert.ChangeType(number - (Int64)operand, _type);
-                }
+                    Operation.Increment => (T)Convert.ChangeType(number + (Int64)operand, _type),
+                    Operation.Decrement => (T)Convert.ChangeType(number - (Int64)operand, _type),
+                    _ => throw new NonExhaustiveExpressionException(operation)
+                };
             }
             else
             {
                 UInt64 number = Convert.ToUInt64(value);
-                switch (operation)
+                return operation switch
                 {
-                    case Operation.Increment:
-                        return (T)Convert.ChangeType(number + operand, _type);
-                    case Operation.Decrement:
-                        return (T)Convert.ChangeType(number - operand, _type);
-                }
+                    Operation.Increment => (T)Convert.ChangeType(number + operand, _type),
+                    Operation.Decrement => (T)Convert.ChangeType(number - operand, _type),
+                    _ => throw new NonExhaustiveExpressionException(operation)
+                };
             }
-
-            throw new InternalLogicException("Exception!");
         }
 
         #endregion
 
-        public static int Compare(T obj1, T obj2)
+        public static int Compare(T leftObject, T rightObject)
         {
-            var innerType = typeof(T);
-            var compareMethod = innerType.GetMethod("CompareTo", new[] { innerType });
-
-            if (obj1 == null)
-            {
-                throw new ArgumentNullException(nameof(obj1));
-            }
-
-            if (obj2 == null)
-            {
-                throw new ArgumentNullException(nameof(obj2));
-            }
-
-            if (compareMethod is null)
-            {
-                throw new InternalNullException(nameof(compareMethod));
-            }
-
-#pragma warning disable CS8605
-            return (int)(compareMethod.Invoke(obj1, new object[] { obj2 }));
-#pragma warning restore CS8605
+            return Comparer.Compare(leftObject, rightObject);
         }
 
         public static T Min(T obj1, T obj2)
