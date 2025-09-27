@@ -1,4 +1,5 @@
-﻿using System;
+﻿using qon.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -26,6 +27,7 @@ namespace qon.Domains
             Register<NumericalDomain<T>, DiscreteDomain<T>, IDomain<T>>(NumericalDiscreteDomainIntersection);
         }
 
+        //Resulted domain uses weights from the first intersected domain
         public static IDomain<T> DomainIntersection(IDomain<T> domain1, IDomain<T> domain2)
         {
             if (TryGet(domain1, domain2, out var func))

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace qon
+namespace qon.Helpers
 {
     public class OptionalHasNoValueException : Exception
     {
@@ -26,9 +26,11 @@ namespace qon
             }
         }
 
+        public readonly Type Type => typeof(T);
+
         public static Optional<T> Empty => new();
 
-        public Optional(T value)
+        public Optional(T? value)
         {
             if (value is null)
             {

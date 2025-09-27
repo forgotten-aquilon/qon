@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using qon.Domains;
+using qon.Exceptions;
+using qon.Helpers;
 
 namespace qon.Variables
 {
@@ -15,6 +17,8 @@ namespace qon.Variables
 
     public class SuperpositionVariable<T> : ICloneable
     {
+        protected Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
+
         public string Name
         {
             get 
@@ -28,9 +32,8 @@ namespace qon.Variables
         }
 
         public IDomain<T> Domain { get; set; }
-        public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
-        public SuperpositionState State { get; private set; }
-        public Optional<T> Value { get; private set; } = Optional<T>.Empty;
+        public SuperpositionState State { get; protected set; }
+        public Optional<T> Value { get; protected set; } = Optional<T>.Empty;
 
         public double Entropy
         {
@@ -40,13 +43,13 @@ namespace qon.Variables
             }
         }
 
-        private SuperpositionVariable()
+        protected SuperpositionVariable()
         {
             Domain = new DiscreteDomain<T>();
             Name = string.Empty;
         }
 
-        private SuperpositionVariable(string name)
+        protected SuperpositionVariable(string name)
         {
             Name = string.IsNullOrEmpty(name) ? Guid.NewGuid().ToString() : name;
             Domain = new DiscreteDomain<T>();
@@ -60,18 +63,15 @@ namespace qon.Variables
             Domain = new DiscreteDomain<T>();
         }
 
-        public SuperpositionVariable(IDomain<T>? domain, string name = "") : this(name) 
+        public SuperpositionVariable(IDomain<T> domain, string name = "") : this(name) 
         {
-            if (domain is null)
-            {
-                throw new FieldNullException(nameof(domain));
-            }
+            ExceptionHelper.ThrowIfArgumentIsNull(domain, nameof(domain));
 
             State = SuperpositionState.Uncertain;
             Domain = domain.Copy();
         }
  
-        public SuperpositionVariable(IDomain<T>? domain, T value, string name = "") : this(domain, name)
+        public SuperpositionVariable(IDomain<T> domain, T value, string name = "") : this(domain, name)
         {
             Value = new Optional<T>(value);
 
@@ -82,7 +82,7 @@ namespace qon.Variables
         }
 
         //TODO: Properly implement
-        public SuperpositionVariable<T> WithProperty(string name, object value)
+        public SuperpositionVariable<T> AddProperty(string name, object value)
         {
             if (Properties.ContainsKey(name))
             {
@@ -101,7 +101,7 @@ namespace qon.Variables
             }
             else
             {
-                Domain = domain;
+                Domain = domain.Copy();
             }
 
             return Domain.Size();
@@ -112,6 +112,10 @@ namespace qon.Variables
             return Domain.Remove(items);
         }
 
+        public int RemoveFromDomain(T item)
+        {
+            return Domain.Remove(item);
+        }
 
         public void Collapse(T value, bool isConstant = false)
         {
@@ -138,7 +142,7 @@ namespace qon.Variables
             return value;
         }
 
-        public object Clone()
+        public virtual object Clone()
         {
             SuperpositionVariable<T> clone = new()
             {
@@ -155,6 +159,35 @@ namespace qon.Variables
         public SuperpositionVariable<T> Copy()
         {
             return (SuperpositionVariable<T>)Clone();
+        }
+
+        public virtual object this[string propertyName]
+        {
+            get
+            {
+                return Properties[propertyName];
+            }
+
+            set 
+            { 
+                Properties[propertyName] = value; 
+            }
+        }
+
+        public virtual object? GetNullOrValueProperty(string propertyName)
+        {
+            Properties.TryGetValue(propertyName, out object? property);
+            return property;
+        }
+
+        public virtual bool TryGetProperty(string propertyName, out object? property)
+        {
+            return Properties.TryGetValue(propertyName, out property);
+        }
+
+        public virtual bool ContainsProperty(string propertyName)
+        {
+            return Properties.ContainsKey(propertyName);
         }
     }
 }

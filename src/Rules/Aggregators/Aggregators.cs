@@ -1,4 +1,8 @@
-﻿using qon.Variables;
+﻿using qon.Exceptions;
+using qon.Variables;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
 
 namespace qon.Rules.Aggregators
 {
@@ -6,12 +10,13 @@ namespace qon.Rules.Aggregators
     {
         public static GroupingAggregator<T> GroupByTag<T>(string s)
         {
-            return new GroupingAggregator<T>(v => v.Properties[s]);
+            return new GroupingAggregator<T>(v => v.GetNullOrValueProperty(s) 
+                ?? throw new InternalLogicException($"Variable '{v.Name}' is missing required tag '{s}' for grouping."));
         }
 
         public static SelectingAggregator<T> SelectByTagValue<T>(string s, object value)
         {
-            return new SelectingAggregator<T>(v => v.Properties[s].Equals(value));
+            return new SelectingAggregator<T>(v => object.Equals(v.GetNullOrValueProperty(s), value));
         }
 
         public static SelectingAggregator<T> All<T>()

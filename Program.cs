@@ -1,19 +1,24 @@
 ﻿// See https://aka.ms/new-console-template for more information
 #pragma warning disable
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using qon;
 using qon.Domains;
+using qon.Exceptions;
+using qon.Helpers;
 using qon.Rules;
 using qon.Rules.Aggregators;
 using qon.Rules.Filters;
 using qon.Rules.Guards;
 using qon.Variables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-Maze();
+RotationExample(20);
 
 void NumberExample()
 {
@@ -174,10 +179,11 @@ void EverestSudoku()
                 new GlobalRule<int>(EuclideanAggregators.GroupByRectangle<int>(3,3), Filters.AllDistinct<int>())
             }
         },
-        Random = new Random()
+        Random = new Random(100)
     };
 
     var w = new WFCMachine<int>(p);
+    var nd = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 9) });
     w.CreateEuclideanSpace((9, 9, 1), new DiscreteDomain<int>(domain));
 
     #region Field init  
@@ -222,7 +228,7 @@ void EverestSudoku()
         step++;
         Task.Run(async () =>
         {
-            await Task.Delay(50);
+            await Task.Delay(0);
         }).GetAwaiter().GetResult();
     }
 }
@@ -235,8 +241,7 @@ void PrintSudoku<T>(MachineState<T> s, int size)
     {
         for (int j = 0; j < size; j++)
         {
-            var a = s[new List<(string Name, object Value)>
-                { ("x", j), ("y", i) }].FirstOrDefault();
+            var a = s["x", j]["y", i].Result.FirstOrDefault();
             var b = a.State != SuperpositionState.Uncertain ? a.Value.Value.ToString() : "_";
 
             result += $"{b} ";
@@ -262,17 +267,17 @@ void Maze()
 {
     List<string> domain = new() { "╬", "║", "═", "╔", "╗", "╚", "╝", "╠", "╣", "╩", "╦", " " };
 
-    List<string> leftConn = new() { "╬", "═", "╔", "╚", "╠", "╩", "╦" };
-    List<string> leftWall = new() { "║", "╗", "╝", "╣", " " };
+    HashSet<string> leftConn = new() { "╬", "═", "╔", "╚", "╠", "╩", "╦" };
+    HashSet<string> leftWall = new() { "║", "╗", "╝", "╣", " " };
 
-    List<string> rightConn = new() { "╬", "═", "╗", "╝", "╣", "╩", "╦" };
-    List<string> rightWall = new() { "║", "╚", "╔", "╠", " " };
+    HashSet<string> rightConn = new() { "╬", "═", "╗", "╝", "╣", "╩", "╦" };
+    HashSet<string> rightWall = new() { "║", "╚", "╔", "╠", " " };
 
-    List<string> topConn = new() { "╬", "║", "╗", "╔", "╣", "╠", "╦" };
-    List<string> topWall = new() { "═", "╚", "╝", "╩", " " };
+    HashSet<string> topConn = new() { "╬", "║", "╗", "╔", "╣", "╠", "╦" };
+    HashSet<string> topWall = new() { "═", "╚", "╝", "╩", " " };
 
-    List<string> bottomConn = new() { "╬", "║", "╚", "╝", "╣", "╠", "╩" };
-    List<string> bottomWall = new() { "╔", "╗", "═", "╦", " " };
+    HashSet<string> bottomConn = new() { "╬", "║", "╚", "╝", "╣", "╠", "╩" };
+    HashSet<string> bottomWall = new() { "╔", "╗", "═", "╦", " " };
 
     var p = new QMachineParameter<string>()
     {
@@ -370,12 +375,12 @@ void Maze()
 
     WFCMachine<string> w = new WFCMachine<string>(p);
 
-    w.CreateEuclideanSpace((20, 20, 1), new DiscreteDomain<string>(domain));
+    w.CreateEuclideanSpace((20, 40, 1), new DiscreteDomain<string>(domain));
 
     foreach (var variable in w.State.Field)
     {
         var localDomain = variable.Domain as DiscreteDomain<string>;
-        localDomain.UpdateWeight("╠", 51);
+        localDomain.UpdateWeight(" ", 21);
         localDomain.UpdateWeight("╣", 51);
     }
 
@@ -409,7 +414,7 @@ void Print<T>(MachineState<T> s, int size, bool correctionIndent = false)
 void EightQueens()
 {
     var domain = new DiscreteDomain<char>(new List<char>() { 'Q', '.' });
-
+    
     var p = new QMachineParameter<char>
     {
         GeneralRules = new()
@@ -418,23 +423,10 @@ void EightQueens()
             {
                 new LocalRule<char>(
                     new() { Guards.Equals('Q') },
-                    new()
-                    {
-                        o => new SelectingAggregator<char>(
-                            v => v.Properties["x"].Equals(o.Properties["x"])
-                                 && v != o),
-                        o => new SelectingAggregator<char>(
-                            v => v.Properties["y"].Equals(o.Properties["y"])
-                                 && v != o),
-                        o => new SelectingAggregator<char>(
-                            v => Math.Abs(
-                                     (int)v.Properties["x"]
-                                     - (int)o.Properties["x"])
-                                 == Math.Abs(
-                                     (int)v.Properties["y"]
-                                     - (int)o.Properties["y"])
-                                 && v != o)
-                    },
+                    LocalRule<char>.Create<EuclideanVariable<char>>(
+                        o =>  SelectingAggregator<char>.Create<EuclideanVariable<char>>(v => v.X == o.X)
+                            | SelectingAggregator<char>.Create<EuclideanVariable<char>>(v => v.Y == o.Y)
+                            | SelectingAggregator<char>.Create<EuclideanVariable<char>>(v => Math.Abs(v.X - o.X) == Math.Abs(v.Y - o.Y))),
                     Filters.DomainIntersection<char>(new[] { '.' })
                 )
             }
@@ -446,7 +438,6 @@ void EightQueens()
                 new GlobalRule<char>(Aggregators.EqualsToValue('Q'), Filters.AmountCheck<char>(8, Comparison.EQ))
             }
         }
-
     };
 
     var wfc = new WFCMachine<char>(p);
@@ -459,3 +450,63 @@ void EightQueens()
     }
 }
 
+void RotationExample(int s)
+{
+    EuclideanBlockTemplate<string> Tile_Grass_cube = new EuclideanBlockTemplate<string>(nameof(Tile_Grass_cube));
+    Tile_Grass_cube.Add(Side.Left, "Open");
+    Tile_Grass_cube.Add(Side.Front, "Open");
+    Tile_Grass_cube.Add(Side.Right, "Open");
+    Tile_Grass_cube.Add(Side.Back, "Open");
+
+    EuclideanBlockTemplate<string> Cliff_corner_inside = new EuclideanBlockTemplate<string>(nameof(Cliff_corner_inside));
+    Cliff_corner_inside.Add(Side.Left, "Open");
+    Cliff_corner_inside.Add(Side.Front, "Open");
+    Cliff_corner_inside.Add(Side.Right, "Closed");
+    Cliff_corner_inside.Add(Side.Back, "Closed");
+
+    EuclideanBlockTemplate<string> Cliff_Corner_outside = new EuclideanBlockTemplate<string>(nameof(Cliff_Corner_outside));
+    Cliff_Corner_outside.Add(Side.Left, "Closed");
+    Cliff_Corner_outside.Add(Side.Front, "Closed");
+    Cliff_Corner_outside.Add(Side.Right, "Open");
+    Cliff_Corner_outside.Add(Side.Back, "Open");
+
+    EuclideanBlockTemplate<string> Cliff_Edge_1 = new EuclideanBlockTemplate<string>(nameof(Cliff_Edge_1));
+    Cliff_Edge_1.Add(Side.Left, "Open");
+    Cliff_Edge_1.Add(Side.Front, "Open");
+    Cliff_Edge_1.Add(Side.Right, "Open");
+    Cliff_Edge_1.Add(Side.Back, "Closed");
+
+    var blocks = EuclideanRotationHelper.GenerateConnections<string>(new List<EuclideanBlockTemplate<string>> { Tile_Grass_cube, Cliff_corner_inside, Cliff_Corner_outside });
+
+    List<EuclideanBlock<string>> _domain = new();
+    List<ILocalRule<EuclideanBlock<string>>> _rules = new();
+    WFCMachine<EuclideanBlock<string>> _machine;
+
+    foreach (var block in blocks)
+    {
+        _domain.Add(block.Key);
+        _rules.Add(new EuclideanRule<EuclideanBlock<string>>(new List<Guard<EuclideanBlock<string>>>() { Guards.Equals(block.Key) }, block.Value));
+    }
+
+    var p = new QMachineParameter<EuclideanBlock<string>>()
+    {
+        GeneralRules = new()
+        {
+            LocalRules = _rules
+        },
+        Random = new Random(100)
+    };
+
+    _machine = new(p);
+
+    _machine.CreateEuclideanSpace((s, s, 1), new DiscreteDomain<EuclideanBlock<string>>(_domain));
+    int i = 0;
+    foreach (var state in _machine.States)
+    {
+        if (i % 5 == 0)
+        {
+            Console.WriteLine($"{i}:{_machine.State.CurrentState}");
+        }
+        i++;
+    }
+}

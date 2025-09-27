@@ -1,21 +1,30 @@
 ﻿using qon.Variables;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace qon.Rules.Filters
 {
     public class Filter<T>
     {
-        public Func<List<SuperpositionVariable<T>>, ConstraintResult> FilterFunction { get; }
+        public Func<IEnumerable<SuperpositionVariable<T>>, ConstraintResult> FilterFunction { get; }
 
-        public Filter(Func<List<SuperpositionVariable<T>>, ConstraintResult> filterFunction)
+        public Filter(Func<IEnumerable<SuperpositionVariable<T>>, ConstraintResult> filterFunction)
         {
             FilterFunction = filterFunction;
         }
 
-        public ConstraintResult ApplyTo(List<SuperpositionVariable<T>> filteringList)
+        public ConstraintResult ApplyTo(IEnumerable<SuperpositionVariable<T>> filteringList)
         {
-            return FilterFunction(filteringList);
+            ConstraintResult result = FilterFunction(filteringList);
+
+            return result.Outcome switch
+            {
+                PropagationOutcome.Conflict => result,
+                _ => filteringList.Any(x => x.State == SuperpositionState.Uncertain && x.Domain.IsEmpty()) 
+                    ? new ConstraintResult(PropagationOutcome.Conflict, result.ChangesAmount)
+                    : result
+            };
         }
     }
 }

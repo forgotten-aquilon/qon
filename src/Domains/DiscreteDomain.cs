@@ -1,4 +1,6 @@
-﻿using System;
+﻿using qon.Exceptions;
+using qon.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -47,7 +49,7 @@ namespace qon.Domains
         public int Remove(IEnumerable<T> items)
         {
             int changeCount = 0;
-
+            
             foreach (var item in items)
             {
                 changeCount += Domain.Remove(item) ? 1 : 0;
@@ -70,11 +72,17 @@ namespace qon.Domains
 
         public double GetEntropy()
         {
-            double entropy = 0.0;
 
-            foreach (var value in Domain)
+            double entropy = 0.0;
+            double sum = Domain.Sum(x => x.Value);
+
+            if (IsEmpty() || sum == 0)
+                throw new InternalLogicException("Should not be called in this case");
+
+
+            foreach (var value in Domain) if (value.Value != 0)
             {
-                double e = value.Value / (double)Domain.Count;
+                double e = value.Value / sum;
                 entropy -= e * Math.Log(e, 2);
             }
 
@@ -106,6 +114,9 @@ namespace qon.Domains
         {
             var topProbabilityLimit = Domain.Sum(x => x.Value);
 
+            if (topProbabilityLimit == 0 || IsEmpty()) 
+                throw new InternalLogicException("Domain should have at least one non-zero weighted value");
+
             int probability = 0;
 
             int thresholdProbability = random.Next(1, topProbabilityLimit + 1);
@@ -124,7 +135,7 @@ namespace qon.Domains
                 }
             }
 
-            throw new InternalLogicException("");
+            throw new UnreachableException();
         }
 
         public Optional<T> SingleOrEmptyValue()

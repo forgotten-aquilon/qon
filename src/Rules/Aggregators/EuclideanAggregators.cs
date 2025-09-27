@@ -1,4 +1,5 @@
-﻿using qon.Variables;
+﻿using qon.Exceptions;
+using qon.Variables;
 using System;
 
 namespace qon.Rules.Aggregators
@@ -9,18 +10,17 @@ namespace qon.Rules.Aggregators
         {
             return referenceVar =>
             {
-                if (referenceVar == null)
-                    throw new ArgumentNullException(nameof(referenceVar));
+                ExceptionHelper.ThrowIfArgumentIsNull(referenceVar, nameof(referenceVar));
 
                 return new SelectingAggregator<T>(candidateVar =>
                 {
-                    int rx = (int)referenceVar.Properties["x"];
-                    int ry = (int)referenceVar.Properties["y"];
-                    int rz = (int)referenceVar.Properties["z"];
+                    int rx = (int)referenceVar["x"];
+                    int ry = (int)referenceVar["y"];
+                    int rz = (int)referenceVar["z"];
 
-                    int cx = (int)candidateVar.Properties["x"];
-                    int cy = (int)candidateVar.Properties["y"];
-                    int cz = (int)candidateVar.Properties["z"];
+                    int cx = (int)candidateVar["x"];
+                    int cy = (int)candidateVar["y"];
+                    int cz = (int)candidateVar["z"];
 
                     return cx >= rx - l1.x && cx <= rx + l2.x &&
                            cy >= ry - l1.y && cy <= ry + l2.y &&
@@ -32,7 +32,7 @@ namespace qon.Rules.Aggregators
         public static GroupingAggregator<T> GroupByRectangle<T>(int width, int height)
         {
             return new GroupingAggregator<T>(
-                v => $"{(int)v.Properties["x"] / width}x{(int)v.Properties["y"] / height}"
+                v => $"{(int)v["x"] / width}x{(int)v["y"] / height}"
             );
         }
     }

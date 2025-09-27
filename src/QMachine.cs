@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using qon.Solvers;
 using qon.Variables;
+using qon.Exceptions;
 
 namespace qon
 {
@@ -41,6 +42,9 @@ namespace qon
 
     public class QMachine<T>
     {
+        protected Dictionary<string, int> _indexer { get; set; } = new Dictionary<string, int>();
+        public IReadOnlyDictionary<string, int> Indexer => _indexer;
+        
         public IEnumerator<MachineState<T>> Enumerator { get; protected set; }
 
         public States<T> States { get; protected set; }
@@ -51,6 +55,14 @@ namespace qon
         public MachineStateType StateType {  get; set; }
 
         public Random Random { get; }
+
+        public SuperpositionVariable<T> this[string name]
+        {
+            get
+            {
+                return State.Field[_indexer[name]];
+            }
+        }
 
         public QMachine(QMachineParameter<T> parameter)
         {
@@ -65,15 +77,9 @@ namespace qon
 
             if (parameter.FieldParameter is not null)
             {
-                if (parameter.FieldParameter.Field is null)
-                {
-                    throw new FieldNullException(nameof(parameter.FieldParameter.Field));
-                }
+                ExceptionHelper.ThrowIfFieldIsNull(parameter.FieldParameter.Field, nameof(parameter.FieldParameter.Field));
 
-                if (parameter.FieldParameter.Domain is null)
-                {
-                    throw new FieldNullException(nameof(parameter.FieldParameter.Domain));
-                }
+                ExceptionHelper.ThrowIfFieldIsNull(parameter.FieldParameter.Domain, nameof(parameter.FieldParameter.Domain));
 
                 foreach (var variable in parameter.FieldParameter.Field)
                 {
@@ -86,7 +92,15 @@ namespace qon
 
         public void SetField(IEnumerable<SuperpositionVariable<T>> field)
         {
-            State.Field = field.ToList();
+            State.SetField(field.ToList());
+
+            _indexer.Clear();
+
+            for (int i = 0; i < State.Field.Count; i++)
+            {
+                _indexer[State.Field[i].Name] = i;
+            }
+
             StateType = MachineStateType.Prepared;
         }
 

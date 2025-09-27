@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using qon.Domains;
+using qon.Exceptions;
 using qon.Rules;
 using qon.Variables;
 
@@ -17,23 +18,26 @@ namespace qon
 
     public class WFCMachine<T> : QMachine<T>
     {
+        protected string[,,] FieldGrid {  get; set; } = new string[0, 0, 0];
+
         public FieldType FieldType { get; private set; }
 
         public WFCMachine(QMachineParameter<T> parameter) : base(parameter)
         {
         }
 
-        public void CreateEuclideanSpace((int x, int y, int z) dimensions, IDomain<T>? domain = null)
+        public void CreateEuclideanSpace((int x, int y, int z) dimensions, IDomain<T> domain)
         {
-            if (dimensions.x == 0)
-                throw new InternalLogicException("Dimension x should not be zero");
-
-            if (dimensions.z != 0 && dimensions.y == 0)
-                throw new InternalLogicException("Dimension y should not be zero if dimension z is non-zero");
-
             FieldType = FieldType.Euclidean;
 
             List<SuperpositionVariable<T>> variables = new();
+
+            if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
+            {
+                throw new InternalLogicException("Dimension can't be a non-positive number");
+            }
+
+            FieldGrid = new string[dimensions.x, dimensions.y, dimensions.z];
 
             for (int x = 0; x < dimensions.x; x++)
             {
@@ -42,10 +46,14 @@ namespace qon
                     for (int z = 0; z < dimensions.z; z++)
                     {
                         string name = $"{x}x{y}x{z}";
-                        var v = new SuperpositionVariable<T>(domain, name)
-                            .WithProperty("x", x)
-                            .WithProperty("y", y)
-                            .WithProperty("z", z);
+                        var v = new EuclideanVariable<T>(this, domain, name)
+                        {
+                            X = x,
+                            Y = y, 
+                            Z = z
+                        };
+
+                        FieldGrid[x, y, z] = $"{x}x{y}x{z}";
 
                         variables.Add(v);
                     }
@@ -62,6 +70,25 @@ namespace qon
             => State["x", x]["y", y]["z", 0].Result.FirstOrDefault();
 
         public SuperpositionVariable<T>? this[int x]
-            => State["x", x]["y", 1]["z", 0].Result.FirstOrDefault();
+            => State["x", x]["y", 0]["z", 0].Result.FirstOrDefault();
+
+        public SuperpositionVariable<T>? this[(int x, int y, int z) coordinate]
+        {
+            get
+            {
+                if (coordinate.x < 0 || coordinate.y < 0 || coordinate.z < 0)
+                {
+                    return null;
+                }
+                
+                if (coordinate.x >= FieldGrid.GetLength(0) || coordinate.y >= FieldGrid.GetLength(1) || coordinate.z >= FieldGrid.GetLength(2))
+                {
+                    return null;
+                }
+
+                return this[FieldGrid[coordinate.x, coordinate.y, coordinate.z]];
+            }
+        }
+
     }
 }
