@@ -1,4 +1,5 @@
 ﻿using qon.Exceptions;
+using qon.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace qon.Domains
     public static class DomainHelper<T>
     {
         private static readonly Dictionary<(Type, Type), Func<IDomain<T>, IDomain<T>, IDomain<T>>> Map = new();
+        private static readonly Dictionary<Type, Func<SuperpositionVariable<T>, IDomain<T>, HashSet<T>, int>> HashSetIntersections = new();
 
         public static void Register<T1, T2, TOut>(Func<T1, T2, TOut> handler) where T1: IDomain<T> where T2: IDomain<T> where TOut: IDomain<T>
             => Map[(typeof(T1), typeof(T2))] = (a, b) => handler((T1)a, (T2)b);
@@ -19,12 +21,23 @@ namespace qon.Domains
         public static bool TryGet(IDomain<T> a, IDomain<T> b, out Func<IDomain<T>, IDomain<T>, IDomain<T>>? func)
             => Map.TryGetValue((a.GetType(), b.GetType()), out func);
 
+        public static void RegisterHashSetIntersection<TDomain>(Func<SuperpositionVariable<T>, TDomain, HashSet<T>, int> handler)
+            where TDomain : IDomain<T>
+            => HashSetIntersections[typeof(TDomain)] = (variable, domain, values) => handler(variable, (TDomain)domain, values);
+
+        public static bool TryGetHashSetIntersection(IDomain<T> domain, out Func<SuperpositionVariable<T>, IDomain<T>, HashSet<T>, int>? func)
+            => HashSetIntersections.TryGetValue(domain.GetType(), out func);
+
         static DomainHelper()
         {
             Register<DiscreteDomain<T>, DiscreteDomain<T>, IDomain<T>>(DiscreteDomainIntersection);
             Register<NumericalDomain<T>, NumericalDomain<T>, IDomain<T>>(NumericalDomainIntersection);
             Register<DiscreteDomain<T>, NumericalDomain<T>, IDomain<T>>(DiscreteNumericalDomainIntersection);
             Register<NumericalDomain<T>, DiscreteDomain<T>, IDomain<T>>(NumericalDiscreteDomainIntersection);
+
+            RegisterHashSetIntersection<DiscreteDomain<T>>(static (_, domain, values) => IntersectDiscreteWithHashSet(domain, values));
+            RegisterHashSetIntersection<NumericalDomain<T>>(IntersectNumericalWithHashSet);
+            RegisterHashSetIntersection<EmptyDomain<T>>(static (_, __, ___) => 0);
         }
 
         //Resulted domain uses weights from the first intersected domain
@@ -42,6 +55,95 @@ namespace qon.Domains
 
             throw new InternalLogicException($"There is no method for intersection of domains of types {domain1.GetType()} and {domain2.GetType()}. Register it using Register method of DomainHelper class");
         }
+
+        public static int DomainIntersectionWithHashSet(SuperpositionVariable<T> variable, HashSet<T> values)
+        {
+            var domain = variable.Domain;
+
+            if (TryGetHashSetIntersection(domain, out var handler))
+            {
+                return handler!(variable, domain, values);
+            }
+
+            return IntersectGenericWithHashSet(variable, values);
+        }
+
+        private static int IntersectDiscreteWithHashSet(DiscreteDomain<T> domain, HashSet<T> values)
+        {
+            int originalSize = SafeSize(domain);
+
+            foreach (var key in domain.Domain.Keys.ToArray()) if (!values.Contains(key))
+            {
+                domain.Remove(key);
+            }
+
+            return Math.Max(0, originalSize - SafeSize(domain));
+        }
+
+        private static int IntersectNumericalWithHashSet(SuperpositionVariable<T> variable, NumericalDomain<T> domain, HashSet<T> values)
+        {
+            int originalSize = SafeSize(domain);
+
+#pragma warning disable CS8714
+            var filtered = new Dictionary<T, int>(values.Comparer);
+#pragma warning restore CS8714
+
+            foreach (var value in values)
+            {
+                if (domain.ContainsValue(value) && !filtered.ContainsKey(value))
+                {
+                    filtered[value] = 1;
+                }
+            }
+
+            variable.Domain = filtered.Count == 0
+                ? EmptyDomain<T>.Instance
+                : new DiscreteDomain<T>(filtered);
+
+            return Math.Max(0, originalSize - SafeSize(variable.Domain));
+        }
+
+        private static int IntersectGenericWithHashSet(SuperpositionVariable<T> variable, HashSet<T> values)
+        {
+            var originalDomain = variable.Domain;
+            int originalSize = SafeSize(originalDomain);
+
+            var filtered = originalDomain
+                .GetIEnumerable()
+                .Where(pair => values.Contains(pair.Key))
+                .ToList();
+
+            if (filtered.Count == 0)
+            {
+                variable.Domain = EmptyDomain<T>.Instance;
+            }
+            else
+            {
+#pragma warning disable CS8714
+                variable.Domain = new DiscreteDomain<T>(filtered.ToDictionary(pair => pair.Key, pair => pair.Value, values.Comparer));
+#pragma warning restore CS8714
+            }
+
+            return Math.Max(0, originalSize - SafeSize(variable.Domain));
+        }
+
+        private static int SafeSize(IDomain<T> domain)
+        {
+            int size;
+
+            try
+            {
+                size = domain.Size();
+            }
+            catch (InternalLogicException)
+            {
+                return int.MaxValue;
+            }
+
+            return size;
+        }
+
+        #region Direct domains intersections
 
         private static IDomain<T> DiscreteDomainIntersection(DiscreteDomain<T> domain1, DiscreteDomain<T> domain2)
         {
@@ -126,5 +228,7 @@ namespace qon.Domains
 
             return new DiscreteDomain<T>(result);
         }
+
+        #endregion
     }
 }

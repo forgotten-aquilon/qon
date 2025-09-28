@@ -14,12 +14,12 @@ namespace qon.Rules
     {
         private readonly EuclideanRuleParameter<T> _parameter;
 
-        public EuclideanRule(List<Guard<T>> guards, EuclideanRuleParameter<T> parameter) : base(guards)
+        public EuclideanRule(Guard<T>[] guards, EuclideanRuleParameter<T> parameter) : base(guards)
         {
             _parameter = parameter;
         }
 
-        public override ConstraintResult Execute(List<SuperpositionVariable<T>> field, SuperpositionVariable<T> variable)
+        public override ConstraintResult Execute(SuperpositionVariable<T>[] field, SuperpositionVariable<T> variable)
         {
             //Optimization
             var euclideanVar = ExceptionHelper.CheckIfTypesMismatch<EuclideanVariable<T>>(variable);
@@ -61,12 +61,12 @@ namespace qon.Rules
             
             List<ConstraintResult> results = new()
             {
-                Filters.Filters.DomainIntersection(_parameter.Left).ApplyTo(left.ToList()),
-                Filters.Filters.DomainIntersection(_parameter.Right).ApplyTo(right.ToList()),
-                Filters.Filters.DomainIntersection(_parameter.Front).ApplyTo(front.ToList()),
-                Filters.Filters.DomainIntersection(_parameter.Back).ApplyTo(back.ToList()),
-                Filters.Filters.DomainIntersection(_parameter.Top).ApplyTo(top.ToList()),
-                Filters.Filters.DomainIntersection(_parameter.Bottom).ApplyTo(bottom.ToList())
+                Filters.Filters.DomainIntersectionWithHashSet(_parameter.Left).ApplyTo(left.ToList()),
+                Filters.Filters.DomainIntersectionWithHashSet(_parameter.Right).ApplyTo(right.ToList()),
+                Filters.Filters.DomainIntersectionWithHashSet(_parameter.Front).ApplyTo(front.ToList()),
+                Filters.Filters.DomainIntersectionWithHashSet(_parameter.Back).ApplyTo(back.ToList()),
+                Filters.Filters.DomainIntersectionWithHashSet(_parameter.Top).ApplyTo(top.ToList()),
+                Filters.Filters.DomainIntersectionWithHashSet(_parameter.Bottom).ApplyTo(bottom.ToList())
             };
 
             foreach (var result in results)
@@ -91,26 +91,38 @@ namespace qon.Rules
             var top = variable.Machine[(variable.X, variable.Y, variable.Z + 1)];
             var bottom = variable.Machine[(variable.X, variable.Y, variable.Z - 1)];
 
-            List<ConstraintResult> results = new()
-            {
-                Filters.Filters.DomainIntersection(_parameter.Left).ApplyTo(left.FromNullableToArray()),
-                Filters.Filters.DomainIntersection(_parameter.Right).ApplyTo(right.FromNullableToArray()),
-                Filters.Filters.DomainIntersection(_parameter.Front).ApplyTo(front.FromNullableToArray()),
-                Filters.Filters.DomainIntersection(_parameter.Back).ApplyTo(back.FromNullableToArray()),
-                Filters.Filters.DomainIntersection(_parameter.Top).ApplyTo(top.FromNullableToArray()),
-                Filters.Filters.DomainIntersection(_parameter.Bottom).ApplyTo(bottom.FromNullableToArray())
-            };
-
             int changes = 0;
 
-            foreach (var result in results)
-            {
-                changes += result.ChangesAmount;
+            ConstraintResult result;
 
-                if (result.Outcome == PropagationOutcome.Conflict)
-                {
-                    return result;
-                }
+            if (Filters.Filters.DomainIntersectionWithHashSet(_parameter.Left).ApplyTo(left.FromNullableToArray()).IsConflictOutcome(ref changes, out result))
+            {
+                return result;
+            }
+
+            if (Filters.Filters.DomainIntersectionWithHashSet(_parameter.Right).ApplyTo(right.FromNullableToArray()).IsConflictOutcome(ref changes, out result))
+            {
+                return result;
+            }
+
+            if (Filters.Filters.DomainIntersectionWithHashSet(_parameter.Front).ApplyTo(front.FromNullableToArray()).IsConflictOutcome(ref changes, out result))
+            {
+                return result;
+            }
+
+            if (Filters.Filters.DomainIntersectionWithHashSet(_parameter.Back).ApplyTo(back.FromNullableToArray()).IsConflictOutcome(ref changes, out result))
+            {
+                return result;
+            }
+
+            if (Filters.Filters.DomainIntersectionWithHashSet(_parameter.Top).ApplyTo(top.FromNullableToArray()).IsConflictOutcome(ref changes, out result))
+            {
+                return result;
+            }
+
+            if (Filters.Filters.DomainIntersectionWithHashSet(_parameter.Bottom).ApplyTo(bottom.FromNullableToArray()).IsConflictOutcome(ref changes, out result))
+            {
+                return result;
             }
 
             return new ConstraintResult(PropagationOutcome.UnderConstrained, changes);

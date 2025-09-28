@@ -11,15 +11,10 @@ namespace qon.Solvers
 {
     public class FiniteSolver<T> : IEnumerator<MachineState<T>>
     {
-        internal sealed class Node
-        {
-            public List<SuperpositionVariable<T>> Field { get; set; } = new List<SuperpositionVariable<T>>();
-        }
-
         private readonly QMachine<T> _machine;
 
-        private readonly Stack<Node> _solutionStack;
-
+        private readonly Stack<SuperpositionVariable<T>[]> _solutionStack;
+        
         public MachineState<T> Current => _machine.State;
 
         object IEnumerator.Current => Current;
@@ -27,17 +22,17 @@ namespace qon.Solvers
         public FiniteSolver(QMachine<T> machine) 
         {
             _machine = machine;
-            _solutionStack = new Stack<Node>();
+            _solutionStack = new Stack<SuperpositionVariable<T>[]>();
         }
 
         public int PushStack((string name, T value)? usedValue = null)
         {
-            if (_solutionStack.TryPeek(out var node) && usedValue is (string, T) v)
+            if (_solutionStack.TryPeek(out var field) && usedValue is (string, T) v)
             {
-                node.Field[_machine.Indexer[v.name]].RemoveFromDomain(v.value);
+                field[_machine.Indexer[v.name]].RemoveFromDomain(v.value);
             }
 
-            _solutionStack.Push(new Node { Field = Current.Field.Select(x => x.Copy()).ToList() });
+            _solutionStack.Push(Current.Field.Select(x => x.Copy()).ToArray());
 
             return 1;
         }
@@ -52,7 +47,7 @@ namespace qon.Solvers
                 return 1;
             }
 
-            _machine.SetState(new MachineState<T>(_solutionStack.Peek().Field.Select(x => x.Copy()).ToList()));
+            _machine.State.SetField(_solutionStack.Peek().Select(x => x.Copy()).ToArray());
 
             return 1;
         }
@@ -95,13 +90,10 @@ namespace qon.Solvers
                             double ent = double.MaxValue;
                             SuperpositionVariable<T>? candidate = null;
 
-                            foreach (var item in Current.Field) if (item.State == SuperpositionState.Uncertain)
+                            foreach (var item in Current.Field) if (item.State == SuperpositionState.Uncertain && item.Entropy < ent)
                             {
-                                if (item.Entropy < ent)
-                                {
-                                    ent = item.Entropy;
-                                    candidate = item;
-                                }
+                                ent = item.Entropy;
+                                candidate = item;
                             }
 
                             /*

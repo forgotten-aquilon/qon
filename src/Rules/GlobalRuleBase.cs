@@ -12,7 +12,7 @@ namespace qon.Rules
         protected GroupingAggregator<T>? GroupingAggregator { get; set; }
         protected SelectingAggregator<T>? SelectingAggregator { get; set; }
 
-        public abstract ConstraintResult Execute(List<SuperpositionVariable<T>> field);
+        public abstract ConstraintResult Execute(SuperpositionVariable<T>[] field);
 
         protected GlobalRuleBase(GroupingAggregator<T> grouping)
         {

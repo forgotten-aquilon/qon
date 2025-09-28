@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace qon.Domains
 {
@@ -129,6 +130,7 @@ namespace qon.Domains
             Domain = intervals.Select(x => x).ToList();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public UInt64 TrueSize()
         {
             if (Domain.Count == 0)
@@ -139,6 +141,7 @@ namespace qon.Domains
 
         #region IDomain<T> interface
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Size()
         {
             if (IsEmpty())
@@ -174,16 +177,19 @@ namespace qon.Domains
             return size;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsEmpty()
         {
             return Domain.Count == 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ContainsValue(T value)
         {
             return GetItemIndex(value) > -1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Remove(T item)
         {
             int position = GetItemIndex(item);
@@ -220,6 +226,7 @@ namespace qon.Domains
             return 1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Remove(IEnumerable<T> items)
         {
             int changeCount = 0;
@@ -230,11 +237,13 @@ namespace qon.Domains
             return changeCount;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
             Domain.Clear();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double GetEntropy()
         {
             if (IsEmpty())
@@ -244,6 +253,7 @@ namespace qon.Domains
         }
 
         //TODO: C# 10 supports random long
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetRandomValue(Random random)
         {
             UInt64 topProbabilityLimit = TrueSize();
@@ -270,6 +280,7 @@ namespace qon.Domains
             throw new UnreachableException();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Optional<T> SingleOrEmptyValue()
         {
             if (Size() == 1)

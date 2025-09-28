@@ -3,6 +3,7 @@ using qon.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,6 +40,7 @@ namespace qon.Variables
             };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override object? GetNullOrValueProperty(string propertyName) => propertyName switch
         {
             "x" or "X" => X,
@@ -47,7 +49,7 @@ namespace qon.Variables
             _ => base.GetNullOrValueProperty(propertyName)
         };
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool TryGetProperty(string propertyName, out object? property)
         {   
             var (ok, value) = propertyName switch
@@ -63,6 +65,7 @@ namespace qon.Variables
             return ok;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool ContainsProperty(string propertyName) => propertyName switch
         {
             "x" or "X" => true,
@@ -71,6 +74,7 @@ namespace qon.Variables
             _ => base.ContainsProperty(propertyName)
         };
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override object Clone()
         {
             EuclideanVariable<T> clone = new(Machine)

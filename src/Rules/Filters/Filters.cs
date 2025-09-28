@@ -49,10 +49,40 @@ namespace qon.Rules.Filters
             return new Filter<T>(AllDistinctFilter);
         }
 
-        public static Filter<T> DomainIntersection<T>(IEnumerable<T> filteringCollection)
+        public static Filter<T> DomainIntersectionWithHashSet<T>(HashSet<T> filteringCollection)
         {
-            //Add equal discrete domain
-            return DomainIntersection(new DiscreteDomain<T>(filteringCollection));
+            ExceptionHelper.ThrowIfArgumentIsNull(filteringCollection, nameof(filteringCollection));
+
+            return new Filter<T>(field =>
+            {
+                int changes = 0;
+
+                foreach (var variable in field)
+                {
+                    if (variable.State != SuperpositionState.Uncertain)
+                    {
+                        continue;
+                    }
+
+                    int removed = DomainHelper<T>.DomainIntersectionWithHashSet(variable, filteringCollection);
+
+                    if (variable.Domain.IsEmpty())
+                    {
+                        return new ConstraintResult(PropagationOutcome.Conflict, 0);
+                    }
+
+                    if (variable.AutoCollapse().HasValue || removed > 0)
+                    {
+                        changes += removed;
+                    }
+                }
+
+                return field.All(x => x.State != SuperpositionState.Uncertain) switch
+                {
+                    true => new ConstraintResult(PropagationOutcome.Converged, changes),
+                    false => new ConstraintResult(PropagationOutcome.UnderConstrained, changes)
+                };
+            });
         }
 
         public static Filter<T> DomainIntersection<T>(DiscreteDomain<T> filteringDomain)

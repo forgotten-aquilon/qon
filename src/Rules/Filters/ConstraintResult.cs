@@ -32,5 +32,14 @@ namespace qon.Rules.Filters
                     throw new NonExhaustiveExpressionException(Outcome);
             }
         }
+
+        public bool IsConflictOutcome(ref int unsolvedChanges, out ConstraintResult conflictResult)
+        {
+            unsolvedChanges += ChangesAmount;
+
+            conflictResult = this;
+
+            return Outcome == PropagationOutcome.Conflict;
+        }
     }
 }
