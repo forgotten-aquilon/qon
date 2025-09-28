@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace qon.Rules
 {
@@ -180,6 +181,7 @@ namespace qon.Rules
             return parameters;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void CheckSideCompatibility<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, 
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
@@ -191,6 +193,7 @@ namespace qon.Rules
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void CheckSideConnection<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, Side side, 
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
@@ -220,7 +223,7 @@ namespace qon.Rules
             }
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void CheckVerticalCompatibility<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, 
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
@@ -230,6 +233,7 @@ namespace qon.Rules
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void CheckVerticalConnection<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, Slab slab,
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
@@ -260,6 +264,7 @@ namespace qon.Rules
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Dictionary<Side, List<SideConnection>> RotatePools<T>(EuclideanBlockTemplate<T> b, int rot)
         {
             var d = new Dictionary<Side, List<SideConnection>>(4);
@@ -270,8 +275,10 @@ namespace qon.Rules
             return d;
         }
 
-        private static bool IsDirectionsCompatible(ConnectionDirection d1, ConnectionDirection d2) => d1 == ConnectionDirection.Both || d2 == ConnectionDirection.Both || d1 != d2;  
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsDirectionsCompatible(ConnectionDirection d1, ConnectionDirection d2) => d1 == ConnectionDirection.Both || d2 == ConnectionDirection.Both || d1 != d2;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsRotationsCompatible(Rotations top, Rotations bottom, int rotationDifference)
         {
             foreach (var i in top)

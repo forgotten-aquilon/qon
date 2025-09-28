@@ -1,10 +1,11 @@
-﻿using System;
+﻿using qon.Domains;
+using qon.Exceptions;
+using qon.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using qon.Domains;
-using qon.Exceptions;
-using qon.Helpers;
+using System.Runtime.CompilerServices;
 
 namespace qon.Variables
 {
@@ -107,16 +108,19 @@ namespace qon.Variables
             return Domain.Size();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int RemoveFromDomain(IEnumerable<T> items)
         {
             return Domain.Remove(items);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int RemoveFromDomain(T item)
         {
             return Domain.Remove(item);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Collapse(T value, bool isConstant = false)
         {
             State = isConstant switch
@@ -130,6 +134,7 @@ namespace qon.Variables
             Domain = EmptyDomain<T>.Instance;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Optional<T> AutoCollapse()
         {
             var value = Domain.SingleOrEmptyValue();
@@ -142,6 +147,7 @@ namespace qon.Variables
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual object Clone()
         {
             SuperpositionVariable<T> clone = new()
@@ -156,6 +162,7 @@ namespace qon.Variables
             return clone;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SuperpositionVariable<T> Copy()
         {
             return (SuperpositionVariable<T>)Clone();
@@ -174,17 +181,20 @@ namespace qon.Variables
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual object? GetNullOrValueProperty(string propertyName)
         {
             Properties.TryGetValue(propertyName, out object? property);
             return property;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual bool TryGetProperty(string propertyName, out object? property)
         {
             return Properties.TryGetValue(propertyName, out property);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual bool ContainsProperty(string propertyName)
         {
             return Properties.ContainsKey(propertyName);

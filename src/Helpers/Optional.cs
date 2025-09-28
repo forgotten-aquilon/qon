@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace qon.Helpers
 {
@@ -44,6 +45,7 @@ namespace qon.Helpers
             HasValue = true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckValue(in T value)
         {
 #pragma warning disable CS8602

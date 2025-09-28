@@ -5,22 +5,27 @@ using qon.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace qon.Helpers
 {
     public static class Helper
     {
         #region Collection Extensions
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] FromNullableToArray<T>(this T? value) where T : class
         {
             return value is T result ? new T[] { result } : Array.Empty<T>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] FromNullableToArray<T>(this T? value) where T : struct
         {
             return value.HasValue ? new T[] { value.Value } : Array.Empty<T>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T RandomItem<T>(this ICollection<T> collection, Random random)
         {
             int size = collection.Count;
@@ -52,6 +57,7 @@ namespace qon.Helpers
             throw new UnreachableException();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue TryGetOrCreate<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) where TKey : notnull where TValue : new()
         {
             if (dict.TryGetValue(key, out var value))

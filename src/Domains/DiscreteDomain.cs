@@ -3,6 +3,7 @@ using qon.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace qon.Domains
 {
@@ -26,26 +27,31 @@ namespace qon.Domains
             Domain = d.ToDictionary(x => x, _ => 1);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Size()
         {
             return Domain.Count;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsEmpty()
         {
             return Domain.Count == 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ContainsValue(T value)
         {
             return Domain.ContainsKey(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Remove(T item)
         {
             return Domain.Remove(item) ? 1 : 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Remove(IEnumerable<T> items)
         {
             int changeCount = 0;
@@ -58,11 +64,13 @@ namespace qon.Domains
             return changeCount;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
             Domain.Clear();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Set(Dictionary<T, int> domain)
         {
             Domain = domain;
@@ -70,6 +78,7 @@ namespace qon.Domains
             return Domain.Count;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double GetEntropy()
         {
 
@@ -89,16 +98,19 @@ namespace qon.Domains
             return entropy;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetWeight(T value, int weight)
         {
             Domain[value] = weight;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetWeight(T value, out int weight)
         {
             return Domain.TryGetValue(value, out weight);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool UpdateWeight(T value, int weight)
         {
             if (!Domain.ContainsKey(value))
@@ -110,6 +122,7 @@ namespace qon.Domains
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetRandomValue(Random random)
         {
             var topProbabilityLimit = Domain.Sum(x => x.Value);
@@ -138,6 +151,7 @@ namespace qon.Domains
             throw new UnreachableException();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Optional<T> SingleOrEmptyValue()
         {
             if (Domain.Count == 1)
