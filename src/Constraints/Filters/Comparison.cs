@@ -1,4 +1,4 @@
-﻿namespace qon.Rules.Filters
+﻿namespace qon.Constraints.Filters
 {
     public enum Comparison
     {

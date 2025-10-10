@@ -8,4 +8,8 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Constraints\Guards\" />
+  </ItemGroup>
 </Project>

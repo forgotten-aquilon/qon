@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using qon;
+using qon.Constraints.Filters;
 using qon.Domains;
-using qon.Rules;
-using qon.Rules.Filters;
 using qon.Variables;
 
 namespace qon.Tests

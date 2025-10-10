@@ -1,4 +1,4 @@
-﻿namespace qon.Rules.Aggregators
+﻿namespace qon.Constraints.Aggregators
 {
     public enum AggregationType
     {

@@ -1,12 +1,10 @@
-﻿using qon.Rules.Aggregators;
-using qon.Rules.Filters;
-using qon.Variables;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text.RegularExpressions;
+using qon.Constraints.Aggregators;
+using qon.Constraints.Filters;
+using qon.Variables;
 
-namespace qon.Rules
+namespace qon.Constraints
 {
     public class GlobalRule<T> : GlobalRuleBase<T>
     {
@@ -53,10 +51,8 @@ namespace qon.Rules
 
                     return Filter.ApplyTo(aggregation);
                 default:
-                    break;
+                    throw new NotImplementedException();
             }
-
-            throw new NotImplementedException();
         }
     }
 }

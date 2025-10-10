@@ -1,11 +1,10 @@
-﻿using qon.Helpers;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using qon.Helpers;
 
-namespace qon.Rules
+namespace qon.Constraints
 {
     public class Rotations : IEnumerable<int>
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using qon.Constraints;
 using qon.Domains;
-using qon.Rules;
 using qon.Variables;
 
 namespace qon
@@ -16,7 +16,6 @@ namespace qon
     public class RuleHandler<T>
     {
         public List<IGlobalRule<T>> GlobalRules { get; set; } = new List<IGlobalRule<T>>();
-        public List<ILocalRule<T>> LocalRules { get; set; } = new List<ILocalRule<T>>();
     }
 
     public class QMachineParameter<T>

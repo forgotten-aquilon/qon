@@ -1,9 +1,8 @@
-﻿using qon.Rules.Aggregators;
-using System.Collections.Generic;
-using qon.Rules.Filters;
+﻿using qon.Constraints.Aggregators;
+using qon.Constraints.Filters;
 using qon.Variables;
 
-namespace qon.Rules
+namespace qon.Constraints
 {
     public abstract class GlobalRuleBase<T> : IGlobalRule<T>
     {

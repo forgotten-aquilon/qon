@@ -1,8 +1,8 @@
-﻿using qon.Exceptions;
+﻿using System;
+using qon.Exceptions;
 using qon.Variables;
-using System;
 
-namespace qon.Rules.Aggregators
+namespace qon.Constraints.Aggregators
 {
     public static class EuclideanAggregators
     {

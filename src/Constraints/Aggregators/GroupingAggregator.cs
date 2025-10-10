@@ -1,7 +1,7 @@
-﻿using qon.Variables;
-using System;
+﻿using System;
+using qon.Variables;
 
-namespace qon.Rules.Aggregators
+namespace qon.Constraints.Aggregators
 {
     public class GroupingAggregator<T>
     {

@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using qon.Rules.Filters;
+﻿using qon.Constraints.Filters;
 using qon.Variables;
 
-namespace qon.Rules
+namespace qon.Constraints
 {
     public interface IGlobalRule<T>
     {

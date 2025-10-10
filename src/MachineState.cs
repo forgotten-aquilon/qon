@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using qon.Rules;
-using qon.Rules.Filters;
 using qon.Variables;
 
 namespace qon

@@ -1,11 +1,11 @@
 ﻿using qon.Exceptions;
-using qon.Rules;
-using qon.Rules.Filters;
 using qon.Variables;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using qon.Constraints;
+using qon.Constraints.Filters;
 
 namespace qon.Solvers
 {
@@ -174,21 +174,6 @@ namespace qon.Solvers
                 changes += globalResult.ChangesAmount;
                 changes += Current.AutoCollapse();
 
-                var localResult = ExecuteLocalRules(_machine.GeneralRules.LocalRules);
-
-                if (localResult.Outcome == PropagationOutcome.Conflict)
-                {
-                    return localResult;
-                }
-
-                if (localResult.Outcome == PropagationOutcome.UnderConstrained)
-                {
-                    isConverged = false;
-                }
-
-                changes += localResult.ChangesAmount;
-                changes += Current.AutoCollapse();
-
                 filterChanges += changes;
             }
             while (changes != 0);
@@ -209,14 +194,7 @@ namespace qon.Solvers
                 return globalValidation;
             }
 
-            var localValidation = ExecuteLocalRules(_machine.ValidationRules!.LocalRules);
-
-            if (localValidation.Outcome == PropagationOutcome.Conflict)
-            {
-                return localValidation;
-            }
-
-            int validationChanges = globalValidation.ChangesAmount + localValidation.ChangesAmount;
+            int validationChanges = globalValidation.ChangesAmount;
 
             return new ConstraintResult(PropagationOutcome.Converged, validationChanges);
         }
@@ -235,34 +213,6 @@ namespace qon.Solvers
                 }
 
                 changes += result.ChangesAmount;
-            }
-
-            return unsolvedChanges == 0
-                ? new ConstraintResult(PropagationOutcome.Converged, changes)
-                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
-        }
-
-        public ConstraintResult ExecuteLocalRules(List<ILocalRule<T>> rules)
-        {
-            int changes = 0;
-            int unsolvedChanges = 0;
-
-            foreach (var variable in Current.Field)
-            {
-                foreach (var rule in rules)
-                {
-                    if (!rule.CanApplyTo(variable))
-                        continue;
-
-                    var result = rule.Execute(Current.Field, variable);
-
-                    if (!result.TryHandleOutcome(ref unsolvedChanges, out var conflictResult))
-                    {
-                        return conflictResult;
-                    }
-
-                    changes += result.ChangesAmount;
-                }
             }
 
             return unsolvedChanges == 0

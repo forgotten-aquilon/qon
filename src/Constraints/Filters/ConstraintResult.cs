@@ -1,7 +1,6 @@
 ﻿using qon.Exceptions;
-using System;
 
-namespace qon.Rules.Filters
+namespace qon.Constraints.Filters
 {
     public struct ConstraintResult
     {

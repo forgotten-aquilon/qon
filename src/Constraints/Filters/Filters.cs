@@ -5,7 +5,7 @@ using qon.Exceptions;
 using qon.Helpers;
 using qon.Variables;
 
-namespace qon.Rules.Filters
+namespace qon.Constraints.Filters
 {
     public static class Filters
     {

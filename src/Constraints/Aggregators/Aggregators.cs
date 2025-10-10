@@ -1,11 +1,8 @@
-﻿using qon.Exceptions;
+﻿using System.Runtime.CompilerServices;
+using qon.Exceptions;
 using qon.Variables;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 
-namespace qon.Rules.Aggregators
+namespace qon.Constraints.Aggregators
 {
     public static class Aggregators
     {

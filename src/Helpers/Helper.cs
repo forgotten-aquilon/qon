@@ -1,11 +1,10 @@
 ﻿using qon.Exceptions;
-using qon.Rules;
-using qon.Rules.Aggregators;
 using qon.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using qon.Constraints.Aggregators;
 
 namespace qon.Helpers
 {

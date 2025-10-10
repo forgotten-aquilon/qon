@@ -1,7 +1,7 @@
-﻿using qon.Exceptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using qon.Exceptions;
 
-namespace qon.Rules
+namespace qon.Constraints
 {
     public enum Side
     {

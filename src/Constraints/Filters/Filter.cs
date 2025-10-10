@@ -1,9 +1,9 @@
-﻿using qon.Variables;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using qon.Variables;
 
-namespace qon.Rules.Filters
+namespace qon.Constraints.Filters
 {
     public class Filter<T>
     {

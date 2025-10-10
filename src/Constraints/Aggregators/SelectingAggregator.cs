@@ -1,9 +1,9 @@
-﻿using qon.Helpers;
+﻿using System;
+using qon.Helpers;
 using qon.Variables;
-using System;
 using static qon.Helpers.Helper;
 
-namespace qon.Rules.Aggregators
+namespace qon.Constraints.Aggregators
 {
     public class SelectingAggregator<T>
     {
