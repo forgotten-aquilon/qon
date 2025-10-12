@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using qon.Exceptions;
 
-namespace qon.Constraints
+namespace qon.Functions.Constraints
 {
     public enum Side
     {
@@ -17,7 +17,7 @@ namespace qon.Constraints
         Bottom = 1,
     }
 
-    public class EuclideanRuleParameter<T>
+    public class EuclideanConstraintParameter<T>
     {
         public HashSet<T> Left { get; set; } = new();
         public HashSet<T> Right { get; set; } = new();
@@ -26,7 +26,7 @@ namespace qon.Constraints
         public HashSet<T> Top { get; set; } = new();
         public HashSet<T> Bottom { get; set; } = new();
 
-        public EuclideanRuleParameter()
+        public EuclideanConstraintParameter()
         {
             Left = new();
             Right = new();

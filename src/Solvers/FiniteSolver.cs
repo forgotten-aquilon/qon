@@ -4,8 +4,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Constraints;
-using qon.Constraints.Filters;
+using qon.Functions.Propagators;
+using qon.Functions.Constraints;
 
 namespace qon.Solvers
 {
@@ -81,7 +81,7 @@ namespace qon.Solvers
                     }
                     else if (Current.CurrentState == SolutionState.NotSolved)
                     {
-                        if (result.Outcome == PropagationOutcome.Conflict)
+                        if (!result.IsSuccess)
                         {
                             changes += GoBack();
                         }
@@ -124,9 +124,9 @@ namespace qon.Solvers
 
                     break;
                 case MachineStateType.Validation:
-                    var validation = ApplyConstraints(_machine.ValidationRules is not null);
+                    var validation = ApplyConstraints(_machine.Constraints.ValidationConstraints is not null);
 
-                    if (validation.Outcome == PropagationOutcome.Conflict)
+                    if (!validation.IsSuccess)
                     {
                         changes += GoBack();
                         _machine.StateType = MachineStateType.IsSolving;
@@ -159,18 +159,12 @@ namespace qon.Solvers
             {
                 changes = 0;
 
-                var globalResult = ExecuteGlobalRules(_machine.GeneralRules.GlobalRules);
+                var globalResult = ExecuteGlobalRules(_machine.Constraints.GeneralConstraints);
 
-                if (globalResult.Outcome == PropagationOutcome.Conflict)
+                if (!globalResult.IsSuccess)
                 {
                     return globalResult;
                 }
-
-                if (globalResult.Outcome == PropagationOutcome.UnderConstrained)
-                {
-                    isConverged = false;
-                }
-
                 changes += globalResult.ChangesAmount;
                 changes += Current.AutoCollapse();
 
@@ -180,44 +174,37 @@ namespace qon.Solvers
 
             if (!validation)
             {
-                return isConverged switch
-                {
-                    true => new ConstraintResult(PropagationOutcome.Converged, filterChanges),
-                    false => new ConstraintResult(PropagationOutcome.UnderConstrained, filterChanges)
-                };
+                return new ConstraintResult(true, filterChanges);
             }
 
-            var globalValidation = ExecuteGlobalRules(_machine.ValidationRules!.GlobalRules);
+            var globalValidation = ExecuteGlobalRules(_machine.Constraints.ValidationConstraints!);
 
-            if (globalValidation.Outcome == PropagationOutcome.Conflict)
+            if (!globalValidation.IsSuccess)
             {
                 return globalValidation;
             }
 
             int validationChanges = globalValidation.ChangesAmount;
 
-            return new ConstraintResult(PropagationOutcome.Converged, validationChanges);
+            return new ConstraintResult(true, validationChanges);
         }
 
-        public ConstraintResult ExecuteGlobalRules(List<IGlobalRule<T>> rules)
+        public ConstraintResult ExecuteGlobalRules(List<IQConstraint<T>> rules)
         {
             int changes = 0;
-            int unsolvedChanges = 0;
             foreach (var rule in rules)
             {
                 var result = rule.Execute(Current.Field);
 
-                if (!result.TryHandleOutcome(ref unsolvedChanges, out var conflictResult))
+                if (!result.IsSuccess)
                 {
-                    return conflictResult;
+                    return result;
                 }
 
                 changes += result.ChangesAmount;
             }
 
-            return unsolvedChanges == 0
-                ? new ConstraintResult(PropagationOutcome.Converged, changes)
-                : new ConstraintResult(PropagationOutcome.UnderConstrained, changes);
+            return new ConstraintResult(true, changes);
         }
 
         public void Reset()

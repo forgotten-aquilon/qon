@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using qon.Helpers;
 
-namespace qon.Constraints
+namespace qon.Functions.Constraints
 {
     public class Rotations : IEnumerable<int>
     {
@@ -139,9 +139,9 @@ namespace qon.Constraints
 
     public static class EuclideanRotationHelper
     {
-        public static Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> GenerateConnections<T>(List<EuclideanBlockTemplate<T>> blocks)
+        public static Dictionary<EuclideanBlock<T>, EuclideanConstraintParameter<EuclideanBlock<T>>> GenerateConnections<T>(List<EuclideanBlockTemplate<T>> blocks)
         {
-            Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters = new ();
+            Dictionary<EuclideanBlock<T>, EuclideanConstraintParameter<EuclideanBlock<T>>> parameters = new ();
 
             EuclideanBlockTemplate<T> block1;
             EuclideanBlockTemplate<T> block2;
@@ -181,7 +181,7 @@ namespace qon.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckSideCompatibility<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, 
+        private static void CheckSideCompatibility<T>(Dictionary<EuclideanBlock<T>, EuclideanConstraintParameter<EuclideanBlock<T>>> parameters, 
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
             //Iterating over opposite sides of both blocks
@@ -193,7 +193,7 @@ namespace qon.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckSideConnection<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, Side side, 
+        private static void CheckSideConnection<T>(Dictionary<EuclideanBlock<T>, EuclideanConstraintParameter<EuclideanBlock<T>>> parameters, Side side, 
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
             //"oppositeSide" is the side of the second block, which can be potentially connected to the side of the first block
@@ -212,10 +212,10 @@ namespace qon.Constraints
                         EuclideanBlock<T> keyBlock1 = item1.block.ToEuclideanBlock(item1.rot);
                         EuclideanBlock<T> keyBlock2 = item2.block.ToEuclideanBlock(item2.rot);
 
-                        EuclideanRuleParameter<EuclideanBlock<T>> r1 = parameters.TryGetOrCreate(keyBlock1);
+                        EuclideanConstraintParameter<EuclideanBlock<T>> r1 = parameters.TryGetOrCreate(keyBlock1);
                         r1[side].Add(keyBlock2);
 
-                        EuclideanRuleParameter<EuclideanBlock<T>> r2 = parameters.TryGetOrCreate(keyBlock2);
+                        EuclideanConstraintParameter<EuclideanBlock<T>> r2 = parameters.TryGetOrCreate(keyBlock2);
                         r2[oppositeSide].Add(keyBlock1);
                     }
                 }
@@ -223,7 +223,7 @@ namespace qon.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckVerticalCompatibility<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, 
+        private static void CheckVerticalCompatibility<T>(Dictionary<EuclideanBlock<T>, EuclideanConstraintParameter<EuclideanBlock<T>>> parameters, 
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
             foreach (Slab slab in SideExtensions.Slabs)
@@ -233,7 +233,7 @@ namespace qon.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckVerticalConnection<T>(Dictionary<EuclideanBlock<T>, EuclideanRuleParameter<EuclideanBlock<T>>> parameters, Slab slab,
+        private static void CheckVerticalConnection<T>(Dictionary<EuclideanBlock<T>, EuclideanConstraintParameter<EuclideanBlock<T>>> parameters, Slab slab,
             (EuclideanBlockTemplate<T> block, int rot) item1, (EuclideanBlockTemplate<T> block, int rot) item2)
         {
             int rotationDifference = item1.rot - item2.rot;
@@ -253,10 +253,10 @@ namespace qon.Constraints
                         EuclideanBlock<T> keyBlock1 = item1.block.ToEuclideanBlock(item1.rot);
                         EuclideanBlock<T> keyBlock2 = item2.block.ToEuclideanBlock(item2.rot);
 
-                        EuclideanRuleParameter<EuclideanBlock<T>> r1 = parameters.TryGetOrCreate(item1.block.ToEuclideanBlock(item1.rot));
+                        EuclideanConstraintParameter<EuclideanBlock<T>> r1 = parameters.TryGetOrCreate(item1.block.ToEuclideanBlock(item1.rot));
                         r1[slab].Add(keyBlock2);
 
-                        EuclideanRuleParameter<EuclideanBlock<T>> r2 = parameters.TryGetOrCreate(keyBlock2);
+                        EuclideanConstraintParameter<EuclideanBlock<T>> r2 = parameters.TryGetOrCreate(keyBlock2);
                         r2[oppositeSlab].Add(keyBlock1);
                     }
                 }

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using qon;
-using qon.Constraints.Filters;
 using qon.Domains;
+using qon.Functions.Propagators;
 using qon.Variables;
 
 namespace qon.Tests
@@ -89,18 +89,18 @@ namespace qon.Tests
         {
             var numerical = new NumericalDomain<int>(new[] { new Interval<int>(0, 5) });
             var variable = new SuperpositionVariable<int>(numerical, name: "num");
-            var filter = Filters.DomainIntersectionWithHashSet(new HashSet<int> { 2, 9 });
+            var filter = Propagators.DomainIntersectionWithHashSet(new HashSet<int> { 2, 9 });
 
             var result = filter.ApplyTo(new[] { variable });
 
-            Assert.Equal(PropagationOutcome.Converged, result.Outcome);
+            Assert.Equal(PropagationOutcome.Converged, result.IsSuccess);
             Assert.Equal(SuperpositionState.Defined, variable.State);
             Assert.True(variable.Value.CheckValue(2));
             Assert.True(ReferenceEquals(variable.Domain, EmptyDomain<int>.Instance));
         }
     }
 
-    public class FiltersTests
+    public class PropagatorsTests
     {
         [Fact]
         public void AllDistinct_WithDuplicateDecisions_IsConflict()
@@ -113,9 +113,9 @@ namespace qon.Tests
             first.Collapse(1, isConstant: true);
             second.Collapse(1, isConstant: true);
 
-            var result = Filters.AllDistinct<int>().ApplyTo(new[] { first, second, third });
+            var result = Propagators.AllDistinct<int>().ApplyTo(new[] { first, second, third });
 
-            Assert.Equal(PropagationOutcome.Conflict, result.Outcome);
+            Assert.Equal(PropagationOutcome.Conflict, result.IsSuccess);
             Assert.Equal(0, result.ChangesAmount);
         }
 
@@ -128,9 +128,9 @@ namespace qon.Tests
 
             decided.Collapse(1);
 
-            var result = Filters.AllDistinct<int>().ApplyTo(new[] { decided, open });
+            var result = Propagators.AllDistinct<int>().ApplyTo(new[] { decided, open });
 
-            Assert.Equal(PropagationOutcome.Converged, result.Outcome);
+            Assert.Equal(PropagationOutcome.Converged, result.IsSuccess);
             Assert.Equal(SuperpositionState.Defined, open.State);
             Assert.True(open.Value.CheckValue(2));
             Assert.True(ReferenceEquals(open.Domain, EmptyDomain<int>.Instance));
@@ -145,7 +145,7 @@ namespace qon.Tests
         {
             var parameter = new QMachineParameter<int>
             {
-                GeneralRules = new RuleHandler<int>(),
+                Constraints = new RuleHandler<int>(),
                 Random = new Random(0)
             };
             var machine = new WFCMachine<int>(parameter);

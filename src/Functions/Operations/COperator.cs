@@ -1,6 +1,6 @@
-﻿namespace qon.Constraints.Filters
+﻿namespace qon.Functions.Operations
 {
-    public enum Comparison
+    public enum COperator
     {
         /// <summary>a == b</summary>
         EQ,

@@ -1,9 +1,9 @@
-﻿using qon.Constraints.Filters;
+﻿using qon.Functions.Propagators;
 using qon.Variables;
 
-namespace qon.Constraints
+namespace qon.Functions.Constraints
 {
-    public interface IGlobalRule<T>
+    public interface IQConstraint<T>
     {
         public ConstraintResult Execute(SuperpositionVariable<T>[] field);
     }

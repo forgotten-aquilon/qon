@@ -1,25 +1,25 @@
-﻿using qon.Constraints.Aggregators;
-using qon.Constraints.Filters;
-using qon.Variables;
+﻿using qon.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Functions.Propagators;
 using static qon.Helpers.Helper;
+using qon.Functions.Filters;
 
-namespace qon.Constraints
+namespace qon.Functions.Constraints
 {
-    public class RelativeRule<T> : IGlobalRule<T>
+    public class RelativeConstraint<T> : IQConstraint<T>
     {
-        protected SelectingAggregator<T> Guard { get; set; }
-        protected Filter<T> Filter { get; set; }
-        public Func<SuperpositionVariable<T>, SelectingAggregator<T>> AggregationFactory { get; set; }
+        protected QPredicate<T> Guard { get; set; }
+        protected Propagator<T> Propagator { get; set; }
+        public Func<SuperpositionVariable<T>, QPredicate<T>> AggregationFactory { get; set; }
 
-        public RelativeRule(SelectingAggregator<T> guard, Filter<T> filter, Func<SuperpositionVariable<T>, SelectingAggregator<T>> aggregationFactory)
+        public RelativeConstraint(QPredicate<T> guard, Propagator<T> propagator, Func<SuperpositionVariable<T>, QPredicate<T>> aggregationFactory)
         {
             Guard = guard;
-            Filter = filter;
+            Propagator = propagator;
             AggregationFactory = aggregationFactory;
         }
 
@@ -34,10 +34,10 @@ namespace qon.Constraints
                 aggregation.UnionWith(field.Where(AggregationFactory(relativeVariable).ApplyTo));
             }
 
-            return Filter.ApplyTo(aggregation);
+            return Propagator.ApplyTo(aggregation);
         }
 
-        public static Func<SuperpositionVariable<T>, SelectingAggregator<T>> Create<TVariable>(Func<TVariable, SelectingAggregator<T>> predicate) where TVariable : SuperpositionVariable<T>
+        public static Func<SuperpositionVariable<T>, QPredicate<T>> Create<TVariable>(Func<TVariable, QPredicate<T>> predicate) where TVariable : SuperpositionVariable<T>
         {
             return PredicateBuilder.For<T, TVariable>(predicate);
         }

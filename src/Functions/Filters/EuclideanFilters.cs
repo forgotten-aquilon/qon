@@ -2,17 +2,17 @@
 using qon.Exceptions;
 using qon.Variables;
 
-namespace qon.Constraints.Aggregators
+namespace qon.Functions.Filters
 {
-    public static class EuclideanAggregators
+    public static class EuclideanFilters
     {
-        public static Func<SuperpositionVariable<T>, SelectingAggregator<T>> SelectRegion<T>((int x, int y, int z) l1, (int x, int y, int z) l2)
+        public static Func<SuperpositionVariable<T>, QPredicate<T>> SelectRegion<T>((int x, int y, int z) l1, (int x, int y, int z) l2)
         {
             return referenceVar =>
             {
                 ExceptionHelper.ThrowIfArgumentIsNull(referenceVar, nameof(referenceVar));
 
-                return new SelectingAggregator<T>(candidateVar =>
+                return new QPredicate<T>(candidateVar =>
                 {
                     int rx = (int)referenceVar["x"];
                     int ry = (int)referenceVar["y"];
@@ -29,9 +29,9 @@ namespace qon.Constraints.Aggregators
             };
         }
 
-        public static GroupingAggregator<T> GroupByRectangle<T>(int width, int height)
+        public static Filter<T> GroupByRectangle<T>(int width, int height)
         {
-            return new GroupingAggregator<T>(
+            return new Filter<T>(
                 v => $"{(int)v["x"] / width}x{(int)v["y"] / height}"
             );
         }

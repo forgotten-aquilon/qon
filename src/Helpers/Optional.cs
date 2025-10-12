@@ -123,5 +123,10 @@ namespace qon.Helpers
             return HasValue ? Value.ToString() : nameof(Optional<T>);
 #pragma warning restore CS8602, CS8603
         }
+
+        public static Optional<T> Of<T>(T value)
+        {
+            return new Optional<T>(value);
+        }
     }
 }

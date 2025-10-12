@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using qon.Constraints.Aggregators;
+using qon.Functions.Filters;
 
 namespace qon.Helpers
 {
@@ -80,9 +80,9 @@ namespace qon.Helpers
                 return variable => variable is TVariable typed && predicate(typed);
             }
 
-            public static Func<SuperpositionVariable<T>, SelectingAggregator<T>> For<T, TVariable>(Func<TVariable, SelectingAggregator<T>> predicate) where TVariable : SuperpositionVariable<T>
+            public static Func<SuperpositionVariable<T>, QPredicate<T>> For<T, TVariable>(Func<TVariable, QPredicate<T>> predicate) where TVariable : SuperpositionVariable<T>
             {
-                return variable => variable is TVariable typed ? predicate(typed) : SelectingAggregator<T>.Empty;
+                return variable => variable is TVariable typed ? predicate(typed) : QPredicate<T>.Empty;
             }
 
             private static readonly object _singleton = new object();
@@ -92,16 +92,16 @@ namespace qon.Helpers
             }
         }
 
-        public static SelectingAggregator<T> Or<T>(this SelectingAggregator<T> left, SelectingAggregator<T> right)
+        public static QPredicate<T> Or<T>(this QPredicate<T> left, QPredicate<T> right)
         {
-            var tempFunc = left.AggregationFunction;
-            return new SelectingAggregator<T>(v => tempFunc(v) || right.AggregationFunction(v));
+            var tempFunc = left.PredicateFunction;
+            return new QPredicate<T>(v => tempFunc(v) || right.PredicateFunction(v));
         }
 
-        public static SelectingAggregator<T> And<T>(this SelectingAggregator<T> left, SelectingAggregator<T> right)
+        public static QPredicate<T> And<T>(this QPredicate<T> left, QPredicate<T> right)
         {
-            var tempFunc = left.AggregationFunction;
-            return new SelectingAggregator<T>(v => tempFunc(v) && right.AggregationFunction(v));
+            var tempFunc = left.PredicateFunction;
+            return new QPredicate<T>(v => tempFunc(v) && right.PredicateFunction(v));
         }
 
         public struct WeakHashSet<T> : IEquatable<WeakHashSet<T>>

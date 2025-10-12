@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using qon.Constraints;
 using qon.Domains;
+using qon.Functions.Constraints;
 using qon.Variables;
 
 namespace qon
@@ -15,14 +15,14 @@ namespace qon
 
     public class RuleHandler<T>
     {
-        public List<IGlobalRule<T>> GlobalRules { get; set; } = new List<IGlobalRule<T>>();
+        public List<IQConstraint<T>> GeneralConstraints { get; set; } = new List<IQConstraint<T>>();
+        public List<IQConstraint<T>>? ValidationConstraints { get; set; } = new List<IQConstraint<T>>();
     }
 
     public class QMachineParameter<T>
     {
         public FieldParameter<T>? FieldParameter { get; set; } = null;
-        public RuleHandler<T> GeneralRules { get; set; } = new();
-        public RuleHandler<T>? ValidationRules { get; set; }
+        public RuleHandler<T> Constraints { get; set; } = new();
         public Random Random { get; set; } = new Random();
     }
 }

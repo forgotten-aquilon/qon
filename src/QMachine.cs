@@ -47,8 +47,7 @@ namespace qon
         public IEnumerator<MachineState<T>> Enumerator { get; protected set; }
 
         public States<T> States { get; protected set; }
-        public RuleHandler<T> GeneralRules { get; set; }
-        public RuleHandler<T>? ValidationRules { get; set; }
+        public RuleHandler<T> Constraints { get; set; }
         public MachineState<T> State { get; protected set; }
 
         public MachineStateType StateType {  get; set; }
@@ -65,8 +64,7 @@ namespace qon
 
         public QMachine(QMachineParameter<T> parameter)
         {
-            GeneralRules = parameter.GeneralRules;
-            ValidationRules = parameter.ValidationRules;
+            Constraints = parameter.Constraints;
 
             State = new MachineState<T>();
             StateType = MachineStateType.Created;
