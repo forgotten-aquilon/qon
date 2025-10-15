@@ -5,6 +5,7 @@ using System.Linq;
 using qon.Domains;
 using qon.Exceptions;
 using qon.Variables;
+using qon.Variables.Layers;
 
 namespace qon
 {
@@ -45,12 +46,8 @@ namespace qon
                     for (int z = 0; z < dimensions.z; z++)
                     {
                         string name = $"{x}x{y}x{z}";
-                        var v = new EuclideanVariable<T>(this, domain, name)
-                        {
-                            X = x,
-                            Y = y, 
-                            Z = z
-                        };
+                        var v = new SuperpositionVariable<T>(domain, name);
+                        v.Layers.Add(new EuclideanLayer<T>(x, y, z, this));
 
                         FieldGrid[x, y, z] = name;
 

@@ -2,6 +2,8 @@
 using System.Linq;
 using qon.Domains;
 using qon.Exceptions;
+using qon.Functions.Constraints;
+using qon.Functions.Filters;
 using qon.Functions.Operations;
 using qon.Helpers;
 using qon.Variables;
@@ -21,7 +23,7 @@ namespace qon.Functions.Propagators
 
             if (certainVariablesCount != distinctVariables.Count)
             {
-                return new ConstraintResult(false, 0);
+                return ConstraintResult.HasErrors();
             }
 
             var openVariables = field.Where(x => x.State == SuperpositionState.Uncertain);
@@ -32,7 +34,7 @@ namespace qon.Functions.Propagators
                 changes += variable.AutoCollapse().HasValue ? 1 : 0;
             }
 
-            return new ConstraintResult(true, changes);
+            return ConstraintResult.Success(changes);
         }
 
         public static Propagator<T> AllDistinct<T>()
@@ -59,7 +61,7 @@ namespace qon.Functions.Propagators
 
                     if (variable.Domain.IsEmpty())
                     {
-                        return new ConstraintResult(false, 0);
+                        return ConstraintResult.HasErrors();
                     }
 
                     if (variable.AutoCollapse().HasValue || removed > 0)
@@ -68,7 +70,7 @@ namespace qon.Functions.Propagators
                     }
                 }
 
-                return new ConstraintResult(true, changes);
+                return ConstraintResult.Success(changes);
             });
         }
 
@@ -93,7 +95,7 @@ namespace qon.Functions.Propagators
 
                     if (newDomain.IsEmpty())
                     {
-                        return new ConstraintResult(false, 0);
+                        return ConstraintResult.HasErrors();
                     }
 
                     if (variable.AutoCollapse() != Optional<T>.Empty || originalSize-newDomain.Size() != 0)
@@ -102,33 +104,84 @@ namespace qon.Functions.Propagators
                     }
                 }
 
-                return new ConstraintResult(true, changes);
+                return ConstraintResult.Success(changes);
             });
         }
 
-        public static DefaultPropagator<T, bool> AsConstraint<T>()
+        public static DefaultPropagator<bool> AsConstraint<T>(bool invert = false)
         {
-            return new DefaultPropagator<T, bool>(value => new ConstraintResult(value, 0));
+            return new DefaultPropagator<bool>(value => new ConstraintResult(value ^ invert, 0));
         }
 
-        public static Propagator<T> AmountCheck<T>(int value, COperator condition)
+        public static DefaultPropagator<VonNeumannParameter<T>> As<T>(EuclideanConstraintParameter<T> param)
         {
-            return new Propagator<T>(list =>
+            return new DefaultPropagator<VonNeumannParameter<T>>(vnp =>
             {
-                int count = list.Count();
-                bool result = condition switch
-                {
-                    COperator.EQ => count == value,
-                    COperator.NE => count != value,
-                    COperator.LT => count < value,
-                    COperator.LE => count <= value,
-                    COperator.GT => count > value,
-                    COperator.GE => count >= value,
-                    _ => throw new InternalLogicException("Passed nonexistent enum value"),
-                };
+                //TODO optimize
+                int cumulativeChanges = 0;
 
-                return new ConstraintResult(result, 0);
+                var leftResult = DomainIntersectionWithHashSet(param[Side.Left]).ApplyTo(vnp.Left.FromNullableToArray());
+                if (leftResult.Failed)
+                {
+                    return leftResult;
+                }
+                else
+                {
+                    cumulativeChanges += leftResult.ChangesAmount;
+                }
+
+                var rightResult = DomainIntersectionWithHashSet(param[Side.Right]).ApplyTo(vnp.Right.FromNullableToArray());
+                if (rightResult.Failed)
+                {
+                    return rightResult;
+                }
+                else
+                {
+                    cumulativeChanges += rightResult.ChangesAmount;
+                }
+
+                var frontResult = DomainIntersectionWithHashSet(param[Side.Front]).ApplyTo(vnp.Front.FromNullableToArray());
+                if (frontResult.Failed)
+                {
+                    return frontResult;
+                }
+                else
+                {
+                    cumulativeChanges += frontResult.ChangesAmount;
+                }
+
+                var backResult = DomainIntersectionWithHashSet(param[Side.Back]).ApplyTo(vnp.Back.FromNullableToArray());
+                if (backResult.Failed)
+                {
+                    return backResult;
+                }
+                else
+                {
+                    cumulativeChanges += backResult.ChangesAmount;
+                }
+
+                var topResult = DomainIntersectionWithHashSet(param[Slab.Top]).ApplyTo(vnp.Top.FromNullableToArray());
+                if (topResult.Failed)
+                {
+                    return topResult;
+                }
+                else
+                {
+                    cumulativeChanges += topResult.ChangesAmount;
+                }
+
+                var bottomResult = DomainIntersectionWithHashSet(param[Slab.Bottom]).ApplyTo(vnp.Bottom.FromNullableToArray());
+                if (bottomResult.Failed)
+                {
+                    return bottomResult;
+                }
+                else
+                {
+                    cumulativeChanges += bottomResult.ChangesAmount;
+                }
+
+                return ConstraintResult.Success(cumulativeChanges);
             });
-        }
+        }       
     }
 }

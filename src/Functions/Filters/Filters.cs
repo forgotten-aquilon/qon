@@ -1,6 +1,8 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using qon.Exceptions;
 using qon.Variables;
+using qon.Variables.Layers;
 
 namespace qon.Functions.Filters
 {
@@ -13,11 +15,27 @@ namespace qon.Functions.Filters
                 ?? throw new InternalLogicException($"Variable '{v.Name}' is missing required tag '{s}' for grouping."));
         }
 
+        public static Filter<T> GroupWith<TIn, T>(Func<TIn, object> func) where TIn : ILayer<T>
+        {
+            return new Filter<T>(v =>
+            {
+                if (v.Layers.GetLayerOrNull<TIn>() is TIn layer)
+                {
+                    return func(layer);
+                }
+                else
+                {
+                    throw new InternalLogicException($"Filter {func} can't be applied to Layer'{typeof(TIn)}'.");
+                }
+            });
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<T> SelectByTagValue<T>(string s, object value)
         {
             return new QPredicate<T>(v => object.Equals(v.GetNullOrValueProperty(s), value));
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<T> All<T>()

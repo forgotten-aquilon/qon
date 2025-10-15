@@ -14,7 +14,7 @@ namespace qon.Variables
     {
         public Guid Id { get; protected set; } = Guid.NewGuid();
         public string Name { get; protected set; }
-
+        public bool Protected { get; set; } = false;
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
         public LayersManager<T> Layers { get; protected set; } = new LayersManager<T>();
         public Optional<T> Value { get; protected set; } = Optional<T>.Empty;
@@ -82,7 +82,8 @@ namespace qon.Variables
                 Id = Id,
                 Name = Name,
                 Properties = new Dictionary<string, object>(Properties),
-                Value = Value
+                Value = Value,
+                Layers = Layers.Copy()
             };
         }
 

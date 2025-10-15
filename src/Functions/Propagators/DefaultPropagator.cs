@@ -5,7 +5,7 @@ using qon.Variables;
 
 namespace qon.Functions.Propagators
 {
-    public class DefaultPropagator<T, TIn> : IChain<TIn, ConstraintResult>
+    public class DefaultPropagator<TIn> : IChain<TIn, ConstraintResult>
     {
         public Func<TIn, ConstraintResult> PropagationFunction { get; }
 
@@ -19,9 +19,9 @@ namespace qon.Functions.Propagators
             return PropagationFunction(input);
         }
 
-        public virtual IChain<TIn, ConstraintResult> AsIChain()
+        public static IChain<TIn, ConstraintResult> operator ~(DefaultPropagator<TIn> obj)
         {
-            return this;
+            return obj;
         }
     }
 }

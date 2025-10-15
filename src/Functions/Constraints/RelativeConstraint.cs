@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using qon.Functions.Propagators;
 using static qon.Helpers.Helper;
 using qon.Functions.Filters;
+using qon.Variables.Layers;
 
 namespace qon.Functions.Constraints
 {
@@ -23,7 +24,7 @@ namespace qon.Functions.Constraints
             AggregationFactory = aggregationFactory;
         }
 
-        public ConstraintResult Execute(SuperpositionVariable<T>[] field)
+        public virtual ConstraintResult Execute(SuperpositionVariable<T>[] field)
         {
             IEnumerable<SuperpositionVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo);
 
@@ -40,6 +41,11 @@ namespace qon.Functions.Constraints
         public static Func<SuperpositionVariable<T>, QPredicate<T>> Create<TVariable>(Func<TVariable, QPredicate<T>> predicate) where TVariable : SuperpositionVariable<T>
         {
             return PredicateBuilder.For<T, TVariable>(predicate);
+        }
+
+        public static Func<SuperpositionVariable<T>, QPredicate<T>> Create1<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T>
+        {
+            return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
         }
     }
 }

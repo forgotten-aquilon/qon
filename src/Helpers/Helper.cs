@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using qon.Functions.Filters;
+using qon.Variables.Layers;
 
 namespace qon.Helpers
 {
@@ -89,6 +90,11 @@ namespace qon.Helpers
             public static Func<SuperpositionVariable<T>, object> For<T, TVariable>(Func<TVariable, object> predicate) where TVariable : SuperpositionVariable<T>
             {
                 return variable => variable is TVariable typed ? predicate(typed) : _singleton;
+            }
+
+            public static Func<QVariable<T>, bool> For1<T, TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T>
+            {
+                return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
             }
         }
 

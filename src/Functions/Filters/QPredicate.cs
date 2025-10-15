@@ -2,6 +2,7 @@
 using qon.Functions;
 using qon.Helpers;
 using qon.Variables;
+using qon.Variables.Layers;
 using static qon.Helpers.Helper;
 
 namespace qon.Functions.Filters
@@ -40,6 +41,11 @@ namespace qon.Functions.Filters
         public static QPredicate<T> Create<TVariable>(Func<TVariable, bool> predicate) where TVariable : SuperpositionVariable<T>
         {
             return new QPredicate<T>(PredicateBuilder.For<T,TVariable>(predicate));
+        }
+
+        public static QPredicate<T> Create1<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T>
+        {
+            return new QPredicate<T>(variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>()));
         }
     }
 }

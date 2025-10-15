@@ -16,25 +16,10 @@ namespace qon.Variables
         Defined
     }
 
-    public class SuperpositionVariable<T> : ICloneable
+    public class SuperpositionVariable<T> : QVariable<T>
     {
-        protected Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
-
-        public string Name
-        {
-            get 
-            {
-                return Properties["@Name"] as string ?? "";
-            } 
-            protected set
-            {
-                Properties["@Name"] = value;
-            }
-        }
-
         public IDomain<T> Domain { get; set; }
         public SuperpositionState State { get; protected set; }
-        public Optional<T> Value { get; protected set; } = Optional<T>.Empty;
 
         public double Entropy
         {
@@ -80,18 +65,6 @@ namespace qon.Variables
             {
                 State = SuperpositionState.Constant;
             }
-        }
-
-        //TODO: Properly implement
-        public SuperpositionVariable<T> AddProperty(string name, object value)
-        {
-            if (Properties.ContainsKey(name))
-            {
-                throw new InternalLogicException("Property with this name already exists");
-            }
-
-            Properties[name] = value;
-            return this;
         }
 
         public int SetDomain(IDomain<T> domain)
@@ -148,56 +121,23 @@ namespace qon.Variables
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual object Clone()
+        public override object Clone()
         {
-            SuperpositionVariable<T> clone = new()
+            return Copy();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override SuperpositionVariable<T> Copy()
+        {
+            return new SuperpositionVariable<T>()
             {
                 Domain = Domain.Copy(),
                 Properties = new Dictionary<string, object>(Properties),
                 Value = Value.Copy(),
                 State = State,
                 Name = Name,
+                Layers = Layers.Copy()
             };
-
-            return clone;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SuperpositionVariable<T> Copy()
-        {
-            return (SuperpositionVariable<T>)Clone();
-        }
-
-        public virtual object this[string propertyName]
-        {
-            get
-            {
-                return Properties[propertyName];
-            }
-
-            set 
-            { 
-                Properties[propertyName] = value; 
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual object? GetNullOrValueProperty(string propertyName)
-        {
-            Properties.TryGetValue(propertyName, out object? property);
-            return property;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool TryGetProperty(string propertyName, out object? property)
-        {
-            return Properties.TryGetValue(propertyName, out property);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool ContainsProperty(string propertyName)
-        {
-            return Properties.ContainsKey(propertyName);
         }
     }
 }

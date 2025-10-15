@@ -17,12 +17,12 @@ namespace qon.Functions.Operations
 
         public TOut ApplyTo(TIn input)
         {
-            throw new NotImplementedException();
+            return OperationFunction(input);
         }
 
-        public IChain<TIn, TOut> AsIChain()
+        public static IChain<TIn, TOut> operator ~(Operation<TIn, TOut> obj)
         {
-            throw new NotImplementedException();
+            return obj;
         }
     }
 }

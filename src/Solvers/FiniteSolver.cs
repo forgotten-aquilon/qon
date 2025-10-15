@@ -81,7 +81,7 @@ namespace qon.Solvers
                     }
                     else if (Current.CurrentState == SolutionState.NotSolved)
                     {
-                        if (!result.IsSuccess)
+                        if (result.Failed)
                         {
                             changes += GoBack();
                         }
@@ -126,7 +126,7 @@ namespace qon.Solvers
                 case MachineStateType.Validation:
                     var validation = ApplyConstraints(_machine.Constraints.ValidationConstraints is not null);
 
-                    if (!validation.IsSuccess)
+                    if (validation.Failed)
                     {
                         changes += GoBack();
                         _machine.StateType = MachineStateType.IsSolving;
@@ -161,10 +161,11 @@ namespace qon.Solvers
 
                 var globalResult = ExecuteGlobalRules(_machine.Constraints.GeneralConstraints);
 
-                if (!globalResult.IsSuccess)
+                if (globalResult.Failed)
                 {
                     return globalResult;
                 }
+
                 changes += globalResult.ChangesAmount;
                 changes += Current.AutoCollapse();
 
@@ -174,19 +175,19 @@ namespace qon.Solvers
 
             if (!validation)
             {
-                return new ConstraintResult(true, filterChanges);
+                return ConstraintResult.Success(filterChanges);
             }
 
             var globalValidation = ExecuteGlobalRules(_machine.Constraints.ValidationConstraints!);
 
-            if (!globalValidation.IsSuccess)
+            if (globalValidation.Failed)
             {
                 return globalValidation;
             }
 
             int validationChanges = globalValidation.ChangesAmount;
 
-            return new ConstraintResult(true, validationChanges);
+            return ConstraintResult.Success(validationChanges);
         }
 
         public ConstraintResult ExecuteGlobalRules(List<IQConstraint<T>> rules)
@@ -196,7 +197,7 @@ namespace qon.Solvers
             {
                 var result = rule.Execute(Current.Field);
 
-                if (!result.IsSuccess)
+                if (result.Failed)
                 {
                     return result;
                 }
@@ -204,7 +205,7 @@ namespace qon.Solvers
                 changes += result.ChangesAmount;
             }
 
-            return new ConstraintResult(true, changes);
+            return ConstraintResult.Success(changes);
         }
 
         public void Reset()

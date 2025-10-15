@@ -1,6 +1,7 @@
 ﻿using System;
 using qon.Exceptions;
 using qon.Variables;
+using qon.Variables.Layers;
 
 namespace qon.Functions.Filters
 {
@@ -31,9 +32,22 @@ namespace qon.Functions.Filters
 
         public static Filter<T> GroupByRectangle<T>(int width, int height)
         {
-            return new Filter<T>(
-                v => $"{(int)v["x"] / width}x{(int)v["y"] / height}"
-            );
+            return Filters.GroupWith<EuclideanLayer<T>, T>(l => $"{l.X/width}x{l.Y/height}");
+        }
+
+        public static Filter<T> GroupByX<T>()
+        {
+            return Filters.GroupWith<EuclideanLayer<T>, T>(l => l.X);
+        }
+
+        public static Filter<T> GroupByY<T>()
+        {
+            return Filters.GroupWith<EuclideanLayer<T>, T>(l => l.Y);
+        }
+
+        public static Filter<T> GroupByZ<T>()
+        {
+            return Filters.GroupWith<EuclideanLayer<T>, T>(l => l.Z);
         }
     }
 }

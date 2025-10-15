@@ -2,13 +2,23 @@
 {
     public struct ConstraintResult
     {
-        public bool IsSuccess { get; set; }
+        public bool Failed { get; set; }
         public int ChangesAmount { get; set; }
 
-        public ConstraintResult(bool isSuccess, int changes)
+        public ConstraintResult(bool failed, int changes)
         {
-            IsSuccess = isSuccess; 
+            Failed = failed; 
             ChangesAmount = changes;
+        }
+
+        public static ConstraintResult HasErrors(int changes = 0)
+        {
+            return new ConstraintResult(true, changes);
+        }
+
+        public static ConstraintResult Success(int changes)
+        {
+            return new ConstraintResult(false, changes);
         }
     }
 }

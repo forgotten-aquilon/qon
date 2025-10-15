@@ -5,7 +5,7 @@ using qon.Variables;
 
 namespace qon.Functions.Propagators
 {
-    public class Propagator<T> : DefaultPropagator<T, IEnumerable<SuperpositionVariable<T>>>
+    public class Propagator<T> : DefaultPropagator<IEnumerable<SuperpositionVariable<T>>>
     {
         public Propagator(Func<IEnumerable<SuperpositionVariable<T>>, ConstraintResult> propagationFunction) : base(propagationFunction)
         {
@@ -15,18 +15,18 @@ namespace qon.Functions.Propagators
         {
             ConstraintResult result = PropagationFunction(input);
 
-            return result.IsSuccess switch
+            return result.Failed switch
             {
-                false => result,
-                true => input.Any(x => x.State == SuperpositionState.Uncertain && x.Domain.IsEmpty()) 
-                    ? new ConstraintResult(result.IsSuccess, result.ChangesAmount)
+                true => result,
+                false => input.Any(x => x.State == SuperpositionState.Uncertain && x.Domain.IsEmpty()) 
+                    ? ConstraintResult.HasErrors()
                     : result
             };
         }
 
-        public override IChain<IEnumerable<SuperpositionVariable<T>>, ConstraintResult> AsIChain()
+        public static IChain<IEnumerable<SuperpositionVariable<T>>, ConstraintResult> operator ~(Propagator<T> obj)
         {
-            return this;
+            return obj;
         }
     }
 }

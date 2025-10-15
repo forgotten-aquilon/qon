@@ -18,6 +18,8 @@ using qon.Functions.Propagators;
 using qon.Functions.Filters;
 using qon.Functions.Constraints;
 using qon.Functions.Operations;
+using qon.Variables.Layers;
+
 
 //RotationExample(22);
 EightQueens();
@@ -73,9 +75,9 @@ void SimpleSudoku()
         {
             GeneralConstraints = new()
             {
-                new QConstraint<int>(Filters.GroupByTag<int>("x"), Propagators.AllDistinct<int>()),
-                new QConstraint<int>(Filters.GroupByTag<int>("y"), Propagators.AllDistinct<int>()),
-                new QConstraint<int>(EuclideanFilters.GroupByRectangle<int>(2,2), Propagators.AllDistinct<int>())
+                new QConstraint<int>(EuclideanFilters.GroupByRectangle<int>(2,2), Propagators.AllDistinct<int>()),
+                new QConstraint<int>(EuclideanFilters.GroupByX<int>(), Propagators.AllDistinct<int>()),
+                new QConstraint<int>(EuclideanFilters.GroupByY<int>(), Propagators.AllDistinct<int>()),
             }
         },
         Random = new Random(12)
@@ -106,9 +108,9 @@ void Sudoku()
         {
             GeneralConstraints = new()
             {
-                new QConstraint<int>(Filters.GroupByTag<int>("x"), Propagators.AllDistinct<int>()),
-                new QConstraint<int>(Filters.GroupByTag<int>("y"), Propagators.AllDistinct<int>()),
-                new QConstraint<int>(EuclideanFilters.GroupByRectangle<int>(3,3), Propagators.AllDistinct<int>())
+                new QConstraint<int>(EuclideanFilters.GroupByRectangle<int>(2,2), Propagators.AllDistinct<int>()),
+                new QConstraint<int>(EuclideanFilters.GroupByX<int>(), Propagators.AllDistinct<int>()),
+                new QConstraint<int>(EuclideanFilters.GroupByY<int>(), Propagators.AllDistinct<int>()),
             }
         }
 
@@ -176,12 +178,12 @@ void EverestSudoku()
         {
             GeneralConstraints = new()
             {
-                new QConstraint<int>(Filters.GroupByTag<int>("x"), Propagators.AllDistinct<int>()),
-                new QConstraint<int>(Filters.GroupByTag<int>("y"), Propagators.AllDistinct<int>()),
-                new QConstraint<int>(EuclideanFilters.GroupByRectangle<int>(3,3), Propagators.AllDistinct<int>())
+                new QConstraint<int>(EuclideanFilters.GroupByRectangle<int>(3,3), Propagators.AllDistinct<int>()),
+                new QConstraint<int>(EuclideanFilters.GroupByX<int>(), Propagators.AllDistinct<int>()),
+                new QConstraint<int>(EuclideanFilters.GroupByY<int>(), Propagators.AllDistinct<int>()),
             }
         },
-        Random = new Random(100)
+        Random = new Random(2222)
     };
 
     var w = new WFCMachine<int>(p);
@@ -283,132 +285,133 @@ void Maze()
 
     List<IQConstraint<string>> mazeRules = new();
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╬"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftConn,
             Right = rightConn,
             Front = topConn,
             Back = bottomConn,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("║"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftWall,
             Right = rightWall,
             Front = topConn,
             Back = bottomConn,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("═"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftConn,
             Right = rightConn,
             Front = topWall,
             Back = bottomWall,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╔"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftWall,
             Right = rightConn,
             Front = topWall,
             Back = bottomConn,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╗"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftConn,
             Right = rightWall,
             Front = topWall,
             Back = bottomConn,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╚"),
-                    new EuclideanConstraintParameter<string>()
-                    {
-                        Left = leftWall,
-                        Right = rightConn,
-                        Front = topConn,
-                        Back = bottomWall,
-                    }));
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
+        {
+            Left = leftWall,
+            Right = rightConn,
+            Front = topConn,
+            Back = bottomWall,
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╝"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftConn,
             Right = rightWall,
             Front = topConn,
             Back = bottomWall,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╠"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftWall,
             Right = rightConn,
             Front = topConn,
             Back = bottomConn,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╣"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftConn,
             Right = rightWall,
             Front = topConn,
             Back = bottomConn,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╦"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftConn,
             Right = rightConn,
             Front = topWall,
             Back = bottomConn,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue("╩"),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftConn,
             Right = rightConn,
             Front = topConn,
             Back = bottomWall,
-        }));
+        })));
 
-    mazeRules.AddRange(EuclideanConstraint<string>.Create(
+    mazeRules.Add(new RelativeConstraintBuilder<string>(
         Filters.EqualsToValue(" "),
-        new EuclideanConstraintParameter<string>()
+        v => new VonNeumannFilter<string>().ApplyTo(v) + ~Propagators.As(new EuclideanConstraintParameter<string>()
         {
             Left = leftWall,
             Right = rightWall,
             Front = topWall,
             Back = bottomWall,
-        }));
+        })));
 
     var p = new QMachineParameter<string>()
     {
         Constraints = new()
         {
             GeneralConstraints = mazeRules
-        }
+        },
+        Random = new Random(10)
     };
 
     WFCMachine<string> w = new WFCMachine<string>(p);
@@ -429,6 +432,7 @@ void Maze()
     }
 }
 
+
 void Print<T>(MachineState<T> s, int size, bool correctionIndent = false)
 {
     string result = "";
@@ -436,7 +440,9 @@ void Print<T>(MachineState<T> s, int size, bool correctionIndent = false)
     {
         for (int j = 0; j < size; j++)
         {
-            var a = s["x", j]["y", i].Result.FirstOrDefault();
+            var a = s[v => v.Layers.With<EuclideanLayer<T>>() is EuclideanLayer<T> layer && layer.X == j && layer.Y == i].Result.FirstOrDefault();
+
+            //var a = s["x", j]["y", i].Result.FirstOrDefault();
             var b = a.State != SuperpositionState.Uncertain ? a.Value.Value.ToString() : "@";
 
             result += $"{b}{(correctionIndent ? '\u2009' : "")}";
@@ -459,19 +465,20 @@ void EightQueens()
             GeneralConstraints =  new()
             {
                 new RelativeConstraint<char>(
-                    Filters.EqualsToValue('Q'), 
+                    Filters.EqualsToValue('Q'),
                     Propagators.DomainIntersectionWithHashSet<char>(new HashSet<char> { '.' }),
-                    RelativeConstraint<char>.Create<EuclideanVariable<char>>(
-                        o =>
-                            QPredicate<char>.Create<EuclideanVariable<char>>(v => v.X == o.X)
-                            | QPredicate<char>.Create<EuclideanVariable<char>>(v => v.Y == o.Y)
-                            | QPredicate<char>.Create<EuclideanVariable<char>>(v => Math.Abs(v.X - o.X) == Math.Abs(v.Y - o.Y)))
-                    )
+                    RelativeConstraint<char>.Create1<EuclideanLayer<char>>(
+                        l1 =>
+                              QPredicate<char>.Create1<EuclideanLayer<char>>(l2 => l1.X == l2.X)
+                            | QPredicate<char>.Create1<EuclideanLayer<char>>(l2 => l1.Y == l2.Y)
+                            | QPredicate<char>.Create1<EuclideanLayer<char>>(l2 => Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y))))
             },
             ValidationConstraints = new()
             {   
-                new ConstraintBuilder<char>(field => field.Where(Filters.EqualsToValue('Q').ApplyTo) + Propagators.AmountCheck<char>(8, COperator.EQ).AsIChain()),
-                //new GlobalRule<char>(Aggregators.EqualsToValue('Q'), Filters.AmountCheck<char>(8, Comparison.EQ))
+                new ConstraintBuilder<char>(field => 
+                    field.Where(Filters.EqualsToValue('Q').ApplyTo).Count() +
+                    ~Operations.Comparison(8, COperator.EQ) +
+                    ~Propagators.AsConstraint<char>(true)),
             }
         }
     };
@@ -521,9 +528,12 @@ void RotationExample(int s)
     foreach (var block in blocks)
     {
         domain.Add(block.Key);
-        rotationRules.AddRange(EuclideanConstraint<EuclideanBlock<string>>.Create(
-            Filters.EqualsToValue(block.Key),
-            block.Value));
+        rotationRules.Add(new RelativeConstraintBuilder<EuclideanBlock<string>>(Filters.EqualsToValue(block.Key), 
+            v => new VonNeumannFilter<EuclideanBlock<string>>().ApplyTo(v) 
+                 + ~Propagators.As(block.Value)));
+        //rotationRules.AddRange(EuclideanConstraint<EuclideanBlock<string>>.Create(
+        //    Filters.EqualsToValue(block.Key),
+        //    block.Value));
     }
 
     var p = new QMachineParameter<EuclideanBlock<string>>()

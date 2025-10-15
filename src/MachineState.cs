@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using qon.Variables;
+using qon.Variables.Layers;
 
 namespace qon
 {
@@ -49,6 +50,13 @@ namespace qon
         public static SearchResult<T> Search(IEnumerable<SuperpositionVariable<T>> variables, string name, object value)
         {
             var result = variables.Where(x => object.Equals(x.GetNullOrValueProperty(name), value));
+            return new SearchResult<T>(result);
+        }
+
+        public static SearchResult<T> Search(IEnumerable<SuperpositionVariable<T>> variables, Func<SuperpositionVariable<T>, bool> predicate)
+        {
+            var result = variables.Where(predicate);
+
             return new SearchResult<T>(result);
         }
     }
@@ -118,6 +126,14 @@ namespace qon
             get
             {
                 return SearchResult<T>.Search(Field, name, value);
+            }
+        }
+
+        public SearchResult<T> this[Func<SuperpositionVariable<T>, bool> predicate]
+        {
+            get
+            {
+                return SearchResult<T>.Search(Field, predicate);
             }
         }
 

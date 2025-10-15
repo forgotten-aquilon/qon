@@ -12,16 +12,19 @@ namespace qon.Variables.Layers
         public int Y { get; set; }
         public int Z { get; set; }
 
-        public EuclideanLayer(int x, int y, int z)
+        public WFCMachine<T> Machine { get; protected set; }
+
+        public EuclideanLayer(int x, int y, int z, WFCMachine<T> machine)
         {
             X = x;
             Y = y;
             Z = z;
+            Machine = machine;
         }
 
         public ILayer<T> Copy()
         {
-            return new EuclideanLayer<T>(X, Y, Z);
+            return new EuclideanLayer<T>(X, Y, Z, Machine);
         }
     }
 }

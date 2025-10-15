@@ -1,5 +1,6 @@
 ﻿using System;
 using qon.Functions;
+using qon.Functions.Operations;
 using qon.Variables;
 
 namespace qon.Functions.Filters
@@ -18,9 +19,9 @@ namespace qon.Functions.Filters
             return AggregationFunction(input);
         }
 
-        public IChain<SuperpositionVariable<T>, object> AsIChain()
+        public static IChain<SuperpositionVariable<T>, object> operator~(Filter<T> obj)
         {
-            return this;
+            return obj;
         }
     }
 }

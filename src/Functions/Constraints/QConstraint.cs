@@ -28,7 +28,6 @@ namespace qon.Functions.Constraints
             {
                 case FilteringType.Grouping:
                     var changes = 0;
-                    var unsolvedChanges = 0;
                     var groups = field.GroupBy(x => GroupingAggregator!.ApplyTo(x));
 
                     foreach (var group in groups)
@@ -36,13 +35,13 @@ namespace qon.Functions.Constraints
                         var result = Propagator.ApplyTo(group.ToArray());
                         changes += result.ChangesAmount;
 
-                        if (!result.IsSuccess)
+                        if (result.Failed)
                         {
                             return result;
                         }
                     }
 
-                    return new ConstraintResult(true, changes);
+                    return ConstraintResult.Success(changes);
 
                 case FilteringType.Selecting:
                     var aggregation = field.Where(SelectingAggregator!.ApplyTo).ToList();

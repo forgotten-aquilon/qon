@@ -93,7 +93,7 @@ namespace qon.Tests
 
             var result = filter.ApplyTo(new[] { variable });
 
-            Assert.Equal(PropagationOutcome.Converged, result.IsSuccess);
+            Assert.Equal(PropagationOutcome.Converged, result.Failed);
             Assert.Equal(SuperpositionState.Defined, variable.State);
             Assert.True(variable.Value.CheckValue(2));
             Assert.True(ReferenceEquals(variable.Domain, EmptyDomain<int>.Instance));
@@ -115,7 +115,7 @@ namespace qon.Tests
 
             var result = Propagators.AllDistinct<int>().ApplyTo(new[] { first, second, third });
 
-            Assert.Equal(PropagationOutcome.Conflict, result.IsSuccess);
+            Assert.Equal(PropagationOutcome.Conflict, result.Failed);
             Assert.Equal(0, result.ChangesAmount);
         }
 
@@ -130,7 +130,7 @@ namespace qon.Tests
 
             var result = Propagators.AllDistinct<int>().ApplyTo(new[] { decided, open });
 
-            Assert.Equal(PropagationOutcome.Converged, result.IsSuccess);
+            Assert.Equal(PropagationOutcome.Converged, result.Failed);
             Assert.Equal(SuperpositionState.Defined, open.State);
             Assert.True(open.Value.CheckValue(2));
             Assert.True(ReferenceEquals(open.Domain, EmptyDomain<int>.Instance));
