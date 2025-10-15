@@ -38,12 +38,7 @@ namespace qon.Functions.Constraints
             return Propagator.ApplyTo(aggregation);
         }
 
-        public static Func<SuperpositionVariable<T>, QPredicate<T>> Create<TVariable>(Func<TVariable, QPredicate<T>> predicate) where TVariable : SuperpositionVariable<T>
-        {
-            return PredicateBuilder.For<T, TVariable>(predicate);
-        }
-
-        public static Func<SuperpositionVariable<T>, QPredicate<T>> Create1<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T>
+        public static Func<SuperpositionVariable<T>, QPredicate<T>> WithLayer<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T>
         {
             return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
         }

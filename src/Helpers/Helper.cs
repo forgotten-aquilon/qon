@@ -74,30 +74,6 @@ namespace qon.Helpers
 
         #region Functional Extensions
 
-        public static class PredicateBuilder
-        {
-            public static Func<SuperpositionVariable<T>, bool> For<T, TVariable>(Func<TVariable, bool> predicate) where TVariable : SuperpositionVariable<T>
-            {
-                return variable => variable is TVariable typed && predicate(typed);
-            }
-
-            public static Func<SuperpositionVariable<T>, QPredicate<T>> For<T, TVariable>(Func<TVariable, QPredicate<T>> predicate) where TVariable : SuperpositionVariable<T>
-            {
-                return variable => variable is TVariable typed ? predicate(typed) : QPredicate<T>.Empty;
-            }
-
-            private static readonly object _singleton = new object();
-            public static Func<SuperpositionVariable<T>, object> For<T, TVariable>(Func<TVariable, object> predicate) where TVariable : SuperpositionVariable<T>
-            {
-                return variable => variable is TVariable typed ? predicate(typed) : _singleton;
-            }
-
-            public static Func<QVariable<T>, bool> For1<T, TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T>
-            {
-                return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
-            }
-        }
-
         public static QPredicate<T> Or<T>(this QPredicate<T> left, QPredicate<T> right)
         {
             var tempFunc = left.PredicateFunction;

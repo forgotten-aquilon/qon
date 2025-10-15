@@ -15,13 +15,14 @@ namespace qon.Functions.Propagators
         {
             ConstraintResult result = PropagationFunction(input);
 
-            return result.Failed switch
+            if (result.Failed)
             {
-                true => result,
-                false => input.Any(x => x.State == SuperpositionState.Uncertain && x.Domain.IsEmpty()) 
-                    ? ConstraintResult.HasErrors()
-                    : result
-            };
+                return result;
+            }
+
+            return input.Any(x => x.State == SuperpositionState.Uncertain && x.Domain.IsEmpty())
+                ? ConstraintResult.HasErrors()
+                : result;
         }
 
         public static IChain<IEnumerable<SuperpositionVariable<T>>, ConstraintResult> operator ~(Propagator<T> obj)

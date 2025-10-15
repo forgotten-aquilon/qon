@@ -108,12 +108,12 @@ namespace qon.Functions.Propagators
             });
         }
 
-        public static DefaultPropagator<bool> AsConstraint<T>(bool invert = false)
+        public static DefaultPropagator<bool> FromBool(bool invert = false)
         {
             return new DefaultPropagator<bool>(value => new ConstraintResult(value ^ invert, 0));
         }
 
-        public static DefaultPropagator<VonNeumannParameter<T>> As<T>(EuclideanConstraintParameter<T> param)
+        public static DefaultPropagator<VonNeumannParameter<T>> FromVonNeumann<T>(EuclideanConstraintParameter<T> param)
         {
             return new DefaultPropagator<VonNeumannParameter<T>>(vnp =>
             {

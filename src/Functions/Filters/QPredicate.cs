@@ -38,12 +38,7 @@ namespace qon.Functions.Filters
             return left.And(right);
         }
 
-        public static QPredicate<T> Create<TVariable>(Func<TVariable, bool> predicate) where TVariable : SuperpositionVariable<T>
-        {
-            return new QPredicate<T>(PredicateBuilder.For<T,TVariable>(predicate));
-        }
-
-        public static QPredicate<T> Create1<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T>
+        public static QPredicate<T> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T>
         {
             return new QPredicate<T>(variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>()));
         }

@@ -2,7 +2,7 @@
 {
     public struct ConstraintResult
     {
-        public bool Failed { get; set; }
+        public PropagationOutcome Failed { get; set; }
         public int ChangesAmount { get; set; }
 
         public ConstraintResult(bool failed, int changes)
@@ -10,6 +10,8 @@
             Failed = failed; 
             ChangesAmount = changes;
         }
+
+        public PropagationOutcome Outcome => Failed;
 
         public static ConstraintResult HasErrors(int changes = 0)
         {
