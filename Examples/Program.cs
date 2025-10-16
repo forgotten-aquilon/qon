@@ -21,10 +21,6 @@ using qon.Functions.DSL;
 using qon.Functions.Operations;
 using qon.Variables.Layers;
 
-for (; ; )
-{
-
-}
 
 //RotationExample(22);
 Maze();
