@@ -1,5 +1,6 @@
 ﻿using qon.Exceptions;
 using qon.Variables;
+using qon.Variables.Layers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace qon.Domains
     public static class DomainHelper<T>
     {
         private static readonly Dictionary<(Type, Type), Func<IDomain<T>, IDomain<T>, IDomain<T>>> Map = new();
-        private static readonly Dictionary<Type, Func<SuperpositionVariable<T>, IDomain<T>, HashSet<T>, int>> HashSetIntersections = new();
+        private static readonly Dictionary<Type, Func<QVariable<T>, IDomain<T>, HashSet<T>, int>> HashSetIntersections = new();
 
         public static void Register<T1, T2, TOut>(Func<T1, T2, TOut> handler) where T1: IDomain<T> where T2: IDomain<T> where TOut: IDomain<T>
             => Map[(typeof(T1), typeof(T2))] = (a, b) => handler((T1)a, (T2)b);
@@ -21,11 +22,11 @@ namespace qon.Domains
         public static bool TryGet(IDomain<T> a, IDomain<T> b, out Func<IDomain<T>, IDomain<T>, IDomain<T>>? func)
             => Map.TryGetValue((a.GetType(), b.GetType()), out func);
 
-        public static void RegisterHashSetIntersection<TDomain>(Func<SuperpositionVariable<T>, TDomain, HashSet<T>, int> handler)
+        public static void RegisterHashSetIntersection<TDomain>(Func<QVariable<T>, TDomain, HashSet<T>, int> handler)
             where TDomain : IDomain<T>
             => HashSetIntersections[typeof(TDomain)] = (variable, domain, values) => handler(variable, (TDomain)domain, values);
 
-        public static bool TryGetHashSetIntersection(IDomain<T> domain, out Func<SuperpositionVariable<T>, IDomain<T>, HashSet<T>, int>? func)
+        public static bool TryGetHashSetIntersection(IDomain<T> domain, out Func<QVariable<T>, IDomain<T>, HashSet<T>, int>? func)
             => HashSetIntersections.TryGetValue(domain.GetType(), out func);
 
         static DomainHelper()
@@ -56,9 +57,10 @@ namespace qon.Domains
             throw new InternalLogicException($"There is no method for intersection of domains of types {domain1.GetType()} and {domain2.GetType()}. Register it using Register method of DomainHelper class");
         }
 
-        public static int DomainIntersectionWithHashSet(SuperpositionVariable<T> variable, HashSet<T> values)
+        public static int DomainIntersectionWithHashSet(QVariable<T> variable, HashSet<T> values)
         {
-            var domain = variable.Domain;
+            var layer = SuperpositionLayer<T>.With(variable);
+            var domain = layer.Domain;
 
             if (TryGetHashSetIntersection(domain, out var handler))
             {
@@ -80,7 +82,7 @@ namespace qon.Domains
             return Math.Max(0, originalSize - SafeSize(domain));
         }
 
-        private static int IntersectNumericalWithHashSet(SuperpositionVariable<T> variable, NumericalDomain<T> domain, HashSet<T> values)
+        private static int IntersectNumericalWithHashSet(QVariable<T> variable, NumericalDomain<T> domain, HashSet<T> values)
         {
             int originalSize = SafeSize(domain);
 
@@ -96,16 +98,18 @@ namespace qon.Domains
                 }
             }
 
-            variable.Domain = filtered.Count == 0
+            var targetLayer = SuperpositionLayer<T>.With(variable);
+            targetLayer.Domain = filtered.Count == 0
                 ? EmptyDomain<T>.Instance
                 : new DiscreteDomain<T>(filtered);
 
-            return Math.Max(0, originalSize - SafeSize(variable.Domain));
+            return Math.Max(0, originalSize - SafeSize(targetLayer.Domain));
         }
 
-        private static int IntersectGenericWithHashSet(SuperpositionVariable<T> variable, HashSet<T> values)
+        private static int IntersectGenericWithHashSet(QVariable<T> variable, HashSet<T> values)
         {
-            var originalDomain = variable.Domain;
+            var layer = SuperpositionLayer<T>.With(variable);
+            var originalDomain = layer.Domain;
             int originalSize = SafeSize(originalDomain);
 
             var filtered = originalDomain
@@ -115,16 +119,16 @@ namespace qon.Domains
 
             if (filtered.Count == 0)
             {
-                variable.Domain = EmptyDomain<T>.Instance;
+                layer.Domain = EmptyDomain<T>.Instance;
             }
             else
             {
 #pragma warning disable CS8714
-                variable.Domain = new DiscreteDomain<T>(filtered.ToDictionary(pair => pair.Key, pair => pair.Value, values.Comparer));
+                layer.Domain = new DiscreteDomain<T>(filtered.ToDictionary(pair => pair.Key, pair => pair.Value, values.Comparer));
 #pragma warning restore CS8714
             }
 
-            return Math.Max(0, originalSize - SafeSize(variable.Domain));
+            return Math.Max(0, originalSize - SafeSize(layer.Domain));
         }
 
         private static int SafeSize(IDomain<T> domain)

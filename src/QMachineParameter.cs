@@ -10,7 +10,7 @@ namespace qon
     {
         public IDomain<T>? Domain { get; set; }
 
-        public IEnumerable<SuperpositionVariable<T>>? Field { get; set; }
+        public IEnumerable<QVariable<T>>? Field { get; set; }
     }
 
     public class RuleHandler<T>

@@ -5,6 +5,6 @@ namespace qon.Functions.Constraints
 {
     public interface IQConstraint<T>
     {
-        public ConstraintResult Execute(SuperpositionVariable<T>[] field);
+        public ConstraintResult Execute(QVariable<T>[] field);
     }
 }

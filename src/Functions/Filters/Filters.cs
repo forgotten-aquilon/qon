@@ -46,26 +46,26 @@ namespace qon.Functions.Filters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<T> Unassigned<T>()
         {
-            return new QPredicate<T>(v => v.State == SuperpositionState.Uncertain);
+            return new QPredicate<T>(v => SuperpositionLayer<T>.With(v).State == SuperpositionState.Uncertain);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<T> Assigned<T>()
         {
-            return new QPredicate<T>(v => v.State != SuperpositionState.Uncertain);
+            return new QPredicate<T>(v => SuperpositionLayer<T>.With(v).State != SuperpositionState.Uncertain);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<T> DomainContains<T>(T value)
         {
-            return new QPredicate<T>(v => v.Domain.ContainsValue(value));
+            return new QPredicate<T>(v => SuperpositionLayer<T>.With(v).Domain.ContainsValue(value));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<T> EqualsToValue<T>(T value)
         {
             return new QPredicate<T>(v =>
-                v.State != SuperpositionState.Uncertain && v.Value.CheckValue(value));
+                SuperpositionLayer<T>.With(v).State != SuperpositionState.Uncertain && v.Value.CheckValue(value));
         }
     }
 }

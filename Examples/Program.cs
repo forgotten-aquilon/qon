@@ -21,9 +21,13 @@ using qon.Functions.DSL;
 using qon.Functions.Operations;
 using qon.Variables.Layers;
 
+for (; ; )
+{
+
+}
 
 //RotationExample(22);
-EverestSudoku();
+Maze();
 
 void NumberExample()
 {
@@ -152,40 +156,40 @@ void Sudoku()
     w.CreateEuclideanSpace((9, 9, 1), nd);
 
     #region Field init
-    w[(0, 0, 0)].Collapse(9, true);
-    w[(1, 0, 0)].Collapse(5, true);
-    w[(3, 0, 0)].Collapse(2, true);
-    w[(6, 0, 0)].Collapse(7, true);
+    SuperpositionLayer<int>.Collapse(w[(0, 0, 0)]!, 9, true);
+    SuperpositionLayer<int>.Collapse(w[(1, 0, 0)]!, 5, true);
+    SuperpositionLayer<int>.Collapse(w[(3, 0, 0)]!, 2, true);
+    SuperpositionLayer<int>.Collapse(w[(6, 0, 0)]!, 7, true);
 
-    w[(4, 1, 0)].Collapse(6, true);
-    w[(5, 1, 0)].Collapse(5, true);
+    SuperpositionLayer<int>.Collapse(w[(4, 1, 0)]!, 6, true);
+    SuperpositionLayer<int>.Collapse(w[(5, 1, 0)]!, 5, true);
 
-    w[(1, 2, 0)].Collapse(6, true);
-    w[(5, 2, 0)].Collapse(9, true);
-    w[(6, 2, 0)].Collapse(2, true);
+    SuperpositionLayer<int>.Collapse(w[(1, 2, 0)]!, 6, true);
+    SuperpositionLayer<int>.Collapse(w[(5, 2, 0)]!, 9, true);
+    SuperpositionLayer<int>.Collapse(w[(6, 2, 0)]!, 2, true);
 
-    w[(3, 3, 0)].Collapse(4, true);
-    w[(5, 3, 0)].Collapse(7, true);
-    w[(7, 3, 0)].Collapse(6, true);
-    w[(8, 3, 0)].Collapse(3, true);
+    SuperpositionLayer<int>.Collapse(w[(3, 3, 0)]!, 4, true);
+    SuperpositionLayer<int>.Collapse(w[(5, 3, 0)]!, 7, true);
+    SuperpositionLayer<int>.Collapse(w[(7, 3, 0)]!, 6, true);
+    SuperpositionLayer<int>.Collapse(w[(8, 3, 0)]!, 3, true);
 
-    w[(0, 4, 0)].Collapse(2, true);
-    w[(7, 4, 0)].Collapse(7, true);
+    SuperpositionLayer<int>.Collapse(w[(0, 4, 0)]!, 2, true);
+    SuperpositionLayer<int>.Collapse(w[(7, 4, 0)]!, 7, true);
 
-    w[(2, 5, 0)].Collapse(3, true);
+    SuperpositionLayer<int>.Collapse(w[(2, 5, 0)]!, 3, true);
 
-    w[(0, 6, 0)].Collapse(7, true);
-    w[(1, 6, 0)].Collapse(3, true);
-    w[(3, 6, 0)].Collapse(5, true);
-    w[(8, 6, 0)].Collapse(1, true);
+    SuperpositionLayer<int>.Collapse(w[(0, 6, 0)]!, 7, true);
+    SuperpositionLayer<int>.Collapse(w[(1, 6, 0)]!, 3, true);
+    SuperpositionLayer<int>.Collapse(w[(3, 6, 0)]!, 5, true);
+    SuperpositionLayer<int>.Collapse(w[(8, 6, 0)]!, 1, true);
 
-    w[(0, 7, 0)].Collapse(8, true);
-    w[(5, 7, 0)].Collapse(6, true);
+    SuperpositionLayer<int>.Collapse(w[(0, 7, 0)]!, 8, true);
+    SuperpositionLayer<int>.Collapse(w[(5, 7, 0)]!, 6, true);
 
-    w[(0, 8, 0)].Collapse(1, true);
-    w[(2, 8, 0)].Collapse(6, true);
-    w[(4, 8, 0)].Collapse(4, true);
-    w[(8, 8, 0)].Collapse(8, true);
+    SuperpositionLayer<int>.Collapse(w[(0, 8, 0)]!, 1, true);
+    SuperpositionLayer<int>.Collapse(w[(2, 8, 0)]!, 6, true);
+    SuperpositionLayer<int>.Collapse(w[(4, 8, 0)]!, 4, true);
+    SuperpositionLayer<int>.Collapse(w[(8, 8, 0)]!, 8, true);
     #endregion
 
     int step = 0;
@@ -231,35 +235,35 @@ void EverestSudoku()
     w.CreateEuclideanSpace((9, 9, 1), new DiscreteDomain<int>(domain));
 
     #region Field init  
-    w[(0, 0, 0)].Collapse(8, true);
+    SuperpositionLayer<int>.Collapse(w[(0, 0, 0)]!, 8, true);
 
-    w[(2, 1, 0)].Collapse(3, true);
-    w[(3, 1, 0)].Collapse(6, true);
+    SuperpositionLayer<int>.Collapse(w[(2, 1, 0)]!, 3, true);
+    SuperpositionLayer<int>.Collapse(w[(3, 1, 0)]!, 6, true);
 
-    w[(1, 2, 0)].Collapse(7, true);
-    w[(4, 2, 0)].Collapse(9, true);
-    w[(6, 2, 0)].Collapse(2, true);
+    SuperpositionLayer<int>.Collapse(w[(1, 2, 0)]!, 7, true);
+    SuperpositionLayer<int>.Collapse(w[(4, 2, 0)]!, 9, true);
+    SuperpositionLayer<int>.Collapse(w[(6, 2, 0)]!, 2, true);
 
-    w[(1, 3, 0)].Collapse(5, true);
-    w[(5, 3, 0)].Collapse(7, true);
+    SuperpositionLayer<int>.Collapse(w[(1, 3, 0)]!, 5, true);
+    SuperpositionLayer<int>.Collapse(w[(5, 3, 0)]!, 7, true);
 
-    w[(4, 4, 0)].Collapse(4, true);
-    w[(5, 4, 0)].Collapse(5, true);
-    w[(6, 4, 0)].Collapse(7, true);
+    SuperpositionLayer<int>.Collapse(w[(4, 4, 0)]!, 4, true);
+    SuperpositionLayer<int>.Collapse(w[(5, 4, 0)]!, 5, true);
+    SuperpositionLayer<int>.Collapse(w[(6, 4, 0)]!, 7, true);
 
-    w[(3, 5, 0)].Collapse(1, true);
-    w[(7, 5, 0)].Collapse(3, true);
+    SuperpositionLayer<int>.Collapse(w[(3, 5, 0)]!, 1, true);
+    SuperpositionLayer<int>.Collapse(w[(7, 5, 0)]!, 3, true);
 
-    w[(2, 6, 0)].Collapse(1, true);
-    w[(7, 6, 0)].Collapse(6, true);
-    w[(8, 6, 0)].Collapse(8, true);
+    SuperpositionLayer<int>.Collapse(w[(2, 6, 0)]!, 1, true);
+    SuperpositionLayer<int>.Collapse(w[(7, 6, 0)]!, 6, true);
+    SuperpositionLayer<int>.Collapse(w[(8, 6, 0)]!, 8, true);
 
-    w[(2, 7, 0)].Collapse(8, true);
-    w[(3, 7, 0)].Collapse(5, true);
-    w[(7, 7, 0)].Collapse(1, true);
+    SuperpositionLayer<int>.Collapse(w[(2, 7, 0)]!, 8, true);
+    SuperpositionLayer<int>.Collapse(w[(3, 7, 0)]!, 5, true);
+    SuperpositionLayer<int>.Collapse(w[(7, 7, 0)]!, 1, true);
 
-    w[(1, 8, 0)].Collapse(9, true);
-    w[(6, 8, 0)].Collapse(4, true);
+    SuperpositionLayer<int>.Collapse(w[(1, 8, 0)]!, 9, true);
+    SuperpositionLayer<int>.Collapse(w[(6, 8, 0)]!, 4, true);
     #endregion
 
     int step = 0;
@@ -285,9 +289,10 @@ void PrintSudoku<T>(MachineState<T> s, int size)
     {
         for (int j = 0; j < size; j++)
         {
-            var a = s[v => v.Layers.With<EuclideanLayer<T>>() is EuclideanLayer<T> layer && layer.X == j && layer.Y == i].Result.FirstOrDefault();
+            var a = s[v => v.Layers.With<EuclideanLayer<T>>() is var layer && layer.X == j && layer.Y == i].Result.FirstOrDefault();
 
-            var b = a.State != SuperpositionState.Uncertain ? a.Value.Value.ToString() : "_";
+            var b = SuperpositionLayer<T>.For(a).State != SuperpositionState.Uncertain ? a.Value.Value.ToString() : "_";
+
 
             result += $"{b} ";
 
@@ -368,7 +373,7 @@ void Maze()
 
     foreach (var variable in w.State.Field)
     {
-        var localDomain = variable.Domain as DiscreteDomain<string>;
+        var localDomain = SuperpositionLayer<string>.For(variable).Domain as DiscreteDomain<string>;
         localDomain.UpdateWeight(" ", 21);
         localDomain.UpdateWeight("╣", 51);
     }
@@ -388,9 +393,9 @@ void Print<T>(MachineState<T> s, int size, bool correctionIndent = false)
     {
         for (int j = 0; j < size; j++)
         {
-            var a = s[v => v.Layers.With<EuclideanLayer<T>>() is EuclideanLayer<T> layer && layer.X == j && layer.Y == i].Result.FirstOrDefault();
+            var a = s[v => v.Layers.With<EuclideanLayer<T>>() is var layer && layer.X == j && layer.Y == i].Result.FirstOrDefault();
 
-            var b = a.State != SuperpositionState.Uncertain ? a.Value.Value.ToString() : "@";
+            var b = SuperpositionLayer<T>.For(a).State != SuperpositionState.Uncertain ? a.Value.Value.ToString() : "@";
 
             result += $"{b}{(correctionIndent ? '\u2009' : "")}";
         }

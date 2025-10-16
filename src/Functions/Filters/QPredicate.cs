@@ -7,23 +7,23 @@ using static qon.Helpers.Helper;
 
 namespace qon.Functions.Filters
 {
-    public class QPredicate<T> : IChain<SuperpositionVariable<T>, bool>
+    public class QPredicate<T> : IChain<QVariable<T>, bool>
     {
         public static readonly QPredicate<T> Empty = new QPredicate<T>(o => false);
 
-        public Func<SuperpositionVariable<T>, bool> PredicateFunction { get; protected set; }
+        public Func<QVariable<T>, bool> PredicateFunction { get; protected set; }
 
-        public QPredicate(Func<SuperpositionVariable<T>, bool> predicateFunction)
+        public QPredicate(Func<QVariable<T>, bool> predicateFunction)
         {
             PredicateFunction = predicateFunction;
         }
 
-        public bool ApplyTo(SuperpositionVariable<T> input)
+        public bool ApplyTo(QVariable<T> input)
         {
             return PredicateFunction(input);
         }
 
-        public IChain<SuperpositionVariable<T>, bool> AsIChain()
+        public IChain<QVariable<T>, bool> AsIChain()
         {
             return this;
         }

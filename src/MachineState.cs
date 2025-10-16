@@ -24,9 +24,9 @@ namespace qon
     /// <typeparam name="T"></typeparam>
     public class SearchResult<T>
     {
-        public IEnumerable<SuperpositionVariable<T>> Result { get; set; }
+        public IEnumerable<QVariable<T>> Result { get; set; }
 
-        public SearchResult(IEnumerable<SuperpositionVariable<T>> field)
+        public SearchResult(IEnumerable<QVariable<T>> field)
         {
             Result = field;
         }
@@ -35,7 +35,7 @@ namespace qon
         {
             foreach (var variable in Result)
             {
-                variable.Collapse(value, isConstant);
+                SuperpositionLayer<T>.Collapse(variable, value, isConstant);
             }
         }
 
@@ -47,13 +47,13 @@ namespace qon
             }
         }
 
-        public static SearchResult<T> Search(IEnumerable<SuperpositionVariable<T>> variables, string name, object value)
+        public static SearchResult<T> Search(IEnumerable<QVariable<T>> variables, string name, object value)
         {
             var result = variables.Where(x => object.Equals(x.GetNullOrValueProperty(name), value));
             return new SearchResult<T>(result);
         }
 
-        public static SearchResult<T> Search(IEnumerable<SuperpositionVariable<T>> variables, Func<SuperpositionVariable<T>, bool> predicate)
+        public static SearchResult<T> Search(IEnumerable<QVariable<T>> variables, Func<QVariable<T>, bool> predicate)
         {
             var result = variables.Where(predicate);
 
@@ -63,7 +63,7 @@ namespace qon
 
     public class MachineState<T> : ICloneable
     {
-        public SuperpositionVariable<T>[] Field { get; protected set; }
+        public QVariable<T>[] Field { get; protected set; }
 
         public SolutionState CurrentState
         {
@@ -71,10 +71,10 @@ namespace qon
             {
                 foreach (var variable in Field)
                 {
-                    if (variable.Domain.IsEmpty() && variable.State == SuperpositionState.Uncertain)
+                    if (SuperpositionLayer<T>.With(variable).Domain.IsEmpty() && SuperpositionLayer<T>.With(variable).State == SuperpositionState.Uncertain)
                         return SolutionState.Unsolvable;
 
-                    if (variable.State == SuperpositionState.Uncertain)
+                    if (SuperpositionLayer<T>.With(variable).State == SuperpositionState.Uncertain)
                         return SolutionState.NotSolved;
                 }
 
@@ -84,15 +84,15 @@ namespace qon
 
         public MachineState()
         {
-            Field = Array.Empty<SuperpositionVariable<T>>();
+            Field = Array.Empty<QVariable<T>>();
         }
 
-        public MachineState(SuperpositionVariable<T>[] field)
+        public MachineState(QVariable<T>[] field)
         {
             Field = field;
         }
 
-        public void SetField(SuperpositionVariable<T>[] field)
+        public void SetField(QVariable<T>[] field)
         {
             Field = field;
         }
@@ -103,10 +103,10 @@ namespace qon
 
             foreach (var v in Field)
             {
-                if (v.State != SuperpositionState.Uncertain) 
+                if (SuperpositionLayer<T>.With(v).State != SuperpositionState.Uncertain)
                     continue;
 
-                if (v.AutoCollapse().HasValue)
+                if (SuperpositionLayer<T>.AutoCollapse(v).HasValue)
                 {
                     changes++;
                 }
@@ -129,7 +129,7 @@ namespace qon
             }
         }
 
-        public SearchResult<T> this[Func<SuperpositionVariable<T>, bool> predicate]
+        public SearchResult<T> this[Func<QVariable<T>, bool> predicate]
         {
             get
             {
@@ -142,7 +142,7 @@ namespace qon
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Field.Select(v =>
-                v.State != SuperpositionState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{v.Domain}]");
+                SuperpositionLayer<T>.With(v).State != SuperpositionState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{SuperpositionLayer<T>.With(v).Domain}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

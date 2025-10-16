@@ -10,7 +10,7 @@ Because Unity3D still does not support the latest .NET versions (therefore the l
 
 ## Terminology
 
-* **Variables** — objects of the `SuperpositionVariable<T>` class. Variables can be defined and undefined. A defined variable has a value of `T` type, and an undefined variable has a **domain** of `T` type values.
+* **Variables** — objects of the `QVariable<T>` class equipped with a `SuperpositionLayer<T>`. Variables can be defined and undefined. A defined variable has a value of `T` type, and an undefined variable tracks a **domain** of `T` type values via the layer.
 
 * **Field of variables** — all **variables** of a specific **solution machine**.
 

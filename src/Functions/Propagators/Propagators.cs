@@ -7,16 +7,17 @@ using qon.Functions.Filters;
 using qon.Functions.Operations;
 using qon.Helpers;
 using qon.Variables;
+using qon.Variables.Layers;
 
 namespace qon.Functions.Propagators
 {
     public static class Propagators
     {
-        public static ConstraintResult AllDistinctPropagator<T>(IEnumerable<SuperpositionVariable<T>> field)
+        public static ConstraintResult AllDistinctPropagator<T>(IEnumerable<QVariable<T>> field)
         {
             int changes = 0;
 
-            var decided = field.Where(x => x.State != SuperpositionState.Uncertain).Select(y => y.Value.Value);
+            var decided = field.Where(x => SuperpositionLayer<T>.With(x).State != SuperpositionState.Uncertain).Select(y => y.Value.Value);
 
             var certainVariablesCount = decided.Count();
             var distinctVariables = decided.ToHashSet();
@@ -26,12 +27,12 @@ namespace qon.Functions.Propagators
                 return ConstraintResult.HasErrors();
             }
 
-            var openVariables = field.Where(x => x.State == SuperpositionState.Uncertain);
+            var openVariables = field.Where(x => SuperpositionLayer<T>.With(x).State == SuperpositionState.Uncertain);
 
             foreach (var variable in openVariables)
             {
-                changes += variable.RemoveFromDomain(distinctVariables);
-                changes += variable.AutoCollapse().HasValue ? 1 : 0;
+                changes += SuperpositionLayer<T>.With(variable).Domain.Remove(distinctVariables);
+                changes += SuperpositionLayer<T>.AutoCollapse(variable).HasValue ? 1 : 0;
             }
 
             return ConstraintResult.Success(changes);
@@ -52,19 +53,19 @@ namespace qon.Functions.Propagators
 
                 foreach (var variable in field)
                 {
-                    if (variable.State != SuperpositionState.Uncertain)
+                    if (SuperpositionLayer<T>.With(variable).State != SuperpositionState.Uncertain)
                     {
                         continue;
                     }
 
                     int removed = DomainHelper<T>.DomainIntersectionWithHashSet(variable, filteringCollection);
 
-                    if (variable.Domain.IsEmpty())
+                    if (SuperpositionLayer<T>.With(variable).Domain.IsEmpty())
                     {
                         return ConstraintResult.HasErrors();
                     }
 
-                    if (variable.AutoCollapse().HasValue || removed > 0)
+                    if (SuperpositionLayer<T>.AutoCollapse(variable).HasValue || removed > 0)
                     {
                         changes += removed;
                     }
@@ -82,23 +83,25 @@ namespace qon.Functions.Propagators
 
                 foreach (var variable in list)
                 {
-                    if (variable.State != SuperpositionState.Uncertain)
+                    if (SuperpositionLayer<T>.With(variable).State != SuperpositionState.Uncertain)
                     {
                         continue;
                     }
 
-                    int originalSize = variable.Domain.Size();
+                    int originalSize = SuperpositionLayer<T>.With(variable).Domain.Size();
 
 #pragma warning disable CS8714
-                    IDomain<T> newDomain = DomainHelper<T>.DomainIntersection(variable.Domain, filteringDomain);
-                    variable.Domain = newDomain;
+                    IDomain<T> newDomain = DomainHelper<T>.DomainIntersection(SuperpositionLayer<T>.With(variable).Domain, filteringDomain);
+                    SuperpositionLayer<T>.With(variable).Domain = newDomain;
 
                     if (newDomain.IsEmpty())
                     {
                         return ConstraintResult.HasErrors();
                     }
 
-                    if (variable.AutoCollapse() != Optional<T>.Empty || originalSize-newDomain.Size() != 0)
+                    var collapsed = SuperpositionLayer<T>.AutoCollapse(variable);
+
+                    if (collapsed != Optional<T>.Empty || originalSize - newDomain.Size() != 0)
                     {
                         changes++;
                     }

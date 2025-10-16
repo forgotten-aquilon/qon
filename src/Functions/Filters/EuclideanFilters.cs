@@ -7,7 +7,7 @@ namespace qon.Functions.Filters
 {
     public static class EuclideanFilters
     {
-        public static Func<SuperpositionVariable<T>, QPredicate<T>> SelectRegion<T>((int x, int y, int z) l1, (int x, int y, int z) l2)
+        public static Func<QVariable<T>, QPredicate<T>> SelectRegion<T>((int x, int y, int z) l1, (int x, int y, int z) l2)
         {
             return referenceVar =>
             {

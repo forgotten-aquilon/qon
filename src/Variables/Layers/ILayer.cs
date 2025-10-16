@@ -9,6 +9,8 @@ namespace qon.Variables.Layers
     public interface ILayer<T>
     {
         ILayer<T> Copy();
+
+        //TODO: Later introduce Base class with covarian return type for methods like For/With/From
     }
 }
 

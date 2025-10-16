@@ -11,18 +11,18 @@ namespace qon.Functions.Filters
 {
     public class VonNeumannParameter<T>
     {
-        public SuperpositionVariable<T>? Left { get; set; }
-        public SuperpositionVariable<T>? Right { get; set; }
-        public SuperpositionVariable<T>? Front { get; set; }
-        public SuperpositionVariable<T>? Back { get; set; }
-        public SuperpositionVariable<T>? Top { get; set; }
-        public SuperpositionVariable<T>? Bottom { get; set; }
+        public QVariable<T>? Left { get; set; }
+        public QVariable<T>? Right { get; set; }
+        public QVariable<T>? Front { get; set; }
+        public QVariable<T>? Back { get; set; }
+        public QVariable<T>? Top { get; set; }
+        public QVariable<T>? Bottom { get; set; }
 
     }
 
-    public class VonNeumannFilter<T> : IChain<SuperpositionVariable<T>, VonNeumannParameter<T>>
+    public class VonNeumannFilter<T> : IChain<QVariable<T>, VonNeumannParameter<T>>
     {
-        public VonNeumannParameter<T> ApplyTo(SuperpositionVariable<T> input)
+        public VonNeumannParameter<T> ApplyTo(QVariable<T> input)
         {
             if (input.Layers.TryGetLayer<EuclideanLayer<T>>(out var layer))
             {

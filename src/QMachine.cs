@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using qon.Solvers;
 using qon.Variables;
+using qon.Variables.Layers;
 using qon.Exceptions;
 
 namespace qon
@@ -54,7 +55,7 @@ namespace qon
 
         public Random Random { get; }
 
-        public SuperpositionVariable<T> this[string name]
+        public QVariable<T> this[string name]
         {
             get
             {
@@ -80,14 +81,14 @@ namespace qon
 
                 foreach (var variable in parameter.FieldParameter.Field)
                 {
-                    variable.SetDomain(parameter.FieldParameter.Domain);
+                    SuperpositionLayer<T>.With(variable).Domain = parameter.FieldParameter.Domain;
                 }
 
                 SetField(parameter.FieldParameter.Field);
             }
         }
 
-        public void SetField(IEnumerable<SuperpositionVariable<T>> field)
+        public void SetField(IEnumerable<QVariable<T>> field)
         {
             State.SetField(field.ToArray());
 
@@ -108,20 +109,24 @@ namespace qon
 
         public void GenerateField(IDomain<T> d, int count)
         {
-            var field = new List<SuperpositionVariable<T>>();
+            var field = new List<QVariable<T>>();
             for (int i = 0; i < count; i++)
             {
-                field.Add(new SuperpositionVariable<T>(d));
+                var variable = new QVariable<T>(string.Empty);
+                SuperpositionLayer<T>.For(variable).Domain = d;
+                field.Add(variable);
             }
             SetField(field);
         }
 
         public void GenerateField(IDomain<T> d, IEnumerable<string> names)
         {
-            var field = new List<SuperpositionVariable<T>>();
+            var field = new List<QVariable<T>>();
             foreach (var name in names)
             {
-                field.Add(new SuperpositionVariable<T>(d, name));
+                var variable = new QVariable<T>(name);
+                SuperpositionLayer<T>.For(variable).Domain = d;
+                field.Add(variable);
             }
             SetField(field);
         }

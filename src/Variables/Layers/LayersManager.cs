@@ -52,7 +52,7 @@ namespace qon.Variables.Layers
 
             foreach (var item in this.Items)
             {
-                result.Add(item);
+                result.Add(item.Copy());
             }
 
             return result;

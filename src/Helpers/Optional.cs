@@ -124,7 +124,7 @@ namespace qon.Helpers
 #pragma warning restore CS8602, CS8603
         }
 
-        public static Optional<T> Of<T>(T value)
+        public static Optional<T> Of(T value)
         {
             return new Optional<T>(value);
         }

@@ -1,5 +1,6 @@
 ﻿using qon.Exceptions;
 using qon.Variables;
+using qon.Variables.Layers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace qon.Solvers
     {
         private readonly QMachine<T> _machine;
 
-        private readonly Stack<SuperpositionVariable<T>[]> _solutionStack;
+        private readonly Stack<QVariable<T>[]> _solutionStack;
         
         public MachineState<T> Current => _machine.State;
 
@@ -22,14 +23,14 @@ namespace qon.Solvers
         public FiniteSolver(QMachine<T> machine) 
         {
             _machine = machine;
-            _solutionStack = new Stack<SuperpositionVariable<T>[]>();
+            _solutionStack = new Stack<QVariable<T>[]>();
         }
 
         public int PushStack((string name, T value)? usedValue = null)
         {
             if (_solutionStack.TryPeek(out var field) && usedValue is (string, T) v)
             {
-                field[_machine.Indexer[v.name]].RemoveFromDomain(v.value);
+                SuperpositionLayer<T>.With(field[_machine.Indexer[v.name]]).Domain.Remove(v.value);
             }
 
             _solutionStack.Push(Current.Field.Select(x => x.Copy()).ToArray());
@@ -87,20 +88,26 @@ namespace qon.Solvers
                         }
                         else
                         {
-                            double ent = double.MaxValue;
-                            SuperpositionVariable<T>? candidate = null;
+                            double entropy = double.MaxValue;
+                            QVariable<T>? candidate = null;
 
-                            foreach (var item in Current.Field) if (item.State == SuperpositionState.Uncertain && item.Entropy < ent)
+                            foreach (var item in Current.Field)
                             {
-                                ent = item.Entropy;
-                                candidate = item;
+                                if (SuperpositionLayer<T>.With(item).State == SuperpositionState.Uncertain && 
+                                    SuperpositionLayer<T>.With(item).Entropy is var newEntropy && 
+                                    newEntropy < entropy)
+                                {
+                                    entropy = newEntropy;
+                                    candidate = item;
+                                }
                             }
+                                
 
                             /*
                             var variablesByEntropy =
                                 Current.Field
-                                    .Where(z => z.State == SuperpositionState.Uncertain)
-                                    .GroupBy(x => x.Entropy)
+                                    .Where(z => SuperpositionLayer<T>.GetState(z) == SuperpositionState.Uncertain)
+                                    .GroupBy(x => SuperpositionLayer<T>.GetEntropy(x))
                                     .OrderBy(g => g.Key)
                                     .FirstOrDefault();
                             
@@ -109,15 +116,15 @@ namespace qon.Solvers
                             //TODO: Add functionality to change selection of variables with equal entropy, e.g. random or by some algorithm 
                             //var minimalEntropyVariable = minimalEntropyVariables?.MinBy(_ => _machine.Random.Next());
                             //var minimalEntropyVariable = variablesByEntropy?.FirstOrDefault();
-                            var variablesByEntropyCollection = variablesByEntropy as ICollection<SuperpositionVariable<T>>;
+                            var variablesByEntropyCollection = variablesByEntropy as ICollection<QVariable<T>>;
 
                             var minimalEntropyVariable = variablesByEntropyCollection!.RandomItem(_machine.Random);
                             */
                             ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
 
-                            var newValue = candidate.Domain.GetRandomValue(_machine.Random);
+                            var newValue = SuperpositionLayer<T>.With(candidate).Domain.GetRandomValue(_machine.Random);
 
-                            candidate.Collapse(newValue);
+                            SuperpositionLayer<T>.Collapse(candidate, newValue);
                             changes += PushStack((candidate.Name, newValue));
                         }
                     }

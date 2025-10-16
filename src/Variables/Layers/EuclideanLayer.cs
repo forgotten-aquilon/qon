@@ -26,5 +26,15 @@ namespace qon.Variables.Layers
         {
             return new EuclideanLayer<T>(X, Y, Z, Machine);
         }
+
+        public static EuclideanLayer<T>? For(QVariable<T> variable)
+        {
+            if (variable.Layers.TryGetLayer<EuclideanLayer<T>>(out var layer))
+            {
+                return layer;
+            }
+
+            return null;
+        }
     }
 }

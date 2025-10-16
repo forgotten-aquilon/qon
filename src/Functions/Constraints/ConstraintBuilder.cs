@@ -10,14 +10,14 @@ namespace qon.Functions.Constraints
 {
     public class ConstraintBuilder<T> : IQConstraint<T>
     {
-        public Func<SuperpositionVariable<T>[], ConstraintResult> Constraint { get; }
+        public Func<QVariable<T>[], ConstraintResult> Constraint { get; }
 
-        public ConstraintBuilder(Func<SuperpositionVariable<T>[], ConstraintResult> constraint)
+        public ConstraintBuilder(Func<QVariable<T>[], ConstraintResult> constraint)
         {
             Constraint = constraint;
         }
 
-        public ConstraintResult Execute(SuperpositionVariable<T>[] field)
+        public ConstraintResult Execute(QVariable<T>[] field)
         {
             return Constraint(field);
         }

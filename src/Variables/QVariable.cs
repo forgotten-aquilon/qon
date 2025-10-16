@@ -1,4 +1,5 @@
-﻿using qon.Exceptions;
+﻿using qon.Domains;
+using qon.Exceptions;
 using qon.Helpers;
 using System;
 using System.Collections.Generic;
@@ -37,13 +38,18 @@ namespace qon.Variables
 
         public QVariable(T value, string name = "") : this(name)
         {
-            Value = Optional<T>.Of(value);
+            SuperpositionLayer<T>.Collapse(this, value, isConstant: true);
         }
 
         public QVariable<T> AddProperty(string name, object value)
         {
             AddNewProperty(name, value);
             return this;
+        }
+
+        public void UpdateValue(T value)
+        {
+            Value = Optional<T>.Of(value);
         }
 
         protected void AddNewProperty(string name, object value)

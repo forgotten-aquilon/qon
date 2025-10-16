@@ -30,7 +30,7 @@ namespace qon
         {
             FieldType = FieldType.Euclidean;
                 
-            List<SuperpositionVariable<T>> variables = new();
+            List<QVariable<T>> variables = new();
 
             if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
             {
@@ -46,7 +46,8 @@ namespace qon
                     for (int z = 0; z < dimensions.z; z++)
                     {
                         string name = $"{x}x{y}x{z}";
-                        var v = new SuperpositionVariable<T>(domain, name);
+                        var v = new QVariable<T>(name);
+                        SuperpositionLayer<T>.For(v).Domain = domain;
                         v.Layers.Add(new EuclideanLayer<T>(x, y, z, this));
 
                         FieldGrid[x, y, z] = name;
@@ -59,16 +60,7 @@ namespace qon
             SetField(variables);
         }
 
-        public SuperpositionVariable<T>? this[int x, int y, int z]
-            => State["x", x]["y", y]["z", z].Result.FirstOrDefault();
-
-        public SuperpositionVariable<T>? this[int x, int y]
-            => State["x", x]["y", y]["z", 0].Result.FirstOrDefault();
-
-        public SuperpositionVariable<T>? this[int x]
-            => State["x", x]["y", 0]["z", 0].Result.FirstOrDefault();
-
-        public SuperpositionVariable<T>? this[(int x, int y, int z) coordinate]
+        public QVariable<T>? this[(int x, int y, int z) coordinate]
         {
             get
             {

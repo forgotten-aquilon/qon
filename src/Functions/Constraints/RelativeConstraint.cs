@@ -15,22 +15,22 @@ namespace qon.Functions.Constraints
     {
         protected QPredicate<T> Guard { get; set; }
         protected Propagator<T> Propagator { get; set; }
-        public Func<SuperpositionVariable<T>, QPredicate<T>> AggregationFactory { get; set; }
+        public Func<QVariable<T>, QPredicate<T>> AggregationFactory { get; set; }
 
-        public RelativeConstraint(QPredicate<T> guard, Propagator<T> propagator, Func<SuperpositionVariable<T>, QPredicate<T>> aggregationFactory)
+        public RelativeConstraint(QPredicate<T> guard, Propagator<T> propagator, Func<QVariable<T>, QPredicate<T>> aggregationFactory)
         {
             Guard = guard;
             Propagator = propagator;
             AggregationFactory = aggregationFactory;
         }
 
-        public virtual ConstraintResult Execute(SuperpositionVariable<T>[] field)
+        public virtual ConstraintResult Execute(QVariable<T>[] field)
         {
-            IEnumerable<SuperpositionVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo);
+            IEnumerable<QVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo);
 
-            HashSet<SuperpositionVariable<T>> aggregation = new();
+            HashSet<QVariable<T>> aggregation = new();
 
-            foreach (SuperpositionVariable<T> relativeVariable in relativeVariables)
+            foreach (QVariable<T> relativeVariable in relativeVariables)
             {
                 aggregation.UnionWith(field.Where(AggregationFactory(relativeVariable).ApplyTo));
             }
@@ -38,7 +38,7 @@ namespace qon.Functions.Constraints
             return Propagator.ApplyTo(aggregation);
         }
 
-        public static Func<SuperpositionVariable<T>, QPredicate<T>> WithLayer<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T>
+        public static Func<QVariable<T>, QPredicate<T>> WithLayer<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T>
         {
             return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
         }

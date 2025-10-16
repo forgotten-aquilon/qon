@@ -12,21 +12,21 @@ namespace qon.Functions.Constraints
     public class RelativeConstraintBuilder<T> : IQConstraint<T>
     {
         protected QPredicate<T> Guard { get; }
-        public Func<SuperpositionVariable<T>, ConstraintResult> Constraint { get; }
+        public Func<QVariable<T>, ConstraintResult> Constraint { get; }
 
-        public RelativeConstraintBuilder(QPredicate<T> guard, Func<SuperpositionVariable<T>, ConstraintResult> constraint)
+        public RelativeConstraintBuilder(QPredicate<T> guard, Func<QVariable<T>, ConstraintResult> constraint)
         {
             Guard = guard;
             Constraint = constraint;
         }
 
-        public ConstraintResult Execute(SuperpositionVariable<T>[] field)
+        public ConstraintResult Execute(QVariable<T>[] field)
         {
-            List<SuperpositionVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo).ToList();
+            List<QVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo).ToList();
 
             int cumulativeChanges = 0;
 
-            foreach (SuperpositionVariable<T> relativeVariable in relativeVariables)
+            foreach (QVariable<T> relativeVariable in relativeVariables)
             {
                 var result = Constraint(relativeVariable);
 

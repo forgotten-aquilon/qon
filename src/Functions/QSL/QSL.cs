@@ -15,7 +15,7 @@ namespace qon.Functions.DSL
             return new QSLConstraintBuilder<T>();
         }
 
-        public static Func<SuperpositionVariable<T>, ConstraintResult> VonNeumann<T>(EuclideanConstraintParameter<T> parameter)
+        public static Func<QVariable<T>, ConstraintResult> VonNeumann<T>(EuclideanConstraintParameter<T> parameter)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
@@ -24,7 +24,7 @@ namespace qon.Functions.DSL
                 + ~Propagators.Propagators.FromVonNeumann(parameter);
         }
 
-        public static Func<SuperpositionVariable<T>, QPredicate<T>> WithLayer<T, TLayer>(Func<TLayer, QPredicate<T>> predicate)
+        public static Func<QVariable<T>, QPredicate<T>> WithLayer<T, TLayer>(Func<TLayer, QPredicate<T>> predicate)
             where TLayer : ILayer<T>
         {
             return RelativeConstraint<T>.WithLayer(predicate);
@@ -36,10 +36,10 @@ namespace qon.Functions.DSL
         private QPredicate<T>? _guard;
         private Filter<T>? _grouping;
         private QPredicate<T>? _selector;
-        private Func<SuperpositionVariable<T>, QPredicate<T>>? _neighbourAggregation;
-        private Func<SuperpositionVariable<T>, ConstraintResult>? _neighbourConstraint;
+        private Func<QVariable<T>, QPredicate<T>>? _neighbourAggregation;
+        private Func<QVariable<T>, ConstraintResult>? _neighbourConstraint;
         private Propagator<T>? _propagator;
-        private Func<SuperpositionVariable<T>[], ConstraintResult>? _customExecutor;
+        private Func<QVariable<T>[], ConstraintResult>? _customExecutor;
 
         public QSLConstraintBuilder<T> When(QPredicate<T> guard)
         {
@@ -59,13 +59,13 @@ namespace qon.Functions.DSL
             return this;
         }
 
-        public QSLConstraintBuilder<T> Where(Func<SuperpositionVariable<T>, QPredicate<T>> aggregationFactory)
+        public QSLConstraintBuilder<T> Where(Func<QVariable<T>, QPredicate<T>> aggregationFactory)
         {
             _neighbourAggregation = aggregationFactory;
             return this;
         }
 
-        public QSLConstraintBuilder<T> Where(Func<SuperpositionVariable<T>, ConstraintResult> neighbourConstraint)
+        public QSLConstraintBuilder<T> Where(Func<QVariable<T>, ConstraintResult> neighbourConstraint)
         {
             _neighbourConstraint = neighbourConstraint;
             return this;
@@ -77,7 +77,7 @@ namespace qon.Functions.DSL
             return this;
         }
 
-        public QSLConstraintBuilder<T> Execute(Func<SuperpositionVariable<T>[], ConstraintResult> executor)
+        public QSLConstraintBuilder<T> Execute(Func<QVariable<T>[], ConstraintResult> executor)
         {
             _customExecutor = executor;
             return this;

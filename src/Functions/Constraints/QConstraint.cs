@@ -22,7 +22,7 @@ namespace qon.Functions.Constraints
             Propagator = method;
         }
 
-        public override ConstraintResult Execute(SuperpositionVariable<T>[] field)
+        public override ConstraintResult Execute(QVariable<T>[] field)
         {
             switch (FilteringType)
             {
