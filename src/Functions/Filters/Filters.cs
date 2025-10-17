@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using qon.Exceptions;
+using qon.Layers;
+using qon.Layers.VariableLayers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon.Functions.Filters
 {
@@ -15,7 +16,7 @@ namespace qon.Functions.Filters
                 ?? throw new InternalLogicException($"Variable '{v.Name}' is missing required tag '{s}' for grouping."));
         }
 
-        public static Filter<T> GroupWith<TIn, T>(Func<TIn, object> func) where TIn : ILayer<T>
+        public static Filter<T> GroupWith<TIn, T>(Func<TIn, object> func) where TIn : ILayer<T, QVariable<T>>
         {
             return new Filter<T>(v =>
             {

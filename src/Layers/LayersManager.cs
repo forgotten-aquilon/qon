@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using qon.Exceptions;
 
-namespace qon.Variables.Layers
+namespace qon.Layers
 {
-    public class LayersManager<T> : KeyedCollection<Type, ILayer<T>>
+    public class LayersManager<T, THolder> : KeyedCollection<Type, ILayer<T, THolder>>
     {
         public bool TryGetLayer<TLayer>([NotNullWhen(true)]out TLayer? layer)  
         {
@@ -23,14 +19,14 @@ namespace qon.Variables.Layers
             return false;
         }
 
-        public ILayer<T>? GetLayerOrNull<TLayer>() where TLayer : ILayer<T>
+        public ILayer<T, THolder>? GetLayerOrNull<TLayer>() where TLayer : ILayer<T, THolder>
         {
-            TryGetValue(typeof(TLayer), out ILayer<T>? result);
+            TryGetValue(typeof(TLayer), out ILayer<T, THolder>? result);
 
             return result;
         }
 
-        public ILayer<T> GetLayer<TLayer>() where TLayer : ILayer<T>
+        public ILayer<T, THolder> GetLayer<TLayer>() where TLayer : ILayer<T, THolder>
         {
             if (TryGetLayer<TLayer>(out var l))
             {
@@ -41,14 +37,14 @@ namespace qon.Variables.Layers
             throw new InternalLogicException("");
         }
 
-        protected override Type GetKeyForItem(ILayer<T> item)
+        protected override Type GetKeyForItem(ILayer<T, THolder> item)
         {
             return item.GetType();
         }
 
-        public LayersManager<T> Copy()
+        public LayersManager<T, THolder> Copy()
         {
-            var result = new LayersManager<T>();
+            var result = new LayersManager<T, THolder>();
 
             foreach (var item in this.Items)
             {
@@ -58,7 +54,7 @@ namespace qon.Variables.Layers
             return result;
         }
 
-        public TLayer? With<TLayer>() where TLayer : ILayer<T>
+        public TLayer? With<TLayer>() where TLayer : ILayer<T, THolder>
         {
             if (TryGetLayer<TLayer>(out var layer))
             {

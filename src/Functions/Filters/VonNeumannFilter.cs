@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
+using qon.Layers.VariableLayers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon.Functions.Filters
 {

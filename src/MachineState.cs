@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using qon.Exceptions;
+using qon.Layers;
+using qon.Layers.VariableLayers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon
 {
@@ -43,7 +44,17 @@ namespace qon
         {
             get
             {
-                return Search(Result, name, value);
+                ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
+                return AsQuery().WithProperty(name, value).ToSearchResult();
+            }
+        }
+
+        public SearchResult<T> this[Func<QVariable<T>, bool> predicate]
+        {
+            get
+            {
+                ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
+                return AsQuery().Where(predicate).ToSearchResult();
             }
         }
 
@@ -51,6 +62,11 @@ namespace qon
         {
             var result = variables.Where(x => object.Equals(x.GetNullOrValueProperty(name), value));
             return new SearchResult<T>(result);
+        }
+
+        public MachineStateQuery<T> AsQuery()
+        {
+            return new MachineStateQuery<T>(Result);
         }
 
         public static SearchResult<T> Search(IEnumerable<QVariable<T>> variables, Func<QVariable<T>, bool> predicate)
@@ -61,8 +77,11 @@ namespace qon
         }
     }
 
-    public class MachineState<T> : ICloneable
+    public class MachineState<T> : ILayerHolder<T, MachineState<T>>
     {
+        private QMachine<T> _machine;
+
+        public LayersManager<T, MachineState<T>> Layers => new LayersManager<T, MachineState<T>>();
         public QVariable<T>[] Field { get; protected set; }
 
         public SolutionState CurrentState
@@ -82,14 +101,16 @@ namespace qon
             }
         }
 
-        public MachineState()
+        public MachineState(QMachine<T> machine)
         {
+            _machine = machine;
             Field = Array.Empty<QVariable<T>>();
         }
 
-        public MachineState(QVariable<T>[] field)
+        public MachineState(QVariable<T>[] field, QMachine<T> machine)
         {
             Field = field;
+            _machine = machine;
         }
 
         public void SetField(QVariable<T>[] field)
@@ -115,17 +136,12 @@ namespace qon
             return changes;
         }
 
-        public object Clone()
-        {
-            var clone = new MachineState<T>(Field.Select(x => x.Copy()).ToArray());
-            return clone;
-        }
-
         public SearchResult<T> this[string name, object value]
         {
             get
             {
-                return SearchResult<T>.Search(Field, name, value);
+                ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
+                return Query().WithProperty(name, value).ToSearchResult();
             }
         }
 
@@ -133,8 +149,14 @@ namespace qon
         {
             get
             {
-                return SearchResult<T>.Search(Field, predicate);
+                ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
+                return Query().Where(predicate).ToSearchResult();
             }
+        }
+
+        public MachineStateQuery<T> Query()
+        {
+            return new MachineStateQuery<T>(Field);
         }
 
         public override string ToString()

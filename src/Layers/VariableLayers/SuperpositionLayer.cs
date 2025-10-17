@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reflection;
-using qon.Domains;
+﻿using qon.Domains;
 using qon.Exceptions;
 using qon.Helpers;
+using qon.Variables;
 
-namespace qon.Variables.Layers
+namespace qon.Layers.VariableLayers
 {
-    public class SuperpositionLayer<T> : ILayer<T>
+    public class SuperpositionLayer<T> : ILayer<T, QVariable<T>>
     {
         private IDomain<T> _domain = EmptyDomain<T>.Instance;
 
@@ -60,11 +57,6 @@ namespace qon.Variables.Layers
             return Domain.SingleOrEmptyValue();
         }
 
-        public ILayer<T> Copy()
-        {
-            return new SuperpositionLayer<T>(Domain.Copy(), State);
-        }
-
         //Use for initialization of a layer
         public static SuperpositionLayer<T> For(QVariable<T> variable)
         {
@@ -114,6 +106,11 @@ namespace qon.Variables.Layers
             }
 
             return value;
+        }
+
+        ILayer<T, QVariable<T>> ICopy<ILayer<T, QVariable<T>>>.Copy()
+        {
+            return new SuperpositionLayer<T>(Domain.Copy(), State);
         }
     }
 }

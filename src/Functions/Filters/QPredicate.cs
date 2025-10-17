@@ -1,8 +1,8 @@
 ﻿using System;
 using qon.Functions;
 using qon.Helpers;
+using qon.Layers;
 using qon.Variables;
-using qon.Variables.Layers;
 using static qon.Helpers.Helper;
 
 namespace qon.Functions.Filters
@@ -38,7 +38,7 @@ namespace qon.Functions.Filters
             return left.And(right);
         }
 
-        public static QPredicate<T> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T>
+        public static QPredicate<T> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T, QVariable<T>>
         {
             return new QPredicate<T>(variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>()));
         }

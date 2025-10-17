@@ -7,17 +7,18 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using qon.Variables.Layers;
+using qon.Layers;
+using qon.Layers.VariableLayers;
 
 namespace qon.Variables
 {
-    public class QVariable<T> : ICloneable
+    public class QVariable<T> : ICloneable, ICopy<QVariable<T>>, ILayerHolder<T, QVariable<T>>
     {
         public Guid Id { get; protected set; } = Guid.NewGuid();
         public string Name { get; protected set; }
         public bool Protected { get; set; } = false;
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
-        public LayersManager<T> Layers { get; protected set; } = new LayersManager<T>();
+        public LayersManager<T, QVariable<T>> Layers { get; protected set; } = new LayersManager<T, QVariable<T>>();
         public Optional<T> Value { get; protected set; } = Optional<T>.Empty;
 
         protected QVariable()

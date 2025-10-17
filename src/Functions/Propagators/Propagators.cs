@@ -6,8 +6,8 @@ using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Functions.Operations;
 using qon.Helpers;
+using qon.Layers.VariableLayers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon.Functions.Propagators
 {

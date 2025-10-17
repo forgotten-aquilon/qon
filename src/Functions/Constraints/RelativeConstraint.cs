@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using qon.Functions.Propagators;
 using static qon.Helpers.Helper;
 using qon.Functions.Filters;
-using qon.Variables.Layers;
+using qon.Layers;
 
 namespace qon.Functions.Constraints
 {
@@ -38,7 +38,7 @@ namespace qon.Functions.Constraints
             return Propagator.ApplyTo(aggregation);
         }
 
-        public static Func<QVariable<T>, QPredicate<T>> WithLayer<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T>
+        public static Func<QVariable<T>, QPredicate<T>> WithLayer<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T, QVariable<T>>
         {
             return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
         }

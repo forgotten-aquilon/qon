@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using qon.Domains;
 using qon.Exceptions;
+using qon.Layers.VariableLayers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon
 {
@@ -22,7 +22,7 @@ namespace qon
 
         public FieldType FieldType { get; private set; }
 
-        public WFCMachine(QMachineParameter<T> parameter) : base(parameter)
+        public WFCMachine(QMachineParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory) : base(parameter, factory)
         {
         }
 
@@ -51,6 +51,7 @@ namespace qon
                         v.Layers.Add(new EuclideanLayer<T>(x, y, z, this));
 
                         FieldGrid[x, y, z] = name;
+                        
 
                         variables.Add(v);
                     }

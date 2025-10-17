@@ -1,7 +1,7 @@
 ﻿using System;
 using qon.Exceptions;
+using qon.Layers.VariableLayers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon.Functions.Filters
 {

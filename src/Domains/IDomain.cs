@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace qon.Domains
 {
 #pragma warning disable CS8714
-    public interface IDomain<T>
+    public interface IDomain<T> : ICopy<IDomain<T>>
     {
         int Size();
         bool IsEmpty();
@@ -16,7 +16,6 @@ namespace qon.Domains
         double GetEntropy();
         T GetRandomValue(Random random);
         Optional<T> SingleOrEmptyValue();
-        IDomain<T> Copy();
         IEnumerable<KeyValuePair<T, int>> GetIEnumerable();
     }
 }

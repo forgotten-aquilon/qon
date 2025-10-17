@@ -3,8 +3,8 @@ using qon.Exceptions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
+using qon.Layers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon.Functions.DSL
 {
@@ -25,7 +25,7 @@ namespace qon.Functions.DSL
         }
 
         public static Func<QVariable<T>, QPredicate<T>> WithLayer<T, TLayer>(Func<TLayer, QPredicate<T>> predicate)
-            where TLayer : ILayer<T>
+            where TLayer : ILayer<T, QVariable<T>>
         {
             return RelativeConstraint<T>.WithLayer(predicate);
         }

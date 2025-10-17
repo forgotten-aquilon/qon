@@ -1,28 +1,21 @@
 ﻿using qon.Exceptions;
 using qon.Variables;
-using qon.Variables.Layers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using qon.Functions.Propagators;
 using qon.Functions.Constraints;
+using qon.Layers.VariableLayers;
 
 namespace qon.Solvers
 {
-    public class FiniteSolver<T> : IEnumerator<MachineState<T>>
+    public class FiniteSolver<T> : BaseSolver<T>
     {
-        private readonly QMachine<T> _machine;
-
         private readonly Stack<QVariable<T>[]> _solutionStack;
-        
-        public MachineState<T> Current => _machine.State;
 
-        object IEnumerator.Current => Current;
-
-        public FiniteSolver(QMachine<T> machine) 
+        public FiniteSolver(QMachine<T> machine) : base(machine)
         {
-            _machine = machine;
             _solutionStack = new Stack<QVariable<T>[]>();
         }
 

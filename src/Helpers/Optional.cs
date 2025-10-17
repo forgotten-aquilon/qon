@@ -9,7 +9,7 @@ namespace qon.Helpers
 
     }
 
-    public struct Optional<T> : ICloneable
+    public struct Optional<T> : ICloneable, ICopy<Optional<T>>
     {
         //TODO: Update to C# 10 when available (default)
         private T? _value;

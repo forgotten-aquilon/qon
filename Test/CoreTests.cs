@@ -4,8 +4,8 @@ using System.Linq;
 using qon;
 using qon.Domains;
 using qon.Functions.Propagators;
+using qon.Layers.VariableLayers;
 using qon.Variables;
-using qon.Variables.Layers;
 
 namespace qon.Tests
 {

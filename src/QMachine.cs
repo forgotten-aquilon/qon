@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using qon.Solvers;
 using qon.Variables;
-using qon.Variables.Layers;
 using qon.Exceptions;
+using qon.Layers.VariableLayers;
 
 namespace qon
 {
@@ -31,7 +31,7 @@ namespace qon
 
         public IEnumerator<MachineState<T>> GetEnumerator()
         {
-            return _machine.Enumerator;
+            return _machine.Solver;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -45,7 +45,7 @@ namespace qon
         protected Dictionary<string, int> _indexer { get; set; } = new Dictionary<string, int>();
         public IReadOnlyDictionary<string, int> Indexer => _indexer;
         
-        public IEnumerator<MachineState<T>> Enumerator { get; protected set; }
+        public IEnumerator<MachineState<T>> Solver { get; protected set; }
 
         public States<T> States { get; protected set; }
         public RuleHandler<T> Constraints { get; set; }
@@ -63,13 +63,13 @@ namespace qon
             }
         }
 
-        public QMachine(QMachineParameter<T> parameter)
+        public QMachine(QMachineParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory)
         {
             Constraints = parameter.Constraints;
 
-            State = new MachineState<T>();
+            State = new MachineState<T>(this);
             StateType = MachineStateType.Created;
-            Enumerator = new FiniteSolver<T>(this);
+            Solver = factory(this);
             States = new States<T>(this);
             Random = parameter.Random;
 

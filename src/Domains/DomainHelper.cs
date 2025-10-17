@@ -1,6 +1,5 @@
 ﻿using qon.Exceptions;
 using qon.Variables;
-using qon.Variables.Layers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Layers.VariableLayers;
 
 namespace qon.Domains
 {
