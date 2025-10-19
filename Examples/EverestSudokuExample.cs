@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using qon;
 using qon.Domains;
 using qon.Functions.Constraints;
@@ -8,8 +5,14 @@ using qon.Functions.DSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Helpers;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
+using qon.Machines;
+using qon.Solvers;
 using qon.Variables;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Examples
 {
@@ -19,7 +22,7 @@ namespace Examples
         {
             List<int> domain = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-            var parameters = new QMachineParameter<int>()
+            var parameters = new WFCParameter<int>()
             {
                 Constraints = new()
                 {
@@ -42,7 +45,7 @@ namespace Examples
                 Random = new Random(2222)
             };
 
-            var machine = new WFCMachine<int>(parameters);
+            var machine = new WFCMachine<int>(parameters, m => new FiniteSolver<int>(m));
             machine.CreateEuclideanSpace((9, 9, 1), new DiscreteDomain<int>(domain));
 
             SeedField(machine);
@@ -65,35 +68,37 @@ namespace Examples
 
         private static void SeedField(WFCMachine<int> machine)
         {
-            SuperpositionLayer<int>.Collapse(machine[(0, 0, 0)]!, 8, true);
+            var grid = EuclideanStateLayer<int>.With(machine.State);
 
-            SuperpositionLayer<int>.Collapse(machine[(2, 1, 0)]!, 3, true);
-            SuperpositionLayer<int>.Collapse(machine[(3, 1, 0)]!, 6, true);
+            ConstraintLayer<int>.Collapse(grid[(0, 0, 0)]!, 8, true);
 
-            SuperpositionLayer<int>.Collapse(machine[(1, 2, 0)]!, 7, true);
-            SuperpositionLayer<int>.Collapse(machine[(4, 2, 0)]!, 9, true);
-            SuperpositionLayer<int>.Collapse(machine[(6, 2, 0)]!, 2, true);
+            ConstraintLayer<int>.Collapse(grid[(2, 1, 0)]!, 3, true);
+            ConstraintLayer<int>.Collapse(grid[(3, 1, 0)]!, 6, true);
 
-            SuperpositionLayer<int>.Collapse(machine[(1, 3, 0)]!, 5, true);
-            SuperpositionLayer<int>.Collapse(machine[(5, 3, 0)]!, 7, true);
+            ConstraintLayer<int>.Collapse(grid[(1, 2, 0)]!, 7, true);
+            ConstraintLayer<int>.Collapse(grid[(4, 2, 0)]!, 9, true);
+            ConstraintLayer<int>.Collapse(grid[(6, 2, 0)]!, 2, true);
 
-            SuperpositionLayer<int>.Collapse(machine[(4, 4, 0)]!, 4, true);
-            SuperpositionLayer<int>.Collapse(machine[(5, 4, 0)]!, 5, true);
-            SuperpositionLayer<int>.Collapse(machine[(6, 4, 0)]!, 7, true);
+            ConstraintLayer<int>.Collapse(grid[(1, 3, 0)]!, 5, true);
+            ConstraintLayer<int>.Collapse(grid[(5, 3, 0)]!, 7, true);
 
-            SuperpositionLayer<int>.Collapse(machine[(3, 5, 0)]!, 1, true);
-            SuperpositionLayer<int>.Collapse(machine[(7, 5, 0)]!, 3, true);
+            ConstraintLayer<int>.Collapse(grid[(4, 4, 0)]!, 4, true);
+            ConstraintLayer<int>.Collapse(grid[(5, 4, 0)]!, 5, true);
+            ConstraintLayer<int>.Collapse(grid[(6, 4, 0)]!, 7, true);
 
-            SuperpositionLayer<int>.Collapse(machine[(2, 6, 0)]!, 1, true);
-            SuperpositionLayer<int>.Collapse(machine[(7, 6, 0)]!, 6, true);
-            SuperpositionLayer<int>.Collapse(machine[(8, 6, 0)]!, 8, true);
+            ConstraintLayer<int>.Collapse(grid[(3, 5, 0)]!, 1, true);
+            ConstraintLayer<int>.Collapse(grid[(7, 5, 0)]!, 3, true);
 
-            SuperpositionLayer<int>.Collapse(machine[(2, 7, 0)]!, 8, true);
-            SuperpositionLayer<int>.Collapse(machine[(3, 7, 0)]!, 5, true);
-            SuperpositionLayer<int>.Collapse(machine[(7, 7, 0)]!, 1, true);
+            ConstraintLayer<int>.Collapse(grid[(2, 6, 0)]!, 1, true);
+            ConstraintLayer<int>.Collapse(grid[(7, 6, 0)]!, 6, true);
+            ConstraintLayer<int>.Collapse(grid[(8, 6, 0)]!, 8, true);
 
-            SuperpositionLayer<int>.Collapse(machine[(1, 8, 0)]!, 9, true);
-            SuperpositionLayer<int>.Collapse(machine[(6, 8, 0)]!, 4, true);
+            ConstraintLayer<int>.Collapse(grid[(2, 7, 0)]!, 8, true);
+            ConstraintLayer<int>.Collapse(grid[(3, 7, 0)]!, 5, true);
+            ConstraintLayer<int>.Collapse(grid[(7, 7, 0)]!, 1, true);
+
+            ConstraintLayer<int>.Collapse(grid[(1, 8, 0)]!, 9, true);
+            ConstraintLayer<int>.Collapse(grid[(6, 8, 0)]!, 4, true);
         }
     }
 }

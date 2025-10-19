@@ -1,9 +1,9 @@
 ﻿namespace qon.Variables
 {
-    public enum SuperpositionState
+    public enum ValueState
     {
         Constant,
+        Defined,
         Uncertain,
-        Defined
     }
 }

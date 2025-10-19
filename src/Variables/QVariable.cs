@@ -12,7 +12,7 @@ using qon.Layers.VariableLayers;
 
 namespace qon.Variables
 {
-    public class QVariable<T> : ICloneable, ICopy<QVariable<T>>, ILayerHolder<T, QVariable<T>>
+    public class QVariable<T> : ICopy<QVariable<T>>, ILayerHolder<T, QVariable<T>>
     {
         public Guid Id { get; protected set; } = Guid.NewGuid();
         public string Name { get; protected set; }
@@ -20,6 +20,7 @@ namespace qon.Variables
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
         public LayersManager<T, QVariable<T>> Layers { get; protected set; } = new LayersManager<T, QVariable<T>>();
         public Optional<T> Value { get; protected set; } = Optional<T>.Empty;
+        public ValueState State { get; set; } = ValueState.Uncertain;
 
         protected QVariable()
         {
@@ -37,20 +38,18 @@ namespace qon.Variables
             Name = name;
         }
 
-        public QVariable(T value, string name = "") : this(name)
-        {
-            SuperpositionLayer<T>.Collapse(this, value, isConstant: true);
-        }
-
         public QVariable<T> AddProperty(string name, object value)
         {
             AddNewProperty(name, value);
             return this;
         }
 
-        public void UpdateValue(T value)
+        public QVariable<T> WithValue(T value, ValueState state = ValueState.Constant)
         {
             Value = Optional<T>.Of(value);
+            State = state;
+
+            return this;
         }
 
         protected void AddNewProperty(string name, object value)
@@ -63,22 +62,11 @@ namespace qon.Variables
             Properties[name] = value;
         }
 
-        public TOut? As<TOut>() where TOut : QVariable<T>
-        {
-            return this as TOut;
-        }
-
         public virtual object this[string propertyName]
         {
             get => Properties[propertyName];
 
             set => Properties[propertyName] = value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual object Clone()
-        {
-            return Copy();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -90,6 +78,7 @@ namespace qon.Variables
                 Name = Name,
                 Properties = new Dictionary<string, object>(Properties),
                 Value = Value,
+                State = State,
                 Layers = Layers.Copy()
             };
         }

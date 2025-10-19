@@ -1,12 +1,14 @@
-using System;
-using System.Collections.Generic;
 using qon;
 using qon.Domains;
 using qon.Functions.Constraints;
 using qon.Functions.DSL;
 using qon.Functions.Filters;
 using qon.Helpers;
+using qon.Machines;
+using qon.Solvers;
 using qon.Variables;
+using System;
+using System.Collections.Generic;
 
 namespace Examples
 {
@@ -52,7 +54,7 @@ namespace Examples
                         .Build());
             }
 
-            var parameters = new QMachineParameter<EuclideanBlock<string>>()
+            var parameters = new WFCParameter<EuclideanBlock<string>>()
             {
                 Constraints = new()
                 {
@@ -61,7 +63,7 @@ namespace Examples
                 Random = new Random(100)
             };
 
-            var machine = new WFCMachine<EuclideanBlock<string>>(parameters);
+            var machine = new WFCMachine<EuclideanBlock<string>>(parameters, m => new FiniteSolver<EuclideanBlock<string>>(m));
 
             machine.CreateEuclideanSpace((size, size, 1), new DiscreteDomain<EuclideanBlock<string>>(domain));
             int i = 0;

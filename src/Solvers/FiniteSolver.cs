@@ -6,24 +6,32 @@ using System.Collections.Generic;
 using System.Linq;
 using qon.Functions.Propagators;
 using qon.Functions.Constraints;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
+using qon.Machines;
 
 namespace qon.Solvers
 {
-    public class FiniteSolver<T> : BaseSolver<T>
+    public class FiniteSolver<T> : IEnumerator<MachineState<T>>
     {
-        private readonly Stack<QVariable<T>[]> _solutionStack;
+        protected readonly QMachine<T> _machine;
 
-        public FiniteSolver(QMachine<T> machine) : base(machine)
+        public MachineState<T> Current => _machine.State;
+
+        object IEnumerator.Current => Current;
+    
+        private readonly Stack<QVariable<T>[]> _solutionStack;
+        public FiniteSolver(QMachine<T> machine)
         {
             _solutionStack = new Stack<QVariable<T>[]>();
+            _machine = machine;
         }
 
         public int PushStack((string name, T value)? usedValue = null)
         {
             if (_solutionStack.TryPeek(out var field) && usedValue is (string, T) v)
             {
-                SuperpositionLayer<T>.With(field[_machine.Indexer[v.name]]).Domain.Remove(v.value);
+                DomainLayer<T>.With(field[_machine.Indexer[v.name]]).Domain.Remove(v.value);
             }
 
             _solutionStack.Push(Current.Field.Select(x => x.Copy()).ToArray());
@@ -86,8 +94,8 @@ namespace qon.Solvers
 
                             foreach (var item in Current.Field)
                             {
-                                if (SuperpositionLayer<T>.With(item).State == SuperpositionState.Uncertain && 
-                                    SuperpositionLayer<T>.With(item).Entropy is var newEntropy && 
+                                if (item.State == ValueState.Uncertain && 
+                                    DomainLayer<T>.With(item).Entropy is var newEntropy && 
                                     newEntropy < entropy)
                                 {
                                     entropy = newEntropy;
@@ -115,16 +123,16 @@ namespace qon.Solvers
                             */
                             ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
 
-                            var newValue = SuperpositionLayer<T>.With(candidate).Domain.GetRandomValue(_machine.Random);
+                            var newValue = DomainLayer<T>.With(candidate).Domain.GetRandomValue(_machine.Random);
 
-                            SuperpositionLayer<T>.Collapse(candidate, newValue);
+                            ConstraintLayer<T>.Collapse(candidate, newValue);
                             changes += PushStack((candidate.Name, newValue));
                         }
                     }
 
                     break;
                 case MachineStateType.Validation:
-                    var validation = ApplyConstraints(_machine.Constraints.ValidationConstraints is not null);
+                    var validation = ApplyConstraints(ConstraintLayer<T>.From(Current)?.Constraints.ValidationConstraints is not null);
 
                     if (validation.Failed)
                     {
@@ -158,8 +166,8 @@ namespace qon.Solvers
             do
             {
                 changes = 0;
-
-                var globalResult = ExecuteGlobalRules(_machine.Constraints.GeneralConstraints);
+                //TODO add check
+                var globalResult = ExecuteGlobalRules(ConstraintLayer<T>.From(Current)!.Constraints.GeneralConstraints);
 
                 if (globalResult.Failed)
                 {
@@ -167,7 +175,7 @@ namespace qon.Solvers
                 }
 
                 changes += globalResult.ChangesAmount;
-                changes += Current.AutoCollapse();
+                changes += ConstraintLayer<T>.AutoCollapse(Current);
 
                 filterChanges += changes;
             }
@@ -178,7 +186,7 @@ namespace qon.Solvers
                 return ConstraintResult.Success(filterChanges);
             }
 
-            var globalValidation = ExecuteGlobalRules(_machine.Constraints.ValidationConstraints!);
+            var globalValidation = ExecuteGlobalRules(ConstraintLayer<T>.From(Current)?.Constraints.ValidationConstraints!);
 
             if (globalValidation.Failed)
             {

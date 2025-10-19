@@ -22,8 +22,8 @@ namespace Examples
                         && layer.X == x
                         && layer.Y == y].Result.FirstOrDefault();
 
-                    var value = SuperpositionLayer<T>.For(variable).State != SuperpositionState.Uncertain
-                        ? variable.Value.Value.ToString()
+                    var value = variable?.State != ValueState.Uncertain
+                        ? variable?.Value.Value.ToString()
                         : "_";
 
                     result += $"{value} ";

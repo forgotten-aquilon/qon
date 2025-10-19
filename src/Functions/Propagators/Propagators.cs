@@ -6,6 +6,7 @@ using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Functions.Operations;
 using qon.Helpers;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
 
@@ -17,7 +18,7 @@ namespace qon.Functions.Propagators
         {
             int changes = 0;
 
-            var decided = field.Where(x => SuperpositionLayer<T>.With(x).State != SuperpositionState.Uncertain).Select(y => y.Value.Value);
+            var decided = field.Where(x => x.State != ValueState.Uncertain).Select(y => y.Value.Value);
 
             var certainVariablesCount = decided.Count();
             var distinctVariables = decided.ToHashSet();
@@ -27,12 +28,12 @@ namespace qon.Functions.Propagators
                 return ConstraintResult.HasErrors();
             }
 
-            var openVariables = field.Where(x => SuperpositionLayer<T>.With(x).State == SuperpositionState.Uncertain);
+            var openVariables = field.Where(x => x.State == ValueState.Uncertain);
 
             foreach (var variable in openVariables)
             {
-                changes += SuperpositionLayer<T>.With(variable).Domain.Remove(distinctVariables);
-                changes += SuperpositionLayer<T>.AutoCollapse(variable).HasValue ? 1 : 0;
+                changes += DomainLayer<T>.With(variable).Domain.Remove(distinctVariables);
+                changes += ConstraintLayer<T>.AutoCollapse(variable).HasValue ? 1 : 0;
             }
 
             return ConstraintResult.Success(changes);
@@ -53,19 +54,19 @@ namespace qon.Functions.Propagators
 
                 foreach (var variable in field)
                 {
-                    if (SuperpositionLayer<T>.With(variable).State != SuperpositionState.Uncertain)
+                    if (variable.State != ValueState.Uncertain)
                     {
                         continue;
                     }
 
                     int removed = DomainHelper<T>.DomainIntersectionWithHashSet(variable, filteringCollection);
 
-                    if (SuperpositionLayer<T>.With(variable).Domain.IsEmpty())
+                    if (DomainLayer<T>.With(variable).Domain.IsEmpty())
                     {
                         return ConstraintResult.HasErrors();
                     }
 
-                    if (SuperpositionLayer<T>.AutoCollapse(variable).HasValue || removed > 0)
+                    if (ConstraintLayer<T>.AutoCollapse(variable).HasValue || removed > 0)
                     {
                         changes += removed;
                     }
@@ -83,23 +84,23 @@ namespace qon.Functions.Propagators
 
                 foreach (var variable in list)
                 {
-                    if (SuperpositionLayer<T>.With(variable).State != SuperpositionState.Uncertain)
+                    if (variable.State != ValueState.Uncertain)
                     {
                         continue;
                     }
 
-                    int originalSize = SuperpositionLayer<T>.With(variable).Domain.Size();
+                    int originalSize = DomainLayer<T>.With(variable).Domain.Size();
 
 #pragma warning disable CS8714
-                    IDomain<T> newDomain = DomainHelper<T>.DomainIntersection(SuperpositionLayer<T>.With(variable).Domain, filteringDomain);
-                    SuperpositionLayer<T>.With(variable).Domain = newDomain;
+                    IDomain<T> newDomain = DomainHelper<T>.DomainIntersection(DomainLayer<T>.With(variable).Domain, filteringDomain);
+                    DomainLayer<T>.With(variable).Domain = newDomain;
 
                     if (newDomain.IsEmpty())
                     {
                         return ConstraintResult.HasErrors();
                     }
 
-                    var collapsed = SuperpositionLayer<T>.AutoCollapse(variable);
+                    var collapsed = ConstraintLayer<T>.AutoCollapse(variable);
 
                     if (collapsed != Optional<T>.Empty || originalSize - newDomain.Size() != 0)
                     {

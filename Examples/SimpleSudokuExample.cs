@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using qon;
 using qon.Domains;
 using qon.Functions.Constraints;
@@ -7,6 +5,10 @@ using qon.Functions.DSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Helpers;
+using qon.Machines;
+using qon.Solvers;
+using System;
+using System.Collections.Generic;
 
 namespace Examples
 {
@@ -14,7 +16,7 @@ namespace Examples
     {
         public static void Run()
         {
-            var parameters = new QMachineParameter<int>()
+            var parameters = new WFCParameter<int>()
             {
                 Constraints = new()
                 {
@@ -38,7 +40,7 @@ namespace Examples
             };
 
             var numericalDomain = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 4) });
-            var machine = new WFCMachine<int>(parameters);
+            var machine = new WFCMachine<int>(parameters, m => new FiniteSolver<int>(m));
             machine.CreateEuclideanSpace((4, 4, 1), numericalDomain);
 
             int step = 0;

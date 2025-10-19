@@ -28,6 +28,7 @@ namespace qon.Layers
 
         public ILayer<T, THolder> GetLayer<TLayer>() where TLayer : ILayer<T, THolder>
         {
+            
             if (TryGetLayer<TLayer>(out var l))
             {
                 return l!;

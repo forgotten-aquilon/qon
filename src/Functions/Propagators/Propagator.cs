@@ -21,7 +21,7 @@ namespace qon.Functions.Propagators
                 return result;
             }
 
-            return input.Any(x => SuperpositionLayer<T>.With(x).State == SuperpositionState.Uncertain && SuperpositionLayer<T>.With(x).Domain.IsEmpty())
+            return input.Any(x => x.State == ValueState.Uncertain && DomainLayer<T>.With(x).Domain.IsEmpty())
                 ? ConstraintResult.HasErrors()
                 : result;
         }

@@ -5,6 +5,7 @@ using qon.Domains;
 using qon.Functions.DSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
+using qon.Machines;
 using qon.Solvers;
 
 namespace Examples
@@ -13,7 +14,7 @@ namespace Examples
     {
         public static void Run()
         {
-            var parameter = new QMachineParameter<char>()
+            var parameter = new WFCParameter<char>()
             {
                 Constraints = new()
                 {

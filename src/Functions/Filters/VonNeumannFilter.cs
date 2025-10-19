@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
 
@@ -24,26 +25,24 @@ namespace qon.Functions.Filters
     {
         public VonNeumannParameter<T> ApplyTo(QVariable<T> input)
         {
-            if (input.Layers.TryGetLayer<EuclideanLayer<T>>(out var layer))
+            var layer = EuclideanLayer<T>.With(input);
+            ExceptionHelper.ThrowIfFieldIsNull(layer, nameof(layer));
+            ExceptionHelper.ThrowIfFieldIsNull(layer.Machine, nameof(layer.Machine));
+
+            var machine = layer.Machine;
+            var stateLayer = EuclideanStateLayer<T>.With(machine.State);
+
+            VonNeumannParameter<T> result = new VonNeumannParameter<T>
             {
-                VonNeumannParameter<T> result = new VonNeumannParameter<T>();
-                result.Left = layer?.Machine[(layer.X - 1, layer.Y, layer.Z)];
+                Left = stateLayer[(layer.X - 1, layer.Y, layer.Z)],
+                Right = stateLayer[(layer.X + 1, layer.Y, layer.Z)],
+                Front = stateLayer[(layer.X, layer.Y - 1, layer.Z)],
+                Back = stateLayer[(layer.X, layer.Y + 1, layer.Z)],
+                Top = stateLayer[(layer.X, layer.Y, layer.Z + 1)],
+                Bottom = stateLayer[(layer.X, layer.Y, layer.Z - 1)]
+            };
 
-                result.Right = layer?.Machine[(layer.X + 1, layer.Y, layer.Z)];
-
-                result.Front = layer?.Machine[(layer.X, layer.Y - 1, layer.Z)];
-
-                result.Back = layer?.Machine[(layer.X, layer.Y + 1, layer.Z)];
-
-                result.Top = layer?.Machine[(layer.X, layer.Y, layer.Z + 1)];
-
-                result.Bottom = layer?.Machine[(layer.X, layer.Z, layer.Z - 1)];
-
-                return result;
-            }
-
-            //TODO
-            throw new InternalLogicException("");
+            return result;
         }
     }
 }

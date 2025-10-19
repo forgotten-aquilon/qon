@@ -5,11 +5,13 @@ using qon;
 using qon.Domains;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
+using qon.Layers.StateLayers;
+using qon.Machines;
 using qon.Variables;
 
 namespace qon.Tests
 {
-    public class SuperpositionLayerTests
+    public class DomainLayerTests
     {
         [Fact]
         public void SetDomain_ForConstantVariable_UsesEmptyDomain()
@@ -17,11 +19,11 @@ namespace qon.Tests
             var variable = new QVariable<int>(value: 5, name: "constant");
             var domain = new DiscreteDomain<int>(new[] { 1, 2, 3 });
 
-            var size = SuperpositionLayer<int>.SetDomain(variable, domain);
+            var size = DomainLayer<int>.SetDomain(variable, domain);
 
             Assert.Equal(0, size);
-            Assert.True(ReferenceEquals(SuperpositionLayer<int>.For(variable).Domain, EmptyDomain<int>.Instance));
-            Assert.Equal(SuperpositionState.Constant, SuperpositionLayer<int>.For(variable).State);
+            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(variable).Domain, EmptyDomain<int>.Instance));
+            Assert.Equal(ValueState.Constant, DomainLayer<int>.TryCreate(variable).State);
         }
 
         [Fact]
@@ -29,15 +31,15 @@ namespace qon.Tests
         {
             var domain = new DiscreteDomain<int>(new[] { 2 });
             var variable = new QVariable<int>("single");
-            SuperpositionLayer<int>.SetDomain(variable, domain);
+            DomainLayer<int>.SetDomain(variable, domain);
 
-            var collapsed = SuperpositionLayer<int>.AutoCollapse(variable);
+            var collapsed = ConstraintLayer<int>.AutoCollapse(variable);
 
             Assert.True(collapsed.HasValue);
             Assert.Equal(2, collapsed.Value);
-            Assert.Equal(SuperpositionState.Defined, SuperpositionLayer<int>.For(variable).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(variable).State);
             Assert.True(variable.Value.CheckValue(2));
-            Assert.True(ReferenceEquals(SuperpositionLayer<int>.For(variable).Domain, EmptyDomain<int>.Instance));
+            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(variable).Domain, EmptyDomain<int>.Instance));
         }
     }
 
@@ -48,9 +50,9 @@ namespace qon.Tests
         {
             var domain = new DiscreteDomain<int>(new[] { 1, 2 });
             var variable = new QVariable<int>("v");
-            SuperpositionLayer<int>.SetDomain(variable, domain);
-            SuperpositionLayer<int>.RemoveFromDomain(variable, 1);
-            SuperpositionLayer<int>.RemoveFromDomain(variable, 2);
+            DomainLayer<int>.SetDomain(variable, domain);
+            DomainLayer<int>.RemoveFromDomain(variable, 1);
+            DomainLayer<int>.RemoveFromDomain(variable, 2);
 
             var state = new MachineState<int>(new[] { variable });
 
@@ -61,17 +63,17 @@ namespace qon.Tests
         public void AutoCollapse_ReturnsNumberOfCollapsedVariables()
         {
             var first = new QVariable<int>("first");
-            SuperpositionLayer<int>.SetDomain(first, new DiscreteDomain<int>(new[] { 5 }));
+            DomainLayer<int>.SetDomain(first, new DiscreteDomain<int>(new[] { 5 }));
             var second = new QVariable<int>("second");
-            SuperpositionLayer<int>.SetDomain(second, new DiscreteDomain<int>(new[] { 3, 4 }));
+            DomainLayer<int>.SetDomain(second, new DiscreteDomain<int>(new[] { 3, 4 }));
 
             var state = new MachineState<int>(new[] { first, second });
 
             var changes = state.AutoCollapse();
 
             Assert.Equal(1, changes);
-            Assert.Equal(SuperpositionState.Defined, SuperpositionLayer<int>.For(first).State);
-            Assert.Equal(SuperpositionState.Uncertain, SuperpositionLayer<int>.For(second).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(first).State);
+            Assert.Equal(ValueState.Uncertain, DomainLayer<int>.TryCreate(second).State);
         }
     }
 
@@ -94,15 +96,15 @@ namespace qon.Tests
         {
             var numerical = new NumericalDomain<int>(new[] { new Interval<int>(0, 5) });
             var variable = new QVariable<int>("num");
-            SuperpositionLayer<int>.SetDomain(variable, numerical);
+            DomainLayer<int>.SetDomain(variable, numerical);
             var filter = Propagators.DomainIntersectionWithHashSet(new HashSet<int> { 2, 9 });
 
             var result = filter.ApplyTo(new[] { variable });
 
             Assert.Equal(PropagationOutcome.Converged, result.Failed);
-            Assert.Equal(SuperpositionState.Defined, SuperpositionLayer<int>.For(variable).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(variable).State);
             Assert.True(variable.Value.CheckValue(2));
-            Assert.True(ReferenceEquals(SuperpositionLayer<int>.For(variable).Domain, EmptyDomain<int>.Instance));
+            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(variable).Domain, EmptyDomain<int>.Instance));
         }
     }
 
@@ -113,14 +115,14 @@ namespace qon.Tests
         {
             var domain = new DiscreteDomain<int>(new[] { 1, 2 });
             var first = new QVariable<int>("first");
-            SuperpositionLayer<int>.SetDomain(first, domain);
+            DomainLayer<int>.SetDomain(first, domain);
             var second = new QVariable<int>("second");
-            SuperpositionLayer<int>.SetDomain(second, domain);
+            DomainLayer<int>.SetDomain(second, domain);
             var third = new QVariable<int>("third");
-            SuperpositionLayer<int>.SetDomain(third, domain);
+            DomainLayer<int>.SetDomain(third, domain);
 
-            SuperpositionLayer<int>.Collapse(first, 1, isConstant: true);
-            SuperpositionLayer<int>.Collapse(second, 1, isConstant: true);
+            ConstraintLayer<int>.Collapse(first, 1, isConstant: true);
+            ConstraintLayer<int>.Collapse(second, 1, isConstant: true);
 
             var result = Propagators.AllDistinct<int>().ApplyTo(new[] { first, second, third });
 
@@ -133,18 +135,18 @@ namespace qon.Tests
         {
             var domain = new DiscreteDomain<int>(new[] { 1, 2 });
             var decided = new QVariable<int>("decided");
-            SuperpositionLayer<int>.SetDomain(decided, domain);
+            DomainLayer<int>.SetDomain(decided, domain);
             var open = new QVariable<int>("open");
-            SuperpositionLayer<int>.SetDomain(open, new DiscreteDomain<int>(new[] { 1, 2 }));
+            DomainLayer<int>.SetDomain(open, new DiscreteDomain<int>(new[] { 1, 2 }));
 
-            SuperpositionLayer<int>.Collapse(decided, 1);
+            ConstraintLayer<int>.Collapse(decided, 1);
 
             var result = Propagators.AllDistinct<int>().ApplyTo(new[] { decided, open });
 
             Assert.Equal(PropagationOutcome.Converged, result.Failed);
-            Assert.Equal(SuperpositionState.Defined, SuperpositionLayer<int>.For(open).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(open).State);
             Assert.True(open.Value.CheckValue(2));
-            Assert.True(ReferenceEquals(SuperpositionLayer<int>.For(open).Domain, EmptyDomain<int>.Instance));
+            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(open).Domain, EmptyDomain<int>.Instance));
             Assert.Equal(1, result.ChangesAmount);
         }
     }
@@ -168,19 +170,20 @@ namespace qon.Tests
             Assert.Equal(MachineStateType.Prepared, machine.StateType);
             Assert.Equal(2, machine.State.Field.Length);
 
-            var first = machine[0, 0, 0];
-            var second = machine[1, 0, 0];
+            var grid = EuclideanStateLayer<int>.With(machine.State);
+            var first = grid[(0, 0, 0)];
+            var second = grid[(1, 0, 0)];
 
             Assert.NotNull(first);
             Assert.NotNull(second);
-            Assert.Null(machine[-1, 0, 0]);
-            Assert.Null(machine[(2, 0, 0)]);
+            Assert.Null(grid[(-1, 0, 0)]);
+            Assert.Null(grid[(2, 0, 0)]);
 
             Assert.Equal("0x0x0", first!.Name);
             Assert.Equal("1x0x0", second!.Name);
 
-            SuperpositionLayer<int>.RemoveFromDomain(first!, 1);
-            Assert.True(SuperpositionLayer<int>.For(second!).Domain.ContainsValue(1));
+            DomainLayer<int>.RemoveFromDomain(first!, 1);
+            Assert.True(DomainLayer<int>.TryCreate(second!).Domain.ContainsValue(1));
         }
     }
 }

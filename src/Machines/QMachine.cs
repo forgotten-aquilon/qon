@@ -1,14 +1,13 @@
-﻿using qon.Domains;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Solvers;
-using qon.Variables;
+using qon.Domains;
 using qon.Exceptions;
 using qon.Layers.VariableLayers;
+using qon.Variables;
 
-namespace qon
+namespace qon.Machines
 {
     public enum MachineStateType
     {
@@ -48,7 +47,6 @@ namespace qon
         public IEnumerator<MachineState<T>> Solver { get; protected set; }
 
         public States<T> States { get; protected set; }
-        public RuleHandler<T> Constraints { get; set; }
         public MachineState<T> State { get; protected set; }
 
         public MachineStateType StateType {  get; set; }
@@ -65,26 +63,16 @@ namespace qon
 
         public QMachine(QMachineParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory)
         {
-            Constraints = parameter.Constraints;
-
             State = new MachineState<T>(this);
             StateType = MachineStateType.Created;
             Solver = factory(this);
             States = new States<T>(this);
             Random = parameter.Random;
 
-            if (parameter.FieldParameter is not null)
+            if (parameter.Field is not null)
             {
-                ExceptionHelper.ThrowIfFieldIsNull(parameter.FieldParameter.Field, nameof(parameter.FieldParameter.Field));
-
-                ExceptionHelper.ThrowIfFieldIsNull(parameter.FieldParameter.Domain, nameof(parameter.FieldParameter.Domain));
-
-                foreach (var variable in parameter.FieldParameter.Field)
-                {
-                    SuperpositionLayer<T>.With(variable).Domain = parameter.FieldParameter.Domain;
-                }
-
-                SetField(parameter.FieldParameter.Field);
+                ExceptionHelper.ThrowIfFieldIsNull(parameter.Field, nameof(parameter.Field));
+                SetField(parameter.Field);
             }
         }
 
@@ -113,7 +101,8 @@ namespace qon
             for (int i = 0; i < count; i++)
             {
                 var variable = new QVariable<T>(string.Empty);
-                SuperpositionLayer<T>.For(variable).Domain = d;
+                DomainLayer<T>.TryCreate(variable).Domain = d;
+                DomainLayer<T>.TryCreate(variable).Domain = d;
                 field.Add(variable);
             }
             SetField(field);
@@ -125,7 +114,7 @@ namespace qon
             foreach (var name in names)
             {
                 var variable = new QVariable<T>(name);
-                SuperpositionLayer<T>.For(variable).Domain = d;
+                DomainLayer<T>.TryCreate(variable).Domain = d;
                 field.Add(variable);
             }
             SetField(field);

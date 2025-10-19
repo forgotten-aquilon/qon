@@ -7,6 +7,8 @@ using qon.Functions.DSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
+using qon.Machines;
+using qon.Solvers;
 using qon.Variables;
 
 namespace Examples
@@ -63,7 +65,7 @@ namespace Examples
             mazeRules.Add(CreateRule("╩", leftConn, rightConn, topConn, bottomWall));
             mazeRules.Add(CreateRule(" ", leftWall, rightWall, topWall, bottomWall));
 
-            var parameters = new QMachineParameter<string>()
+            var parameters = new WFCParameter<string>()
             {
                 Constraints = new()
                 {
@@ -72,13 +74,13 @@ namespace Examples
                 Random = new Random(10)
             };
 
-            WFCMachine<string> machine = new(parameters);
+            WFCMachine<string> machine = new(parameters, m => new FiniteSolver<string>(m));
 
             machine.CreateEuclideanSpace((25, 25, 1), new DiscreteDomain<string>(domain));
 
             foreach (var variable in machine.State.Field)
             {
-                var localDomain = SuperpositionLayer<string>.For(variable).Domain as DiscreteDomain<string>;
+                var localDomain = DomainLayer<string>.With(variable).Domain as DiscreteDomain<string>;
                 localDomain?.UpdateWeight(" ", 21);
                 localDomain?.UpdateWeight("╣", 51);
             }

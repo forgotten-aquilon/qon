@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using qon.Domains;
 using qon.Exceptions;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
 
@@ -69,20 +70,19 @@ namespace qon
             }));
         }
 
-        public MachineStateQuery<T> WhereState(SuperpositionState state)
+        public MachineStateQuery<T> WhereState(ValueState state)
         {
-            return new MachineStateQuery<T>(_query.Where(variable =>
-                SuperpositionLayer<T>.With(variable).State == state));
+            return new MachineStateQuery<T>(_query.Where(variable => variable.State == state));
         }
 
-        public MachineStateQuery<T> WhereStates(params SuperpositionState[] states)
+        public MachineStateQuery<T> WhereStates(params ValueState[] states)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(states, nameof(states));
 
-            var stateSet = new HashSet<SuperpositionState>(states);
+            var stateSet = new HashSet<ValueState>(states);
 
             return new MachineStateQuery<T>(_query.Where(variable =>
-                stateSet.Contains(SuperpositionLayer<T>.With(variable).State)));
+                stateSet.Contains(variable.State)));
         }
 
         public MachineStateQuery<T> WhereDomain(Func<IDomain<T>, bool> predicate)
@@ -91,7 +91,7 @@ namespace qon
 
             return new MachineStateQuery<T>(_query.Where(variable =>
             {
-                var domain = SuperpositionLayer<T>.With(variable).Domain;
+                var domain = DomainLayer<T>.With(variable).Domain;
                 return predicate(domain);
             }));
         }
@@ -102,7 +102,7 @@ namespace qon
 
             return new MachineStateQuery<T>(_query.Where(variable =>
             {
-                var domain = SuperpositionLayer<T>.With(variable).Domain;
+                var domain = DomainLayer<T>.With(variable).Domain;
                 return condition(domain.Size());
             }));
         }
@@ -110,8 +110,8 @@ namespace qon
         public MachineStateQuery<T> OrderByEntropy(bool ascending = true)
         {
             return new MachineStateQuery<T>(ascending
-                ? _query.OrderBy(variable => SuperpositionLayer<T>.With(variable).Entropy)
-                : _query.OrderByDescending(variable => SuperpositionLayer<T>.With(variable).Entropy));
+                ? _query.OrderBy(variable => DomainLayer<T>.With(variable).Entropy)
+                : _query.OrderByDescending(variable => DomainLayer<T>.With(variable).Entropy));
         }
 
         public IEnumerable<QVariable<T>> ToEnumerable()
@@ -138,7 +138,7 @@ namespace qon
         {
             foreach (var variable in _query)
             {
-                SuperpositionLayer<T>.Collapse(variable, value, constant);
+                ConstraintLayer<T>.Collapse(variable, value, constant);
             }
         }
 

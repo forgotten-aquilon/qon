@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using qon.Domains;
+﻿using qon.Domains;
 using qon.Exceptions;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
+using System;
+using System.Collections.Generic;
 
-namespace qon
+namespace qon.Machines
 {
     public enum FieldType
     {
@@ -22,8 +21,9 @@ namespace qon
 
         public FieldType FieldType { get; private set; }
 
-        public WFCMachine(QMachineParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory) : base(parameter, factory)
+        public WFCMachine(WFCParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory) : base(parameter, factory)
         {
+            ConstraintLayer<T>.TryCreate(State).Constraints = parameter.Constraints;
         }
 
         public void CreateEuclideanSpace((int x, int y, int z) dimensions, IDomain<T> domain)
@@ -38,6 +38,9 @@ namespace qon
             }
 
             FieldGrid = new string[dimensions.x, dimensions.y, dimensions.z];
+            var layer = EuclideanStateLayer<T>.TryCreate(State);
+            layer.FieldGrid = FieldGrid;
+            layer.Machine = this;
 
             for (int x = 0; x < dimensions.x; x++)
             {
@@ -47,11 +50,11 @@ namespace qon
                     {
                         string name = $"{x}x{y}x{z}";
                         var v = new QVariable<T>(name);
-                        SuperpositionLayer<T>.For(v).Domain = domain;
+                        DomainLayer<T>.TryCreate(v).Domain = domain;
                         v.Layers.Add(new EuclideanLayer<T>(x, y, z, this));
 
                         FieldGrid[x, y, z] = name;
-                        
+                        EuclideanStateLayer<T>.With(State).FieldGrid[x, y, z] = name;
 
                         variables.Add(v);
                     }
@@ -59,24 +62,6 @@ namespace qon
             }
 
             SetField(variables);
-        }
-
-        public QVariable<T>? this[(int x, int y, int z) coordinate]
-        {
-            get
-            {
-                if (coordinate.x < 0 || coordinate.y < 0 || coordinate.z < 0)
-                {
-                    return null;
-                }
-                
-                if (coordinate.x >= FieldGrid.GetLength(0) || coordinate.y >= FieldGrid.GetLength(1) || coordinate.z >= FieldGrid.GetLength(2))
-                {
-                    return null;
-                }
-
-                return this[FieldGrid[coordinate.x, coordinate.y, coordinate.z]];
-            }
         }
 
     }

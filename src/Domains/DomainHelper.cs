@@ -59,7 +59,7 @@ namespace qon.Domains
 
         public static int DomainIntersectionWithHashSet(QVariable<T> variable, HashSet<T> values)
         {
-            var layer = SuperpositionLayer<T>.With(variable);
+            var layer = DomainLayer<T>.With(variable);
             var domain = layer.Domain;
 
             if (TryGetHashSetIntersection(domain, out var handler))
@@ -98,7 +98,7 @@ namespace qon.Domains
                 }
             }
 
-            var targetLayer = SuperpositionLayer<T>.With(variable);
+            var targetLayer = DomainLayer<T>.With(variable);
             targetLayer.Domain = filtered.Count == 0
                 ? EmptyDomain<T>.Instance
                 : new DiscreteDomain<T>(filtered);
@@ -108,7 +108,7 @@ namespace qon.Domains
 
         private static int IntersectGenericWithHashSet(QVariable<T> variable, HashSet<T> values)
         {
-            var layer = SuperpositionLayer<T>.With(variable);
+            var layer = DomainLayer<T>.With(variable);
             var originalDomain = layer.Domain;
             int originalSize = SafeSize(originalDomain);
 

@@ -1,6 +1,8 @@
 #pragma warning disable
 
 using Examples;
+using qon.Helpers;
+using qon.Layers.VariableLayers;
 using qon.Variables;
 
 //NumberExample.Run();

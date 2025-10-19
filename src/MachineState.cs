@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using qon.Exceptions;
 using qon.Layers;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
+using qon.Machines;
 using qon.Variables;
 
 namespace qon
@@ -30,14 +32,6 @@ namespace qon
         public SearchResult(IEnumerable<QVariable<T>> field)
         {
             Result = field;
-        }
-
-        public void Collapse(T value, bool isConstant = false)
-        {
-            foreach (var variable in Result)
-            {
-                SuperpositionLayer<T>.Collapse(variable, value, isConstant);
-            }
         }
 
         public SearchResult<T> this[string name, object value]
@@ -81,7 +75,7 @@ namespace qon
     {
         private QMachine<T> _machine;
 
-        public LayersManager<T, MachineState<T>> Layers => new LayersManager<T, MachineState<T>>();
+        public LayersManager<T, MachineState<T>> Layers { get; set; } = new LayersManager<T, MachineState<T>>();
         public QVariable<T>[] Field { get; protected set; }
 
         public SolutionState CurrentState
@@ -90,10 +84,10 @@ namespace qon
             {
                 foreach (var variable in Field)
                 {
-                    if (SuperpositionLayer<T>.With(variable).Domain.IsEmpty() && SuperpositionLayer<T>.With(variable).State == SuperpositionState.Uncertain)
+                    if (DomainLayer<T>.With(variable).Domain.IsEmpty() && variable.State == ValueState.Uncertain)
                         return SolutionState.Unsolvable;
 
-                    if (SuperpositionLayer<T>.With(variable).State == SuperpositionState.Uncertain)
+                    if (variable.State == ValueState.Uncertain)
                         return SolutionState.NotSolved;
                 }
 
@@ -116,24 +110,6 @@ namespace qon
         public void SetField(QVariable<T>[] field)
         {
             Field = field;
-        }
-
-        public int AutoCollapse()
-        {
-            int changes = 0;
-
-            foreach (var v in Field)
-            {
-                if (SuperpositionLayer<T>.With(v).State != SuperpositionState.Uncertain)
-                    continue;
-
-                if (SuperpositionLayer<T>.AutoCollapse(v).HasValue)
-                {
-                    changes++;
-                }
-            }
-
-            return changes;
         }
 
         public SearchResult<T> this[string name, object value]
@@ -164,7 +140,7 @@ namespace qon
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Field.Select(v =>
-                SuperpositionLayer<T>.With(v).State != SuperpositionState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{SuperpositionLayer<T>.With(v).Domain}]");
+                v.State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{DomainLayer<T>.With(v).Domain}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

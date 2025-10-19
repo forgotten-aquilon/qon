@@ -8,9 +8,4 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Variables\Layers\StateLayers\" />
-    <Folder Include="Variables\Layers\VariableLayers\" />
-  </ItemGroup>
 </Project>

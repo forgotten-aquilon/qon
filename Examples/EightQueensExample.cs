@@ -8,6 +8,8 @@ using qon.Functions.Filters;
 using qon.Functions.Operations;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
+using qon.Machines;
+using qon.Solvers;
 using qon.Variables;
 
 namespace Examples
@@ -18,7 +20,7 @@ namespace Examples
         {
             var domain = new DiscreteDomain<char>(new List<char>() { 'Q', '.' });
 
-            var parameters = new QMachineParameter<char>
+            var parameters = new WFCParameter<char>
             {
                 Constraints = new()
                 {
@@ -46,7 +48,7 @@ namespace Examples
                 }
             };
 
-            var machine = new WFCMachine<char>(parameters);
+            var machine = new WFCMachine<char>(parameters, m => new FiniteSolver<char>(m));
             machine.CreateEuclideanSpace((8, 8, 1), domain);
 
             foreach (var state in machine.States)
