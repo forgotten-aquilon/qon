@@ -73,8 +73,6 @@ namespace qon
 
     public class MachineState<T> : ILayerHolder<T, MachineState<T>>
     {
-        private QMachine<T> _machine;
-
         public LayersManager<T, MachineState<T>> Layers { get; set; } = new LayersManager<T, MachineState<T>>();
         public QVariable<T>[] Field { get; protected set; }
 
@@ -84,7 +82,7 @@ namespace qon
             {
                 foreach (var variable in Field)
                 {
-                    if (DomainLayer<T>.With(variable).Domain.IsEmpty() && variable.State == ValueState.Uncertain)
+                    if (DomainLayer<T>.With(variable).IsEmpty() && variable.State == ValueState.Uncertain)
                         return SolutionState.Unsolvable;
 
                     if (variable.State == ValueState.Uncertain)
@@ -97,14 +95,12 @@ namespace qon
 
         public MachineState(QMachine<T> machine)
         {
-            _machine = machine;
             Field = Array.Empty<QVariable<T>>();
         }
 
         public MachineState(QVariable<T>[] field, QMachine<T> machine)
         {
             Field = field;
-            _machine = machine;
         }
 
         public void SetField(QVariable<T>[] field)
@@ -140,7 +136,7 @@ namespace qon
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Field.Select(v =>
-                v.State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{DomainLayer<T>.With(v).Domain}]");
+                v.State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{DomainLayer<T>.With(v).DescribeDomain()}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

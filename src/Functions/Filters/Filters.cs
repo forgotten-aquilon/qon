@@ -59,7 +59,7 @@ namespace qon.Functions.Filters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<T> DomainContains<T>(T value)
         {
-            return new QPredicate<T>(v => DomainLayer<T>.With(v).Domain.ContainsValue(value));
+            return new QPredicate<T>(v => DomainLayer<T>.With(v).ContainsValue(value));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

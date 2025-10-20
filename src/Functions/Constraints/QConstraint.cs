@@ -22,7 +22,7 @@ namespace qon.Functions.Constraints
             Propagator = method;
         }
 
-        public override ConstraintResult Execute(QVariable<T>[] field)
+        public override Result Execute(QVariable<T>[] field)
         {
             switch (FilteringType)
             {
@@ -41,7 +41,7 @@ namespace qon.Functions.Constraints
                         }
                     }
 
-                    return ConstraintResult.Success(changes);
+                    return Result.Success(changes);
 
                 case FilteringType.Selecting:
                     var aggregation = field.Where(SelectingAggregator!.ApplyTo).ToList();

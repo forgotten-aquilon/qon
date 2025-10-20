@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using qon.Functions;
 using qon.Functions.Propagators;
 using qon.Functions.Constraints;
 using qon.Layers.StateLayers;
@@ -12,7 +13,7 @@ using qon.Machines;
 
 namespace qon.Solvers
 {
-    public class FiniteSolver<T> : IEnumerator<MachineState<T>>
+    public class DefaultSolver<T> : IEnumerator<MachineState<T>>
     {
         protected readonly QMachine<T> _machine;
 
@@ -21,7 +22,7 @@ namespace qon.Solvers
         object IEnumerator.Current => Current;
     
         private readonly Stack<QVariable<T>[]> _solutionStack;
-        public FiniteSolver(QMachine<T> machine)
+        public DefaultSolver(QMachine<T> machine)
         {
             _solutionStack = new Stack<QVariable<T>[]>();
             _machine = machine;
@@ -29,9 +30,10 @@ namespace qon.Solvers
 
         public int PushStack((string name, T value)? usedValue = null)
         {
+            //TODO: ???
             if (_solutionStack.TryPeek(out var field) && usedValue is (string, T) v)
             {
-                DomainLayer<T>.With(field[_machine.Indexer[v.name]]).Domain.Remove(v.value);
+                DomainLayer<T>.With(field[_machine.Indexer[v.name]]).RemoveValue(v.value);
             }
 
             _solutionStack.Push(Current.Field.Select(x => x.Copy()).ToArray());
@@ -49,7 +51,7 @@ namespace qon.Solvers
                 return 1;
             }
 
-            _machine.State.SetField(_solutionStack.Peek().Select(x => x.Copy()).ToArray());
+            Current.SetField(_solutionStack.Peek().Select(x => x.Copy()).ToArray());
 
             return 1;
         }
@@ -69,7 +71,7 @@ namespace qon.Solvers
                     _machine.StateType = MachineStateType.IsSolving;
                     break;
                 case MachineStateType.IsSolving:
-                    var result = ApplyConstraints();
+                    var result = Execute();
                     changes += result.ChangesAmount;
 
                     if (Current.CurrentState == SolutionState.MaybeSolved)
@@ -102,28 +104,12 @@ namespace qon.Solvers
                                     candidate = item;
                                 }
                             }
-                                
-
-                            /*
-                            var variablesByEntropy =
-                                Current.Field
-                                    .Where(z => SuperpositionLayer<T>.GetState(z) == SuperpositionState.Uncertain)
-                                    .GroupBy(x => SuperpositionLayer<T>.GetEntropy(x))
-                                    .OrderBy(g => g.Key)
-                                    .FirstOrDefault();
                             
-                            //TODO: Update this to use MinBy when it will be available in .NET 6+
+                            //TODO: Add heuristics
 
-                            //TODO: Add functionality to change selection of variables with equal entropy, e.g. random or by some algorithm 
-                            //var minimalEntropyVariable = minimalEntropyVariables?.MinBy(_ => _machine.Random.Next());
-                            //var minimalEntropyVariable = variablesByEntropy?.FirstOrDefault();
-                            var variablesByEntropyCollection = variablesByEntropy as ICollection<QVariable<T>>;
-
-                            var minimalEntropyVariable = variablesByEntropyCollection!.RandomItem(_machine.Random);
-                            */
                             ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
 
-                            var newValue = DomainLayer<T>.With(candidate).Domain.GetRandomValue(_machine.Random);
+                            var newValue = DomainLayer<T>.With(candidate).GetRandomValue(_machine.Random);
 
                             ConstraintLayer<T>.Collapse(candidate, newValue);
                             changes += PushStack((candidate.Name, newValue));
@@ -132,19 +118,17 @@ namespace qon.Solvers
 
                     break;
                 case MachineStateType.Validation:
-                    var validation = ApplyConstraints(ConstraintLayer<T>.From(Current)?.Constraints.ValidationConstraints is not null);
-
-                    if (validation.Failed)
-                    {
-                        changes += GoBack();
-                        _machine.StateType = MachineStateType.IsSolving;
-                    }
-                    else
+                    if (Validate())
                     {
                         changes += PushStack();
                         _machine.StateType = MachineStateType.Finished;
                     }
-                    
+                    else
+                    {
+                        changes += GoBack();
+                        _machine.StateType = MachineStateType.IsSolving;
+                    }
+
                     break;
                 case MachineStateType.Finished:
                     return false;
@@ -157,63 +141,42 @@ namespace qon.Solvers
             return changes != 0;
         }
 
-        public ConstraintResult ApplyConstraints(bool validation = false)
+        public Result Execute()
         {
-            int filterChanges = 0;
-            bool isConverged = true;
+            int totalChanges = 0;
 
-            int changes;
-            do
+            foreach (var layer in Current.Layers)
             {
-                changes = 0;
-                //TODO add check
-                var globalResult = ExecuteGlobalRules(ConstraintLayer<T>.From(Current)!.Constraints.GeneralConstraints);
+                if (layer is not IStateLayer<T> stateLayer) 
+                    continue;
 
-                if (globalResult.Failed)
-                {
-                    return globalResult;
-                }
-
-                changes += globalResult.ChangesAmount;
-                changes += ConstraintLayer<T>.AutoCollapse(Current);
-
-                filterChanges += changes;
-            }
-            while (changes != 0);
-
-            if (!validation)
-            {
-                return ConstraintResult.Success(filterChanges);
-            }
-
-            var globalValidation = ExecuteGlobalRules(ConstraintLayer<T>.From(Current)?.Constraints.ValidationConstraints!);
-
-            if (globalValidation.Failed)
-            {
-                return globalValidation;
-            }
-
-            int validationChanges = globalValidation.ChangesAmount;
-
-            return ConstraintResult.Success(validationChanges);
-        }
-
-        public ConstraintResult ExecuteGlobalRules(List<IQConstraint<T>> rules)
-        {
-            int changes = 0;
-            foreach (var rule in rules)
-            {
-                var result = rule.Execute(Current.Field);
+                var result = stateLayer.Execute(Current.Field);
 
                 if (result.Failed)
                 {
                     return result;
                 }
 
-                changes += result.ChangesAmount;
+                totalChanges += result.ChangesAmount;
             }
 
-            return ConstraintResult.Success(changes);
+            return Result.Success(totalChanges);
+        }
+
+        public bool Validate()
+        {
+            foreach (var layer in Current.Layers)
+            {
+                if (layer is not IStateLayer<T> stateLayer) 
+                    continue;
+
+                if (stateLayer.Validate(Current.Field)) 
+                    continue;
+                    
+                return false;
+            }
+
+            return true;
         }
 
         public void Reset()

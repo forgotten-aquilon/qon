@@ -28,7 +28,7 @@ namespace Examples
                 }
             };
 
-            var machine = new QMachine<char>(parameter, m => new FiniteSolver<char>(m));
+            var machine = new QMachine<char>(parameter, m => new DefaultSolver<char>(m));
 
             List<char> letters = new() { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
             machine.GenerateField(new DiscreteDomain<char>(letters), new[] { "V1", "V2", "V3", "V4" });

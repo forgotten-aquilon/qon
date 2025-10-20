@@ -33,14 +33,14 @@ namespace Examples
                                       QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.X == l2.X)
                                     | QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.Y == l2.Y)
                                     | QPredicate<char>.Create<EuclideanLayer<char>>(l2 => Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y))))
-                            .Propagate(Propagators.DomainIntersectionWithHashSet<char>(new HashSet<char> { '.' }))
+                            .Propagate(Propagators.DomainIntersection<char>(new HashSet<char> { '.' }))
                             .Build()
                     },
                     ValidationConstraints = new()
                     {
                         QSL.Constraint<char>()
                             .Execute(field =>
-                                field.Where(Filters.EqualsToValue('Q').ApplyTo).Count()
+                                field.Count(Filters.EqualsToValue('Q').ApplyTo)
                                 + ~Operations.Comparison(8, COperator.EQ)
                                 + ~Propagators.FromBool(true))
                             .Build(),
@@ -48,7 +48,7 @@ namespace Examples
                 }
             };
 
-            var machine = new WFCMachine<char>(parameters, m => new FiniteSolver<char>(m));
+            var machine = new WFCMachine<char>(parameters, m => new DefaultSolver<char>(m));
             machine.CreateEuclideanSpace((8, 8, 1), domain);
 
             foreach (var state in machine.States)

@@ -2,6 +2,7 @@
 using qon.Variables;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using qon.Functions.Filters;
@@ -57,6 +58,21 @@ namespace qon.Helpers
             throw new UnreachableException();
         }
 
+        public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this ICollection<T>? collection)
+        {
+            if (collection is null)
+            {
+                return true;
+            }
+
+            if (collection.Count == 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue TryGetOrCreate<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) where TKey : notnull where TValue : new()
         {
@@ -106,28 +122,24 @@ namespace qon.Helpers
 
             public override bool Equals(object? obj)
             {
-                return obj is WeakHashSet<T> && Equals((WeakHashSet<T>)obj);
+                return obj is WeakHashSet<T> set && Equals(set);
             }
         }
 
         public static Func<TIn, WeakHashSet<object>> Or<TIn>(this Func<TIn, object> leftFunc, Func<TIn, object> rightFunc)
         {
-            Func<TIn, WeakHashSet<object>> func = o =>
+            WeakHashSet<object> Func(TIn o)
             {
-                HashSet<object> set = new HashSet<object>
-                {
-                    leftFunc(o),
-                    rightFunc(o)
-                };
+                HashSet<object> set = new HashSet<object> { leftFunc(o), rightFunc(o) };
                 return new WeakHashSet<object>(set);
-            };
+            }
 
-            return func;
+            return Func;
         }
 
         public static Func<TIn, HashSet<object>> And<TIn>(this Func<TIn, object> leftFunc, Func<TIn, object> rightFunc)
         {
-            Func<TIn, HashSet<object>> func = o =>
+            HashSet<object> Func(TIn o)
             {
                 HashSet<object> set = new HashSet<object>
                 {
@@ -135,9 +147,9 @@ namespace qon.Helpers
                     rightFunc(o)
                 };
                 return set;
-            };
+            }
 
-            return func;
+            return Func;
         }
 
         #endregion

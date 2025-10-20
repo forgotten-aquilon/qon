@@ -74,15 +74,17 @@ namespace Examples
                 Random = new Random(10)
             };
 
-            WFCMachine<string> machine = new(parameters, m => new FiniteSolver<string>(m));
+            WFCMachine<string> machine = new(parameters, m => new DefaultSolver<string>(m));
 
             machine.CreateEuclideanSpace((25, 25, 1), new DiscreteDomain<string>(domain));
 
             foreach (var variable in machine.State.Field)
             {
-                var localDomain = DomainLayer<string>.With(variable).Domain as DiscreteDomain<string>;
-                localDomain?.UpdateWeight(" ", 21);
-                localDomain?.UpdateWeight("╣", 51);
+                if (DomainLayer<string>.With(variable).TryGetDomain<DiscreteDomain<string>>(out var localDomain))
+                {
+                    localDomain.UpdateWeight(" ", 21);
+                    localDomain.UpdateWeight("╣", 51);
+                }
             }
 
             foreach (var state in machine.States)

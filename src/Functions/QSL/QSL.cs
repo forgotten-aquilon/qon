@@ -15,7 +15,7 @@ namespace qon.Functions.DSL
             return new QSLConstraintBuilder<T>();
         }
 
-        public static Func<QVariable<T>, ConstraintResult> VonNeumann<T>(EuclideanConstraintParameter<T> parameter)
+        public static Func<QVariable<T>, Result> VonNeumann<T>(EuclideanConstraintParameter<T> parameter)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
@@ -37,9 +37,9 @@ namespace qon.Functions.DSL
         private Filter<T>? _grouping;
         private QPredicate<T>? _selector;
         private Func<QVariable<T>, QPredicate<T>>? _neighbourAggregation;
-        private Func<QVariable<T>, ConstraintResult>? _neighbourConstraint;
+        private Func<QVariable<T>, Result>? _neighbourConstraint;
         private Propagator<T>? _propagator;
-        private Func<QVariable<T>[], ConstraintResult>? _customExecutor;
+        private Func<QVariable<T>[], Result>? _customExecutor;
 
         public QSLConstraintBuilder<T> When(QPredicate<T> guard)
         {
@@ -65,7 +65,7 @@ namespace qon.Functions.DSL
             return this;
         }
 
-        public QSLConstraintBuilder<T> Where(Func<QVariable<T>, ConstraintResult> neighbourConstraint)
+        public QSLConstraintBuilder<T> Where(Func<QVariable<T>, Result> neighbourConstraint)
         {
             _neighbourConstraint = neighbourConstraint;
             return this;
@@ -77,7 +77,7 @@ namespace qon.Functions.DSL
             return this;
         }
 
-        public QSLConstraintBuilder<T> Execute(Func<QVariable<T>[], ConstraintResult> executor)
+        public QSLConstraintBuilder<T> Execute(Func<QVariable<T>[], Result> executor)
         {
             _customExecutor = executor;
             return this;

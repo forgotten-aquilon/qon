@@ -45,7 +45,7 @@ namespace Examples
                 Random = new Random(2222)
             };
 
-            var machine = new WFCMachine<int>(parameters, m => new FiniteSolver<int>(m));
+            var machine = new WFCMachine<int>(parameters, m => new DefaultSolver<int>(m));
             machine.CreateEuclideanSpace((9, 9, 1), new DiscreteDomain<int>(domain));
 
             SeedField(machine);

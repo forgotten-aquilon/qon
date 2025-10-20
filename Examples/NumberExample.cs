@@ -27,7 +27,7 @@ namespace Examples
                 }
             };
 
-            var machine = new QMachine<int>(parameter, m => new FiniteSolver<int>(m));
+            var machine = new QMachine<int>(parameter, m => new DefaultSolver<int>(m));
 
             machine.GenerateField(new NumericalDomain<int>(), new[] { "V1", "V2", "V3", "V4" });
 

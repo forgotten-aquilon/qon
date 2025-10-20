@@ -43,7 +43,7 @@ namespace Examples
                 }
             };
 
-            var machine = new WFCMachine<int>(parameters, m => new FiniteSolver<int>(m));
+            var machine = new WFCMachine<int>(parameters, m => new DefaultSolver<int>(m));
             var numericalDomain = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 9) });
             machine.CreateEuclideanSpace((9, 9, 1), numericalDomain);
 

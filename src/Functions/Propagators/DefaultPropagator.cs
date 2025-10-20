@@ -5,21 +5,21 @@ using qon.Variables;
 
 namespace qon.Functions.Propagators
 {
-    public class DefaultPropagator<TIn> : IChain<TIn, ConstraintResult>
+    public class DefaultPropagator<TIn> : IChain<TIn, Result>
     {
-        public Func<TIn, ConstraintResult> PropagationFunction { get; }
+        public Func<TIn, Result> PropagationFunction { get; }
 
-        public DefaultPropagator(Func<TIn, ConstraintResult> propagationFunction)
+        public DefaultPropagator(Func<TIn, Result> propagationFunction)
         {
             PropagationFunction = propagationFunction;
         }
 
-        public virtual ConstraintResult ApplyTo(TIn input)
+        public virtual Result ApplyTo(TIn input)
         {
             return PropagationFunction(input);
         }
 
-        public static IChain<TIn, ConstraintResult> operator ~(DefaultPropagator<TIn> obj)
+        public static IChain<TIn, Result> operator ~(DefaultPropagator<TIn> obj)
         {
             return obj;
         }

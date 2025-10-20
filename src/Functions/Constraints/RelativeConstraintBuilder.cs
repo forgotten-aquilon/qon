@@ -12,15 +12,15 @@ namespace qon.Functions.Constraints
     public class RelativeConstraintBuilder<T> : IQConstraint<T>
     {
         protected QPredicate<T> Guard { get; }
-        public Func<QVariable<T>, ConstraintResult> Constraint { get; }
+        public Func<QVariable<T>, Result> Constraint { get; }
 
-        public RelativeConstraintBuilder(QPredicate<T> guard, Func<QVariable<T>, ConstraintResult> constraint)
+        public RelativeConstraintBuilder(QPredicate<T> guard, Func<QVariable<T>, Result> constraint)
         {
             Guard = guard;
             Constraint = constraint;
         }
 
-        public ConstraintResult Execute(QVariable<T>[] field)
+        public Result Execute(QVariable<T>[] field)
         {
             List<QVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo).ToList();
 
@@ -40,7 +40,7 @@ namespace qon.Functions.Constraints
                 }
             }
 
-            return ConstraintResult.Success(cumulativeChanges);
+            return Result.Success(cumulativeChanges);
         }
     }
 }

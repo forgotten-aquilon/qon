@@ -60,7 +60,7 @@ namespace qon.Domains
         public static int DomainIntersectionWithHashSet(QVariable<T> variable, HashSet<T> values)
         {
             var layer = DomainLayer<T>.With(variable);
-            var domain = layer.Domain;
+            var domain = layer.GetDomain();
 
             if (TryGetHashSetIntersection(domain, out var handler))
             {
@@ -99,17 +99,23 @@ namespace qon.Domains
             }
 
             var targetLayer = DomainLayer<T>.With(variable);
-            targetLayer.Domain = filtered.Count == 0
-                ? EmptyDomain<T>.Instance
-                : new DiscreteDomain<T>(filtered);
 
-            return Math.Max(0, originalSize - SafeSize(targetLayer.Domain));
+            if (filtered.Count == 0)
+            {
+                targetLayer.AssignEmptyDomain();
+            }
+            else
+            {
+                targetLayer.AssignDomain(new DiscreteDomain<T>(filtered));
+            }
+
+            return Math.Max(0, originalSize - SafeSize(targetLayer.GetDomain()));
         }
 
         private static int IntersectGenericWithHashSet(QVariable<T> variable, HashSet<T> values)
         {
             var layer = DomainLayer<T>.With(variable);
-            var originalDomain = layer.Domain;
+            var originalDomain = layer.GetDomain();
             int originalSize = SafeSize(originalDomain);
 
             var filtered = originalDomain
@@ -119,16 +125,16 @@ namespace qon.Domains
 
             if (filtered.Count == 0)
             {
-                layer.Domain = EmptyDomain<T>.Instance;
+                layer.AssignEmptyDomain();
             }
             else
             {
 #pragma warning disable CS8714
-                layer.Domain = new DiscreteDomain<T>(filtered.ToDictionary(pair => pair.Key, pair => pair.Value, values.Comparer));
+                layer.AssignDomain(new DiscreteDomain<T>(filtered.ToDictionary(pair => pair.Key, pair => pair.Value, values.Comparer)));
 #pragma warning restore CS8714
             }
 
-            return Math.Max(0, originalSize - SafeSize(layer.Domain));
+            return Math.Max(0, originalSize - SafeSize(layer.GetDomain()));
         }
 
         private static int SafeSize(IDomain<T> domain)

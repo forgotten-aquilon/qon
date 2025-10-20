@@ -11,7 +11,7 @@ namespace qon.Functions.Constraints
         protected Filter<T>? GroupingAggregator { get; set; }
         protected QPredicate<T>? SelectingAggregator { get; set; }
 
-        public abstract ConstraintResult Execute(QVariable<T>[] field);
+        public abstract Result Execute(QVariable<T>[] field);
 
         protected QConstraintBase(Filter<T> grouping)
         {

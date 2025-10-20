@@ -90,10 +90,7 @@ namespace qon
             ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
 
             return new MachineStateQuery<T>(_query.Where(variable =>
-            {
-                var domain = DomainLayer<T>.With(variable).Domain;
-                return predicate(domain);
-            }));
+                DomainLayer<T>.With(variable).MatchesDomain(predicate)));
         }
 
         public MachineStateQuery<T> WhereDomainSize(Func<int, bool> condition)
@@ -101,10 +98,7 @@ namespace qon
             ExceptionHelper.ThrowIfArgumentIsNull(condition, nameof(condition));
 
             return new MachineStateQuery<T>(_query.Where(variable =>
-            {
-                var domain = DomainLayer<T>.With(variable).Domain;
-                return condition(domain.Size());
-            }));
+                DomainLayer<T>.With(variable).DomainSizeSatisfies(condition)));
         }
 
         public MachineStateQuery<T> OrderByEntropy(bool ascending = true)

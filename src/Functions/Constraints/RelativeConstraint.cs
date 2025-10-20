@@ -24,7 +24,7 @@ namespace qon.Functions.Constraints
             AggregationFactory = aggregationFactory;
         }
 
-        public virtual ConstraintResult Execute(QVariable<T>[] field)
+        public virtual Result Execute(QVariable<T>[] field)
         {
             IEnumerable<QVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo);
 

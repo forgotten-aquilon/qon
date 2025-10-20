@@ -63,7 +63,7 @@ namespace Examples
                 Random = new Random(100)
             };
 
-            var machine = new WFCMachine<EuclideanBlock<string>>(parameters, m => new FiniteSolver<EuclideanBlock<string>>(m));
+            var machine = new WFCMachine<EuclideanBlock<string>>(parameters, m => new DefaultSolver<EuclideanBlock<string>>(m));
 
             machine.CreateEuclideanSpace((size, size, 1), new DiscreteDomain<EuclideanBlock<string>>(domain));
             int i = 0;

@@ -8,25 +8,25 @@ namespace qon.Functions.Propagators
 {
     public class Propagator<T> : DefaultPropagator<IEnumerable<QVariable<T>>>
     {
-        public Propagator(Func<IEnumerable<QVariable<T>>, ConstraintResult> propagationFunction) : base(propagationFunction)
+        public Propagator(Func<IEnumerable<QVariable<T>>, Result> propagationFunction) : base(propagationFunction)
         {
         }
 
-        public override ConstraintResult ApplyTo(IEnumerable<QVariable<T>> input)
+        public override Result ApplyTo(IEnumerable<QVariable<T>> input)
         {
-            ConstraintResult result = PropagationFunction(input);
+            Result result = PropagationFunction(input);
 
             if (result.Failed)
             {
                 return result;
             }
 
-            return input.Any(x => x.State == ValueState.Uncertain && DomainLayer<T>.With(x).Domain.IsEmpty())
-                ? ConstraintResult.HasErrors()
+            return input.Any(x => x.State == ValueState.Uncertain && DomainLayer<T>.With(x).IsEmpty())
+                ? Result.HasErrors()
                 : result;
         }
 
-        public static IChain<IEnumerable<QVariable<T>>, ConstraintResult> operator ~(Propagator<T> obj)
+        public static IChain<IEnumerable<QVariable<T>>, Result> operator ~(Propagator<T> obj)
         {
             return obj;
         }

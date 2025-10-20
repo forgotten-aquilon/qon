@@ -101,8 +101,8 @@ namespace qon.Machines
             for (int i = 0; i < count; i++)
             {
                 var variable = new QVariable<T>(string.Empty);
-                DomainLayer<T>.TryCreate(variable).Domain = d;
-                DomainLayer<T>.TryCreate(variable).Domain = d;
+                DomainLayer<T>.TryCreate(variable).AssignDomain(d);
+                DomainLayer<T>.TryCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
             SetField(field);
@@ -114,7 +114,7 @@ namespace qon.Machines
             foreach (var name in names)
             {
                 var variable = new QVariable<T>(name);
-                DomainLayer<T>.TryCreate(variable).Domain = d;
+                DomainLayer<T>.TryCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
             SetField(field);
