@@ -71,7 +71,7 @@ namespace Examples
             {
                 if (i % 5 == 0)
                 {
-                    Console.WriteLine($"{i}:{machine.State.CurrentState}");
+                    Console.WriteLine($"{i}");
                 }
 
                 i++;

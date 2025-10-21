@@ -11,13 +11,6 @@ using qon.Variables;
 
 namespace qon
 {
-    public enum SolutionState
-    {
-        NotSolved,
-        MaybeSolved,
-        Unsolvable
-    }
-
     /// <summary>
     /// "Hack" for searching for variables in the field by properties. Working without collection-expressions is not possible in Unity for now.
     /// I don't like recursive allocation, but by design solution machine is not supposed to run too often.
@@ -75,23 +68,6 @@ namespace qon
     {
         public LayersManager<T, MachineState<T>> Layers { get; set; } = new LayersManager<T, MachineState<T>>();
         public QVariable<T>[] Field { get; protected set; }
-
-        public SolutionState CurrentState
-        {
-            get
-            {
-                foreach (var variable in Field)
-                {
-                    if (DomainLayer<T>.With(variable).IsEmpty() && variable.State == ValueState.Uncertain)
-                        return SolutionState.Unsolvable;
-
-                    if (variable.State == ValueState.Uncertain)
-                        return SolutionState.NotSolved;
-                }
-
-                return SolutionState.MaybeSolved;
-            }
-        }
 
         public MachineState(QMachine<T> machine)
         {

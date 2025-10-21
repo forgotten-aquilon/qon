@@ -6,14 +6,16 @@ using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.Variables;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Exceptions;
 
 namespace qon.Layers.StateLayers
 {
-    public class ConstraintLayer<T> : BaseLayer<T, ConstraintLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>, IStateLayer<T>
+    public class ConstraintLayer<T> : BaseLayer<T, ConstraintLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>, IStateLayer<T>, IDecisionLayer<T>
     {
         public RuleHandler<T> Constraints { get; set; } = new();
 
@@ -25,36 +27,6 @@ namespace qon.Layers.StateLayers
         public ConstraintLayer(RuleHandler<T> constraints)
         {
             Constraints = constraints;
-        }
-
-        public static ConstraintLayer<T> TryCreate(MachineState<T> state, RuleHandler<T> constraints)
-        {
-            if (!state.Layers.TryGetLayer<ConstraintLayer<T>>(out var layer))
-            {
-                layer = new ConstraintLayer<T>(constraints);
-                state.Layers.Add(layer);
-            }
-
-            return layer;
-        }
-
-        public static void Collapse(QVariable<T> variable, T value, bool isConstant = false)
-        {
-            variable.WithValue(value, isConstant ? ValueState.Constant : ValueState.Defined);
-            DomainLayer<T>.With(variable).AssignEmptyDomain();
-        }
-
-        public static Optional<T> AutoCollapse(QVariable<T> variable)
-        {
-            var layer = DomainLayer<T>.With(variable);
-            var value = layer.SingleOrEmptyValue();
-
-            if (value.HasValue)
-            {
-                Collapse(variable, value.Value);
-            }
-
-            return value;
         }
 
         public Result Execute(QVariable<T>[] field)
@@ -93,6 +65,50 @@ namespace qon.Layers.StateLayers
             return !ExecuteConstraints(Constraints.ValidationConstraints, field).Failed;
         }
 
+        public PreValidationResult PreValidate(QVariable<T>[] field)
+        {
+            foreach (var variable in field)
+            {
+                if (DomainLayer<T>.With(variable).IsEmpty() && variable.State == ValueState.Uncertain)
+                    return PreValidationResult.InvalidState;
+
+                if (variable.State == ValueState.Uncertain)
+                    return PreValidationResult.NotValidated;
+            }
+
+            return PreValidationResult.PreValidated;
+        }
+
+        public static ConstraintLayer<T> TryCreate(MachineState<T> state, RuleHandler<T> constraints)
+        {
+            if (!state.Layers.TryGetLayer<ConstraintLayer<T>>(out var layer))
+            {
+                layer = new ConstraintLayer<T>(constraints);
+                state.Layers.Add(layer);
+            }
+
+            return layer;
+        }
+
+        public static void Collapse(QVariable<T> variable, T value, bool isConstant = false)
+        {
+            variable.WithValue(value, isConstant ? ValueState.Constant : ValueState.Defined);
+            DomainLayer<T>.With(variable).AssignEmptyDomain();
+        }
+
+        public static Optional<T> TryCollapseVariable(QVariable<T> variable)
+        {
+            var layer = DomainLayer<T>.With(variable);
+            var value = layer.SingleOrEmptyValue();
+
+            if (value.HasValue)
+            {
+                Collapse(variable, value.Value);
+            }
+
+            return value;
+        }
+
         private static Result ExecuteConstraints(List<IQConstraint<T>> rules, QVariable<T>[] field)
         {
             int changes = 0;
@@ -120,7 +136,7 @@ namespace qon.Layers.StateLayers
                 if (v.State != ValueState.Uncertain)
                     continue;
 
-                if (AutoCollapse(v).HasValue)
+                if (TryCollapseVariable(v).HasValue)
                 {
                     changes++;
                 }
@@ -132,6 +148,47 @@ namespace qon.Layers.StateLayers
         public ILayer<T, MachineState<T>> Copy()
         {
             throw new NotImplementedException();
+        }
+
+        public void MakeDecision(QVariable<T>[]? previousField, QVariable<T>[] currentField, Random random)
+        {
+            double entropy = double.MaxValue;
+            QVariable<T>? candidate = null;
+
+            foreach (var variable in currentField)
+            {
+                if (variable.State != ValueState.Uncertain)
+                {
+                    continue;
+                }
+
+                var domain = DomainLayer<T>.With(variable);
+                var potentialEntropy = domain.Entropy;
+
+                if (potentialEntropy >= entropy)
+                {
+                    continue;
+                }
+
+                entropy = potentialEntropy;
+                candidate = variable;
+            }
+
+            ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
+
+            var selected = DomainLayer<T>.With(candidate);
+            var value = selected.GetRandomValue(random);
+
+            Collapse(candidate, value);
+
+            if (!previousField.IsNullOrEmpty())
+            {
+                var previousCandidate = previousField.FirstOrDefault(v => v.Name == candidate.Name);
+
+                ExceptionHelper.ThrowIfInternalValueIsNull(previousCandidate, nameof(previousCandidate));
+
+                DomainLayer<T>.With(previousCandidate).RemoveValue(value);
+            }
         }
     }
 }

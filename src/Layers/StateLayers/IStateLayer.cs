@@ -14,5 +14,6 @@ namespace qon.Layers.StateLayers
 
         public bool Validate(QVariable<T>[] field);
 
+        public PreValidationResult PreValidate(QVariable<T>[] field);
     }
 }

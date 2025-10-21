@@ -5,10 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using qon.Functions;
-using qon.Functions.Propagators;
-using qon.Functions.Constraints;
 using qon.Layers.StateLayers;
-using qon.Layers.VariableLayers;
 using qon.Machines;
 
 namespace qon.Solvers
@@ -28,16 +25,9 @@ namespace qon.Solvers
             _machine = machine;
         }
 
-        public int PushStack((string name, T value)? usedValue = null)
+        private int GoForth()
         {
-            //TODO: ???
-            if (_solutionStack.TryPeek(out var field) && usedValue is (string, T) v)
-            {
-                DomainLayer<T>.With(field[_machine.Indexer[v.name]]).RemoveValue(v.value);
-            }
-
             _solutionStack.Push(Current.Field.Select(x => x.Copy()).ToArray());
-
             return 1;
         }
 
@@ -67,60 +57,42 @@ namespace qon.Solvers
                 case MachineStateType.Created:
                     throw new InternalLogicException("Machine is not prepared for solving");
                 case MachineStateType.Prepared:
-                    changes += PushStack();
+                    changes += GoForth();
                     _machine.StateType = MachineStateType.IsSolving;
                     break;
                 case MachineStateType.IsSolving:
                     var result = Execute();
                     changes += result.ChangesAmount;
 
-                    if (Current.CurrentState == SolutionState.MaybeSolved)
+                    if (result.Failed)
+                    {
+                        changes += GoBack();
+                        break;
+                    }
+
+                    var preValidationResult = PreValidate();
+
+                    if (preValidationResult == PreValidationResult.PreValidated)
                     {
                         _machine.StateType = MachineStateType.Validation;
                         changes++;
                     }
-                    else if (Current.CurrentState == SolutionState.Unsolvable)
+                    else if (preValidationResult == PreValidationResult.InvalidState)
                     {
                         changes += GoBack();
                     }
-                    else if (Current.CurrentState == SolutionState.NotSolved)
+                    else if (preValidationResult == PreValidationResult.NotValidated)
                     {
-                        if (result.Failed)
-                        {
-                            changes += GoBack();
-                        }
-                        else
-                        {
-                            double entropy = double.MaxValue;
-                            QVariable<T>? candidate = null;
+                        MakeDecision();
 
-                            foreach (var item in Current.Field)
-                            {
-                                if (item.State == ValueState.Uncertain && 
-                                    DomainLayer<T>.With(item).Entropy is var newEntropy && 
-                                    newEntropy < entropy)
-                                {
-                                    entropy = newEntropy;
-                                    candidate = item;
-                                }
-                            }
-                            
-                            //TODO: Add heuristics
-
-                            ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
-
-                            var newValue = DomainLayer<T>.With(candidate).GetRandomValue(_machine.Random);
-
-                            ConstraintLayer<T>.Collapse(candidate, newValue);
-                            changes += PushStack((candidate.Name, newValue));
-                        }
+                        changes += GoForth();
                     }
 
                     break;
                 case MachineStateType.Validation:
                     if (Validate())
                     {
-                        changes += PushStack();
+                        changes += GoForth();
                         _machine.StateType = MachineStateType.Finished;
                     }
                     else
@@ -177,6 +149,44 @@ namespace qon.Solvers
             }
 
             return true;
+        }
+
+        public PreValidationResult PreValidate()
+        {
+            PreValidationResult result = PreValidationResult.PreValidated;
+
+            foreach (var layer in Current.Layers)
+            {
+                if (layer is not IStateLayer<T> stateLayer)
+                    continue;
+
+                var layerResult = stateLayer.PreValidate(Current.Field);
+
+                if (layerResult == PreValidationResult.InvalidState)
+                {
+                    return PreValidationResult.InvalidState;
+                }
+
+                if (layerResult == PreValidationResult.NotValidated)
+                {
+                    result = PreValidationResult.NotValidated;
+                }
+            }
+
+            return result;
+        }
+
+        public void MakeDecision()
+        {
+            foreach (var layer in Current.Layers)
+            {
+                if (layer is not IDecisionLayer<T> decisionLayer)
+                    continue;
+
+                _solutionStack.TryPeek(out var previousField);
+
+                decisionLayer.MakeDecision(previousField, Current.Field, _machine.Random);
+            }
         }
 
         public void Reset()

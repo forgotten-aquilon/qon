@@ -33,7 +33,7 @@ namespace qon.Tests
             var variable = new QVariable<int>("single");
             DomainLayer<int>.SetDomain(variable, domain);
 
-            var collapsed = ConstraintLayer<int>.AutoCollapse(variable);
+            var collapsed = ConstraintLayer<int>.TryCollapseVariable(variable);
 
             Assert.True(collapsed.HasValue);
             Assert.Equal(2, collapsed.Value);
@@ -56,7 +56,7 @@ namespace qon.Tests
 
             var state = new MachineState<int>(new[] { variable });
 
-            Assert.Equal(SolutionState.Unsolvable, state.CurrentState);
+            Assert.Equal(PreValidationResult.InvalidState, state.CurrentState);
         }
 
         [Fact]

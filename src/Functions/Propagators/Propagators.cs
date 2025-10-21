@@ -33,7 +33,7 @@ namespace qon.Functions.Propagators
             foreach (var variable in openVariables)
             {
                 changes += DomainLayer<T>.With(variable).RemoveValues(distinctVariables);
-                changes += ConstraintLayer<T>.AutoCollapse(variable).HasValue ? 1 : 0;
+                changes += ConstraintLayer<T>.TryCollapseVariable(variable).HasValue ? 1 : 0;
             }
 
             return Result.Success(changes);
@@ -66,7 +66,7 @@ namespace qon.Functions.Propagators
                         return Result.HasErrors();
                     }
 
-                    if (ConstraintLayer<T>.AutoCollapse(variable).HasValue || removed > 0)
+                    if (ConstraintLayer<T>.TryCollapseVariable(variable).HasValue || removed > 0)
                     {
                         changes += removed;
                     }
