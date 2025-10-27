@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Machines;
 
 namespace qon.Functions.Constraints
 {
-    public class RelativeConstraintBuilder<T> : IQConstraint<T>
+    public class RelativeConstraintBuilder<T> : IPreparation<T>
     {
         protected QPredicate<T> Guard { get; }
         public Func<QVariable<T>, Result> Constraint { get; }
@@ -20,7 +21,7 @@ namespace qon.Functions.Constraints
             Constraint = constraint;
         }
 
-        public Result Execute(QVariable<T>[] field)
+        public Result Execute(QVariable<T>[] field, QMachine<T>? machine)
         {
             List<QVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo).ToList();
 

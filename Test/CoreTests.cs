@@ -22,8 +22,8 @@ namespace qon.Tests
             var size = DomainLayer<int>.SetDomain(variable, domain);
 
             Assert.Equal(0, size);
-            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(variable).Domain, EmptyDomain<int>.Instance));
-            Assert.Equal(ValueState.Constant, DomainLayer<int>.TryCreate(variable).State);
+            Assert.True(ReferenceEquals(DomainLayer<int>.GetOrCreate(variable).Domain, EmptyDomain<int>.Instance));
+            Assert.Equal(ValueState.Constant, DomainLayer<int>.GetOrCreate(variable).State);
         }
 
         [Fact]
@@ -37,9 +37,9 @@ namespace qon.Tests
 
             Assert.True(collapsed.HasValue);
             Assert.Equal(2, collapsed.Value);
-            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(variable).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.GetOrCreate(variable).State);
             Assert.True(variable.Value.CheckValue(2));
-            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(variable).Domain, EmptyDomain<int>.Instance));
+            Assert.True(ReferenceEquals(DomainLayer<int>.GetOrCreate(variable).Domain, EmptyDomain<int>.Instance));
         }
     }
 
@@ -72,8 +72,8 @@ namespace qon.Tests
             var changes = state.AutoCollapse();
 
             Assert.Equal(1, changes);
-            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(first).State);
-            Assert.Equal(ValueState.Uncertain, DomainLayer<int>.TryCreate(second).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.GetOrCreate(first).State);
+            Assert.Equal(ValueState.Uncertain, DomainLayer<int>.GetOrCreate(second).State);
         }
     }
 
@@ -102,9 +102,9 @@ namespace qon.Tests
             var result = filter.ApplyTo(new[] { variable });
 
             Assert.Equal(PropagationOutcome.Converged, result.Failed);
-            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(variable).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.GetOrCreate(variable).State);
             Assert.True(variable.Value.CheckValue(2));
-            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(variable).Domain, EmptyDomain<int>.Instance));
+            Assert.True(ReferenceEquals(DomainLayer<int>.GetOrCreate(variable).Domain, EmptyDomain<int>.Instance));
         }
     }
 
@@ -144,9 +144,9 @@ namespace qon.Tests
             var result = Propagators.AllDistinct<int>().ApplyTo(new[] { decided, open });
 
             Assert.Equal(PropagationOutcome.Converged, result.Failed);
-            Assert.Equal(ValueState.Defined, DomainLayer<int>.TryCreate(open).State);
+            Assert.Equal(ValueState.Defined, DomainLayer<int>.GetOrCreate(open).State);
             Assert.True(open.Value.CheckValue(2));
-            Assert.True(ReferenceEquals(DomainLayer<int>.TryCreate(open).Domain, EmptyDomain<int>.Instance));
+            Assert.True(ReferenceEquals(DomainLayer<int>.GetOrCreate(open).Domain, EmptyDomain<int>.Instance));
             Assert.Equal(1, result.ChangesAmount);
         }
     }
@@ -167,7 +167,7 @@ namespace qon.Tests
             machine.CreateEuclideanSpace((2, 1, 1), domain);
 
             Assert.Equal(FieldType.Euclidean, machine.FieldType);
-            Assert.Equal(MachineStateType.Prepared, machine.StateType);
+            Assert.Equal(MachineStateType.Ready, machine.StateType);
             Assert.Equal(2, machine.State.Field.Length);
 
             var grid = EuclideanStateLayer<int>.With(machine.State);
@@ -183,7 +183,7 @@ namespace qon.Tests
             Assert.Equal("1x0x0", second!.Name);
 
             DomainLayer<int>.RemoveFromDomain(first!, 1);
-            Assert.True(DomainLayer<int>.TryCreate(second!).Domain.ContainsValue(1));
+            Assert.True(DomainLayer<int>.GetOrCreate(second!).Domain.ContainsValue(1));
         }
     }
 }

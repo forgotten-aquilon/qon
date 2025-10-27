@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using qon;
 using qon.Domains;
 using qon.Functions.Constraints;
-using qon.Functions.DSL;
+using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.Solvers;
 using qon.Variables;
+using qon.Functions;
 
 namespace Examples
 {
@@ -31,9 +32,9 @@ namespace Examples
             HashSet<string> bottomConn = new() { "╬", "║", "╚", "╝", "╣", "╠", "╩" };
             HashSet<string> bottomWall = new() { "╔", "╗", "═", "╦", " " };
 
-            List<IQConstraint<string>> mazeRules = new();
+            List<IPreparation<string>> mazeRules = new();
 
-            static IQConstraint<string> CreateRule(
+            static IPreparation<string> CreateRule(
                 string tile,
                 HashSet<string> left,
                 HashSet<string> right,

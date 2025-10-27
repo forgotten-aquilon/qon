@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Functions.Propagators;
+using qon.Machines;
 using qon.Variables;
 
 namespace qon.Functions.Constraints
 {
-    public class ConstraintBuilder<T> : IQConstraint<T>
+    public class ConstraintBuilder<T> : IPreparation<T>
     {
         public Func<QVariable<T>[], Result> Constraint { get; }
 
@@ -17,7 +18,7 @@ namespace qon.Functions.Constraints
             Constraint = constraint;
         }
 
-        public Result Execute(QVariable<T>[] field)
+        public Result Execute(QVariable<T>[] field, QMachine<T>? machine)
         {
             return Constraint(field);
         }

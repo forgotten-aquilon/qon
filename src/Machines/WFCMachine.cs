@@ -21,8 +21,8 @@ namespace qon.Machines
         public FieldType FieldType { get; private set; }
 
         public WFCMachine(WFCParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory) : base(parameter, factory)
-        {
-            ConstraintLayer<T>.TryCreate(State).Constraints = parameter.Constraints;
+        {   
+            ConstraintLayer<T>.GetOrCreate(State).Constraints = parameter.Constraints;
         }
 
         public void CreateEuclideanSpace((int x, int y, int z) dimensions, IDomain<T> domain)
@@ -36,7 +36,7 @@ namespace qon.Machines
                 throw new InternalLogicException("Dimension can't be a non-positive number");
             }
 
-            var layer = EuclideanStateLayer<T>.TryCreate(State);
+            var layer = EuclideanStateLayer<T>.GetOrCreate(State);
             layer.FieldGrid = new string[dimensions.x, dimensions.y, dimensions.z];
             layer.Machine = this;
 
@@ -48,7 +48,7 @@ namespace qon.Machines
                     {
                         string name = $"{x}x{y}x{z}";
                         var v = new QVariable<T>(name);
-                        DomainLayer<T>.TryCreate(v).AssignDomain(domain);
+                        DomainLayer<T>.GetOrCreate(v).AssignDomain(domain);
                         v.Layers.Add(new EuclideanLayer<T>(x, y, z, this));
 
                         EuclideanStateLayer<T>.With(State).FieldGrid[x, y, z] = name;

@@ -1,5 +1,5 @@
 ﻿using qon.Domains;
-using qon.Functions.Constraints;
+using qon.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +10,8 @@ namespace qon.Machines
 {
     public class RuleHandler<T>
     {
-        public List<IQConstraint<T>> GeneralConstraints { get; set; } = new List<IQConstraint<T>>();
-        public List<IQConstraint<T>>? ValidationConstraints { get; set; } = new List<IQConstraint<T>>();
+        public List<IPreparation<T>> GeneralConstraints { get; set; } = new List<IPreparation<T>>();
+        public List<IPreparation<T>>? ValidationConstraints { get; set; } = new List<IPreparation<T>>();
     }
 
     public class WFCParameter<T> : QMachineParameter<T>

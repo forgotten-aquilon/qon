@@ -56,12 +56,12 @@ namespace qon.Solvers
             {
                 case MachineStateType.Created:
                     throw new InternalLogicException("Machine is not prepared for solving");
-                case MachineStateType.Prepared:
+                case MachineStateType.Ready:
                     changes += GoForth();
                     _machine.StateType = MachineStateType.IsSolving;
                     break;
                 case MachineStateType.IsSolving:
-                    var result = Execute();
+                    var result = Prepare();
                     changes += result.ChangesAmount;
 
                     if (result.Failed)
@@ -83,7 +83,7 @@ namespace qon.Solvers
                     }
                     else if (preValidationResult == PreValidationResult.NotValidated)
                     {
-                        MakeDecision();
+                        Execute();
 
                         changes += GoForth();
                     }
@@ -113,16 +113,16 @@ namespace qon.Solvers
             return changes != 0;
         }
 
-        public Result Execute()
+        public Result Prepare()
         {
             int totalChanges = 0;
 
-            foreach (var layer in Current.Layers)
+            foreach (var layer in Current.Layers.SortedByPriority())
             {
                 if (layer is not IStateLayer<T> stateLayer) 
                     continue;
 
-                var result = stateLayer.Execute(Current.Field);
+                var result = stateLayer.Prepare(Current.Field);
 
                 if (result.Failed)
                 {
@@ -137,7 +137,7 @@ namespace qon.Solvers
 
         public bool Validate()
         {
-            foreach (var layer in Current.Layers)
+            foreach (var layer in Current.Layers.SortedByPriority())
             {
                 if (layer is not IStateLayer<T> stateLayer) 
                     continue;
@@ -155,7 +155,7 @@ namespace qon.Solvers
         {
             PreValidationResult result = PreValidationResult.PreValidated;
 
-            foreach (var layer in Current.Layers)
+            foreach (var layer in Current.Layers.SortedByPriority())
             {
                 if (layer is not IStateLayer<T> stateLayer)
                     continue;
@@ -176,16 +176,16 @@ namespace qon.Solvers
             return result;
         }
 
-        public void MakeDecision()
+        public void Execute()
         {
-            foreach (var layer in Current.Layers)
+            foreach (var layer in Current.Layers.SortedByPriority())
             {
-                if (layer is not IDecisionLayer<T> decisionLayer)
+                if (layer is not IStateLayer<T> stateLayer)
                     continue;
 
                 _solutionStack.TryPeek(out var previousField);
 
-                decisionLayer.MakeDecision(previousField, Current.Field, _machine.Random);
+                stateLayer.Execute(previousField, Current.Field, _machine.Random);
             }
         }
 

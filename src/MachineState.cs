@@ -66,17 +66,22 @@ namespace qon
 
     public class MachineState<T> : ILayerHolder<T, MachineState<T>>
     {
-        public LayersManager<T, MachineState<T>> Layers { get; set; } = new LayersManager<T, MachineState<T>>();
+        public QMachine<T> Machine { get; protected set; }
+        public LayersManager<T, MachineState<T>> Layers { get; set; }
         public QVariable<T>[] Field { get; protected set; }
 
         public MachineState(QMachine<T> machine)
         {
             Field = Array.Empty<QVariable<T>>();
+            Machine = machine;
+            Layers = new LayersManager<T, MachineState<T>>(Machine);
         }
 
         public MachineState(QVariable<T>[] field, QMachine<T> machine)
         {
             Field = field;
+            Machine = machine;
+            Layers = new LayersManager<T, MachineState<T>>(Machine);
         }
 
         public void SetField(QVariable<T>[] field)

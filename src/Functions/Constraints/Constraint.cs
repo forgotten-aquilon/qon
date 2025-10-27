@@ -2,27 +2,28 @@
 using System.Linq;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
+using qon.Machines;
 using qon.Variables;
 
 namespace qon.Functions.Constraints
 {
-    public class QConstraint<T> : QConstraintBase<T>
+    public class Constraint<T> : ConstraintBase<T>
     {
         protected Propagator<T> Propagator { get; set; }
 
-        public QConstraint(Filter<T> grouping,
+        public Constraint(Filter<T> grouping,
             Propagator<T> method) : base(grouping)
         {
             Propagator = method;
         }
 
-        public QConstraint(QPredicate<T> selecting,
+        public Constraint(QPredicate<T> selecting,
             Propagator<T> method) : base(selecting)
         {
             Propagator = method;
         }
 
-        public override Result Execute(QVariable<T>[] field)
+        public override Result Execute(QVariable<T>[] field, QMachine<T>? machine)
         {
             switch (FilteringType)
             {

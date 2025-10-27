@@ -6,12 +6,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Machines;
 
 namespace qon.Layers
 {
-    public abstract class BaseLayer<T, TSelf, THolder> where TSelf : BaseLayer<T, TSelf, THolder>, ILayer<T, THolder>, new()
+    public abstract class BaseLayer
+    {
+        public int PriorityIndex { get; set; } = 0;
+    }
+
+    public abstract class BaseLayer<T, TSelf, THolder> : BaseLayer
+        where TSelf : BaseLayer<T, TSelf, THolder>, ILayer<T, THolder>, new()
         where THolder : ILayerHolder<T, THolder>
     {
+        public THolder? Holder {get; set; }
+        public QMachine<T>? Machine => Holder?.Layers.Machine;
+
         public static TSelf With(THolder holder)
         {
             holder.Layers.TryGetLayer<TSelf>(out var layer);
@@ -27,12 +37,13 @@ namespace qon.Layers
             return layer;
         }
 
-        public static TSelf TryCreate(THolder holder)
+        public static TSelf GetOrCreate(THolder holder)
         {
             if (!holder.Layers.TryGetLayer<TSelf>(out var layer))
             {
                 layer = new TSelf();
                 holder.Layers.Add(layer);
+                layer.Holder = holder;
             }
 
             return layer;

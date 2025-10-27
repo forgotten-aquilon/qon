@@ -10,10 +10,12 @@ namespace qon.Layers.StateLayers
 {
     public interface IStateLayer<T>
     {
-        public Result Execute(QVariable<T>[] field);
+        public Result Prepare(QVariable<T>[] field);
 
         public bool Validate(QVariable<T>[] field);
 
         public PreValidationResult PreValidate(QVariable<T>[] field);
+
+        public void Execute(QVariable<T>[]? previousField, QVariable<T>[] currentField, Random random);
     }
 }

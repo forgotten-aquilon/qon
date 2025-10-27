@@ -1,7 +1,7 @@
 using System;
 using qon;
 using qon.Domains;
-using qon.Functions.DSL;
+using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Machines;

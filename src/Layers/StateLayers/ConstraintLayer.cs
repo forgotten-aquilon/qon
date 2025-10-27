@@ -1,6 +1,5 @@
 ﻿using qon.Domains;
 using qon.Functions;
-using qon.Functions.Constraints;
 using qon.Helpers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
@@ -15,7 +14,7 @@ using qon.Exceptions;
 
 namespace qon.Layers.StateLayers
 {
-    public class ConstraintLayer<T> : BaseLayer<T, ConstraintLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>, IStateLayer<T>, IDecisionLayer<T>
+    public class ConstraintLayer<T> : BaseLayer<T, ConstraintLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>, IStateLayer<T>
     {
         public RuleHandler<T> Constraints { get; set; } = new();
 
@@ -29,7 +28,7 @@ namespace qon.Layers.StateLayers
             Constraints = constraints;
         }
 
-        public Result Execute(QVariable<T>[] field)
+        public Result Prepare(QVariable<T>[] field)
         {
             int filterChanges = 0;
 
@@ -38,7 +37,7 @@ namespace qon.Layers.StateLayers
             {
                 changes = 0;
 
-                var generalResult = ExecuteConstraints(Constraints.GeneralConstraints, field);
+                var generalResult = ExecuteConstraints(Constraints.GeneralConstraints, field, Machine);
 
                 if (generalResult.Failed)
                 {
@@ -62,7 +61,7 @@ namespace qon.Layers.StateLayers
                 return true;
             }
 
-            return !ExecuteConstraints(Constraints.ValidationConstraints, field).Failed;
+            return !ExecuteConstraints(Constraints.ValidationConstraints, field, null).Failed;
         }
 
         public PreValidationResult PreValidate(QVariable<T>[] field)
@@ -109,12 +108,12 @@ namespace qon.Layers.StateLayers
             return value;
         }
 
-        private static Result ExecuteConstraints(List<IQConstraint<T>> rules, QVariable<T>[] field)
+        private static Result ExecuteConstraints(List<IPreparation<T>> rules, QVariable<T>[] field, QMachine<T>? machine)
         {
             int changes = 0;
             foreach (var rule in rules)
             {
-                var result = rule.Execute(field);
+                var result = rule.Execute(field, machine);
 
                 if (result.Failed)
                 {
@@ -150,7 +149,7 @@ namespace qon.Layers.StateLayers
             throw new NotImplementedException();
         }
 
-        public void MakeDecision(QVariable<T>[]? previousField, QVariable<T>[] currentField, Random random)
+        public void Execute(QVariable<T>[]? previousField, QVariable<T>[] currentField, Random random)
         {
             double entropy = double.MaxValue;
             QVariable<T>? candidate = null;

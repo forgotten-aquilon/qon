@@ -161,5 +161,27 @@ namespace qon.Helpers
             return Enum.GetValues(typeof(T)).OfType<T>().ToList();
         }
         #endregion
+
+        #region Random Extensions
+
+        public static bool GetRandomBool(this Random random, double probability = 0.5)
+        {
+            return random.NextDouble() < probability;
+        }
+
+        #endregion
+
+        #region String Extension
+
+        public static string ToShortString(this string str, int limit) 
+        {
+            if (str.Length <= limit)
+            {
+                return str;
+            }
+            return str.Substring(0, limit) + "...";
+        }
+
+        #endregion
     }
 }

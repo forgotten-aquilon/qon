@@ -8,10 +8,11 @@ using qon.Functions.Propagators;
 using static qon.Helpers.Helper;
 using qon.Functions.Filters;
 using qon.Layers;
+using qon.Machines;
 
 namespace qon.Functions.Constraints
 {
-    public class RelativeConstraint<T> : IQConstraint<T>
+    public class RelativeConstraint<T> : IPreparation<T>
     {
         protected QPredicate<T> Guard { get; set; }
         protected Propagator<T> Propagator { get; set; }
@@ -24,7 +25,7 @@ namespace qon.Functions.Constraints
             AggregationFactory = aggregationFactory;
         }
 
-        public virtual Result Execute(QVariable<T>[] field)
+        public virtual Result Execute(QVariable<T>[] field, QMachine<T>? machine)
         {
             IEnumerable<QVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo);
 

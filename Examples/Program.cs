@@ -1,9 +1,6 @@
 #pragma warning disable
 
 using Examples;
-using qon.Helpers;
-using qon.Layers.VariableLayers;
-using qon.Variables;
 
 //NumberExample.Run();
 //SimplestExample.Run();
@@ -11,5 +8,6 @@ using qon.Variables;
 //SudokuExample.Run();
 //EverestSudokuExample.Run();
 //EightQueensExample.Run();
-//RotationExample.Run(22);
-MazeExample.Run();
+//RotationExample.Run(22);  
+//MazeExample.Run();
+WeaselExample.Run();

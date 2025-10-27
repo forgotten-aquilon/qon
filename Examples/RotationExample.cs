@@ -1,7 +1,7 @@
 using qon;
 using qon.Domains;
 using qon.Functions.Constraints;
-using qon.Functions.DSL;
+using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Helpers;
 using qon.Machines;
@@ -9,6 +9,7 @@ using qon.Solvers;
 using qon.Variables;
 using System;
 using System.Collections.Generic;
+using qon.Functions;
 
 namespace Examples
 {
@@ -42,7 +43,7 @@ namespace Examples
             });
 
             List<EuclideanBlock<string>> domain = new();
-            List<IQConstraint<EuclideanBlock<string>>> rotationRules = new();
+            List<IPreparation<EuclideanBlock<string>>> rotationRules = new();
 
             foreach (var block in blocks)
             {

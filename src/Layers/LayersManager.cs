@@ -1,12 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using qon.Exceptions;
+using qon.Machines;
 
 namespace qon.Layers
 {
     public class LayersManager<T, THolder> : KeyedCollection<Type, ILayer<T, THolder>>
     {
+        public QMachine<T>? Machine { get; set; }
+
+        public LayersManager(QMachine<T>? machine = null)
+        {
+            Machine = machine;
+        }
+
         public bool TryGetLayer<TLayer>([NotNullWhen(true)]out TLayer? layer)  
         {
             if (TryGetValue(typeof(TLayer), out var l))
@@ -63,6 +73,13 @@ namespace qon.Layers
             }
 
             return default;
+        }
+
+        public IEnumerable<ILayer<T, THolder>> SortedByPriority()
+        {
+            return Items
+                .OrderBy(layer => (layer as BaseLayer)?.PriorityIndex ?? int.MaxValue)
+                .ToArray();
         }
     }
 }

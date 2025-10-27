@@ -3,24 +3,39 @@ using qon.Exceptions;
 using qon.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Layers;
 using qon.Layers.VariableLayers;
+using qon.Machines;
 
 namespace qon.Variables
 {
     public class QVariable<T> : ICopy<QVariable<T>>, ILayerHolder<T, QVariable<T>>
     {
+        private QMachine<T>? _machine;
+
         public Guid Id { get; protected set; } = Guid.NewGuid();
         public string Name { get; protected set; }
         public bool Protected { get; set; } = false;
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
         public LayersManager<T, QVariable<T>> Layers { get; protected set; } = new LayersManager<T, QVariable<T>>();
-        public Optional<T> Value { get; protected set; } = Optional<T>.Empty;
+        public Optional<T> Value { get; set; } = Optional<T>.Empty;
         public ValueState State { get; set; } = ValueState.Uncertain;
+
+        [NotNull]
+        public QMachine<T>? Machine
+        {
+            get
+            {
+                ExceptionHelper.ThrowIfInternalValueIsNull(_machine, nameof(Machine));
+                return _machine;
+            }
+            set => _machine = value;
+        }
 
         protected QVariable()
         {
@@ -79,7 +94,8 @@ namespace qon.Variables
                 Properties = new Dictionary<string, object>(Properties),
                 Value = Value,
                 State = State,
-                Layers = Layers.Copy()
+                Layers = Layers.Copy(),
+                Machine = Machine
             };
         }
 
@@ -100,6 +116,11 @@ namespace qon.Variables
         public virtual bool ContainsProperty(string propertyName)
         {
             return Properties.ContainsKey(propertyName);
+        }
+
+        public override string ToString()
+        {
+            return $"{Name.ToShortString(5)}:{Value}";
         }
     }
 }

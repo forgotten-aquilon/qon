@@ -12,7 +12,7 @@ namespace qon.Machines
     public enum MachineStateType
     {
         Created,
-        Prepared,
+        Ready,
         IsSolving,
         Validation,
         Finished,
@@ -85,9 +85,10 @@ namespace qon.Machines
             for (int i = 0; i < State.Field.Length; i++)
             {
                 _indexer[State.Field[i].Name] = i;
+                State.Field[i].Machine = this;
             }
 
-            StateType = MachineStateType.Prepared;
+            StateType = MachineStateType.Ready;
         }
 
         public void SetState(MachineState<T> state)
@@ -101,8 +102,8 @@ namespace qon.Machines
             for (int i = 0; i < count; i++)
             {
                 var variable = new QVariable<T>(string.Empty);
-                DomainLayer<T>.TryCreate(variable).AssignDomain(d);
-                DomainLayer<T>.TryCreate(variable).AssignDomain(d);
+                DomainLayer<T>.GetOrCreate(variable).AssignDomain(d);
+                DomainLayer<T>.GetOrCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
             SetField(field);
@@ -114,7 +115,7 @@ namespace qon.Machines
             foreach (var name in names)
             {
                 var variable = new QVariable<T>(name);
-                DomainLayer<T>.TryCreate(variable).AssignDomain(d);
+                DomainLayer<T>.GetOrCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
             SetField(field);

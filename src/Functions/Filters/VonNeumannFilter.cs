@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
+using qon.Functions.Anchors;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
@@ -19,9 +20,20 @@ namespace qon.Functions.Filters
         public QVariable<T>? Top { get; set; }
         public QVariable<T>? Bottom { get; set; }
 
+        public QVariable<T>[] ToArray()
+        {
+            List<QVariable<T>> neighbors = new List<QVariable<T>>();
+            if (Left != null) neighbors.Add(Left);
+            if (Right != null) neighbors.Add(Right);
+            if (Front != null) neighbors.Add(Front);
+            if (Back != null) neighbors.Add(Back);
+            if (Top != null) neighbors.Add(Top);
+            if (Bottom != null) neighbors.Add(Bottom);
+            return neighbors.ToArray();
+        }
     }
 
-    public class VonNeumannFilter<T> : IChain<QVariable<T>, VonNeumannParameter<T>>
+    public class VonNeumannFilter<T> : IChain<QVariable<T>, VonNeumannParameter<T>>, IChain<QVariable<T>, QVariable<T>[]>
     {
         public VonNeumannParameter<T> ApplyTo(QVariable<T> input)
         {
@@ -43,6 +55,11 @@ namespace qon.Functions.Filters
             };
 
             return result;
+        }
+
+        QVariable<T>[] IChain<QVariable<T>, QVariable<T>[]>.ApplyTo(QVariable<T> input)
+        {
+            return ApplyTo(input).ToArray();
         }
     }
 }
