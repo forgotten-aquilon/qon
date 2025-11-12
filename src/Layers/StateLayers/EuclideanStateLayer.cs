@@ -10,7 +10,6 @@ namespace qon.Layers.StateLayers
 {
     public class EuclideanStateLayer<T> : BaseLayer<T, EuclideanStateLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>
     {
-        public QMachine<T>? Machine { get; set; }
         public string[,,] FieldGrid { get; set; } = new string[0, 0, 0];
 
         public QVariable<T>? this[(int x, int y, int z) coordinate]

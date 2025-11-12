@@ -11,13 +11,14 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class Mutation<T> : IPreparation<T>
+    public class GeneralMutation<T> : IPreparation<T>
     {
-        private QPredicate<T> _filter;
-        private int _sampling = 1;
-        private double _frequency = 1.0;
-        private VariableMutation<T> _mutationFunction;
-        public Mutation(QPredicate<T> filter, int sampling, double frequency, VariableMutation<T> implementation)
+        private readonly QPredicate<T> _filter;
+        private readonly int _sampling = 1;
+        private readonly double _frequency = 1.0;
+        private readonly VariableMutation<T> _mutationFunction;
+
+        public GeneralMutation(QPredicate<T> filter, int sampling, double frequency, VariableMutation<T> implementation)
         {
             _filter = filter;
             _sampling = sampling;
@@ -25,19 +26,19 @@ namespace qon.Functions.Mutations
             _mutationFunction = implementation;
         }
 
-        public Result Execute(QVariable<T>[] field, QMachine<T>? machine)
+        public Result Execute(Field<T> field, QMachine<T>? machine = null)
         {
-            List<QVariable<T>[]> samples = new List<QVariable<T>[]>();
+            List<Field<T>> samples = new List<Field<T>>();
 
             for (int i = 0; i < _sampling; i++)
             {
-                var sample = field.Select(x => x.Copy()).ToArray();
+                Field<T> sample = field.Copy();
 
-                foreach (var t in sample)
+                foreach (var variable in sample)
                 {
-                    if (_filter.ApplyTo(t) && (machine?.Random.GetRandomBool(_frequency) ?? false))
+                    if (_filter.ApplyTo(variable) && (machine?.Random.GetRandomBool(_frequency) ?? false))
                     {
-                        _mutationFunction.Execute(t);
+                        _mutationFunction.Execute(variable);
                     }
                 }
 

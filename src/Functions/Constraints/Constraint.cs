@@ -23,7 +23,7 @@ namespace qon.Functions.Constraints
             Propagator = method;
         }
 
-        public override Result Execute(QVariable<T>[] field, QMachine<T>? machine)
+        public override Result Execute(Field<T> field, QMachine<T>? machine)
         {
             switch (FilteringType)
             {

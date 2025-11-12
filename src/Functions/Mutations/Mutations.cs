@@ -10,10 +10,18 @@ namespace qon.Functions.Mutations
 {
     public static class Mutations<T>
     {
-        public static VariableMutation<T> RandomFromDomain = new VariableMutation<T>(v =>
+        public static VariableMutation<T> RandomFromDomain = new(v =>
         {
             v.Value = Optional<T>.Of(DomainLayer<T>.With(v).GetRandomValue(v.Machine.Random));
         });
+
+        public static VariableMutation<T> ToValue(T value)
+        {
+            return new VariableMutation<T>(v =>
+            {
+                v.Value = Optional<T>.Of(value);
+            });
+        }
     }
 }
     

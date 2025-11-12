@@ -40,8 +40,7 @@ namespace Examples
                     {
                         QSL.Constraint<char>()
                             .Execute(field =>
-                                field.Count(Filters.EqualsToValue('Q').ApplyTo)
-                                + ~Operations.Comparison(8, COperator.EQ)
+                                (field.Count(Filters.EqualsToValue('Q').ApplyTo) == 8)
                                 + ~Propagators.FromBool(true))
                             .Build(),
                     }

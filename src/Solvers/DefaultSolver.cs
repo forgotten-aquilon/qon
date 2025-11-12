@@ -18,16 +18,17 @@ namespace qon.Solvers
 
         object IEnumerator.Current => Current;
     
-        private readonly Stack<QVariable<T>[]> _solutionStack;
+        private readonly Stack<Field<T>> _solutionStack;
+
         public DefaultSolver(QMachine<T> machine)
         {
-            _solutionStack = new Stack<QVariable<T>[]>();
+            _solutionStack = new Stack<Field<T>>();
             _machine = machine;
         }
 
         private int GoForth()
         {
-            _solutionStack.Push(Current.Field.Select(x => x.Copy()).ToArray());
+            _solutionStack.Push(Current.Field.Copy());
             return 1;
         }
 
@@ -41,7 +42,7 @@ namespace qon.Solvers
                 return 1;
             }
 
-            Current.SetField(_solutionStack.Peek().Select(x => x.Copy()).ToArray());
+            Current.SetField(_solutionStack.Peek().Copy().Variables);
 
             return 1;
         }

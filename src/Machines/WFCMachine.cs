@@ -38,7 +38,6 @@ namespace qon.Machines
 
             var layer = EuclideanStateLayer<T>.GetOrCreate(State);
             layer.FieldGrid = new string[dimensions.x, dimensions.y, dimensions.z];
-            layer.Machine = this;
 
             for (int x = 0; x < dimensions.x; x++)
             {

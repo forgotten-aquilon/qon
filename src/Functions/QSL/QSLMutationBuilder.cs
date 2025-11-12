@@ -43,10 +43,6 @@ namespace qon.Functions.QSL
             return this;
         }
 
-        public QSLMutationBuilder<T> Replace()
-        {
-
-        }
 
         public IPreparation<T> Build()
         {
@@ -55,7 +51,7 @@ namespace qon.Functions.QSL
 
             if (_sampling > 1)
             {
-                return new Mutation<T>(_guard, _sampling, _frequency, _mutation);
+                return new GeneralMutation<T>(_guard, _sampling, _frequency, _mutation);
             }
 
             throw new NotImplementedException();

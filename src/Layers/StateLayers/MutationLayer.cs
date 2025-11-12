@@ -12,43 +12,46 @@ namespace qon.Layers.StateLayers
     public class MutationLayerParameter<T>
     {
         public IPreparation<T>? Preparation;
-        public Func<QVariable<T>[], int>? Fitness;
+        public Func<Field<T>, int>? Fitness;
     }
 
     public class MutationLayer<T> : BaseLayer<T, MutationLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>, IStateLayer<T>
     {
         public MutationLayerParameter<T> _parameter;
 
-        public List<QVariable<T>[]> Samples { get; set; } = new List<QVariable<T>[]>();
+        public List<Field<T>> Samples { get; set; } = new();
 
         public MutationLayer()
         {
             _parameter = new MutationLayerParameter<T>();
-        }   
+        }
 
-        public Result Prepare(QVariable<T>[] field)
+        #region Solving lifecycle
+
+        public Result Prepare(Field<T> field)
         {
             return _parameter.Preparation?.Execute(field, Machine) ?? Result.Success(0);
         }
 
-        public PreValidationResult PreValidate(QVariable<T>[] field)
+        public PreValidationResult PreValidate(Field<T> field)
         {
             int fitness = int.MaxValue;
-            QVariable<T>[] bestSample = Array.Empty<QVariable<T>>();
+            Field<T> bestSample = new Field<T>(Machine);
             ExceptionHelper.ThrowIfInternalValueIsNull(_parameter?.Fitness);
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
             foreach (var sample in Samples)
             {
-                var f = _parameter.Fitness(sample);
-                if (f < fitness && f >= 0)
+                var localFitness = _parameter.Fitness(sample);
+                if (localFitness < fitness && localFitness >= 0)
                 {
-                    fitness = f;
+                    fitness = localFitness;
                     bestSample = sample;
                 }
             }
 
-            for (int i = 0; i < bestSample.Length; i++)
+            for (int i = 0; i < bestSample.Count; i++)
             {
+                //TODO: Update with proper copy
                 field[i].Value = bestSample[i].Value;
             }
 
@@ -60,15 +63,17 @@ namespace qon.Layers.StateLayers
             return PreValidationResult.NotValidated;
         }
 
-        public bool Validate(QVariable<T>[] field)
+        public bool Validate(Field<T> field)
         {
             return true;
         }
 
-        public void Execute(QVariable<T>[]? previousField, QVariable<T>[] currentField, Random random)
+        public void Execute(Field<T>? previousField, Field<T> currentField, Random random)
         {
             
         }
+
+        #endregion
 
         public ILayer<T, MachineState<T>> Copy()
         {

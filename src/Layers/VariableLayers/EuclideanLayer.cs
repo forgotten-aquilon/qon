@@ -10,6 +10,7 @@ namespace qon.Layers.VariableLayers
         public int Y { get; set; }
         public int Z { get; set; }
 
+        //TODO: Remove
         public WFCMachine<T>? Machine { get; protected set; }
 
         public EuclideanLayer()

@@ -41,9 +41,11 @@ namespace qon.Machines
 
     public class QMachine<T>
     {
-        protected Dictionary<string, int> _indexer { get; set; } = new Dictionary<string, int>();
-        public IReadOnlyDictionary<string, int> Indexer => _indexer;
-        
+        protected Dictionary<string, int> _namedIndexer { get; set; } = new Dictionary<string, int>();
+        protected Dictionary<Guid, int> _guidIndexer { get; set; } = new Dictionary<Guid, int>();
+        public IReadOnlyDictionary<string, int> NamedIndexer => _namedIndexer;
+        public IReadOnlyDictionary<Guid, int> GuidIndexer => _guidIndexer;
+
         public IEnumerator<MachineState<T>> Solver { get; protected set; }
 
         public States<T> States { get; protected set; }
@@ -53,13 +55,9 @@ namespace qon.Machines
 
         public Random Random { get; }
 
-        public QVariable<T> this[string name]
-        {
-            get
-            {
-                return State.Field[_indexer[name]];
-            }
-        }
+        public QVariable<T> this[string name] => State.Field[name];
+
+        public QVariable<T> this[Guid id] => State.Field[id];
 
         public QMachine(QMachineParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory)
         {
@@ -80,11 +78,13 @@ namespace qon.Machines
         {
             State.SetField(field.ToArray());
 
-            _indexer.Clear();
+            _namedIndexer.Clear();
+            _guidIndexer.Clear();
 
-            for (int i = 0; i < State.Field.Length; i++)
+            for (int i = 0; i < State.Field.Count; i++)
             {
-                _indexer[State.Field[i].Name] = i;
+                _namedIndexer[State.Field[i].Name] = i;
+                _guidIndexer[State.Field[i].Id] = i;
                 State.Field[i].Machine = this;
             }
 

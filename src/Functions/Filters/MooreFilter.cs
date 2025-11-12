@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace qon.Functions.Filters
 {
+    //TODO: Update naming
     public class MooreParameter<T>
     {
         public QVariable<T>? Left { get; set; }

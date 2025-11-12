@@ -42,6 +42,7 @@ namespace qon.Variables
             Name = "";
         }
 
+        //TODO Rework with New/Empty
         public QVariable(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -121,6 +122,18 @@ namespace qon.Variables
         public override string ToString()
         {
             return $"{Name.ToShortString(5)}:{Value}";
+        }
+
+        public static QVariable<T> New()
+        {
+            var newVariable = new QVariable<T>();
+            newVariable.Name = newVariable.Id.ToString();
+            return newVariable;
+        }
+
+        public static QVariable<T> New(T value, ValueState state = ValueState.Constant)
+        {
+            return New().WithValue(value, state);
         }
     }
 }

@@ -68,25 +68,25 @@ namespace qon
     {
         public QMachine<T> Machine { get; protected set; }
         public LayersManager<T, MachineState<T>> Layers { get; set; }
-        public QVariable<T>[] Field { get; protected set; }
+        public Field<T> Field { get; protected set; }
 
         public MachineState(QMachine<T> machine)
         {
-            Field = Array.Empty<QVariable<T>>();
             Machine = machine;
             Layers = new LayersManager<T, MachineState<T>>(Machine);
+            Field = new Field<T>(machine);
         }
 
-        public MachineState(QVariable<T>[] field, QMachine<T> machine)
+        public MachineState(QMachine<T> machine, QVariable<T>[] field)
         {
-            Field = field;
             Machine = machine;
             Layers = new LayersManager<T, MachineState<T>>(Machine);
+            Field = new Field<T>(machine, field);
         }
 
         public void SetField(QVariable<T>[] field)
         {
-            Field = field;
+            Field.Update(field);
         }
 
         public SearchResult<T> this[string name, object value]
@@ -109,7 +109,7 @@ namespace qon
 
         public MachineStateQuery<T> Query()
         {
-            return new MachineStateQuery<T>(Field);
+            return new MachineStateQuery<T>(Field.Variables);
         }
 
         public override string ToString()

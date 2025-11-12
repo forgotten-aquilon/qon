@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace qon.Functions.Anchors
 {
-    public class AnchorManager<T>
+    public class AnchorManager<T> : ISearcher<T>
     {
         public List<IAnchor<T>> Anchors { get; private set; } = new List<IAnchor<T>>();
         public List<AnchoredPath<T>> Paths { get; private set; } = new List<AnchoredPath<T>>();
@@ -37,6 +37,15 @@ namespace qon.Functions.Anchors
 
                 Paths = new List<AnchoredPath<T>>(newPaths);
             }
+        }
+
+        public int SearchDepth => Anchors.Count;
+
+        public List<List<QVariable<T>>> Search(Field<T> field)
+        {
+            Execute(field.Variables);
+
+            return Paths.Select(p => p.FixedPath).ToList();
         }
     }
 }

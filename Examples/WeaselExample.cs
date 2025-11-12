@@ -17,12 +17,13 @@ namespace Examples
     {
         public static void Run()
         {
+            //TODO: Add domain prefabs
             var alphabet = Enumerable.Range('A', 26).Select(n => (char)n).ToList();
             alphabet.Add(' ');
             DiscreteDomain<char> domain = new DiscreteDomain<char>(alphabet);
 
             var field = "FGUQJPIPMOFUSPW MRHJQMNLF GZP"
-                .Select(c => new QVariable<char>(Guid.NewGuid().ToString()).WithValue(c, ValueState.Defined))
+                .Select(c => QVariable<char>.New(c, ValueState.Defined))
                 .ToArray();
 
             foreach (var variable in field)
@@ -38,9 +39,7 @@ namespace Examples
 
             QMachine<char> machine = new QMachine<char>(parameter, m => new DefaultSolver<char>(m));
 
-            var target = "ME THINKS IT IS LIKE A WEASEL"
-                .Select(c => new QVariable<char>(Guid.NewGuid().ToString()).WithValue(c, ValueState.Defined))
-                .ToArray();
+            var target = "ME THINKS IT IS LIKE A WEASEL";
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
@@ -58,23 +57,23 @@ namespace Examples
                 Console.WriteLine(FormatState(state));
             }
 
-            Func<QVariable<char>[], int> BuildFitness(QVariable<char>[] template)
+            Func<Field<char>, int> BuildFitness(string template)
             {
                 return sample => Score(sample, template);
             }
 
-            int Score(QVariable<char>[] first, QVariable<char>[] second)
+            int Score(Field<char> first, string second)
             {
-                if (first.Length != second.Length)
+                if (first.Count != second.Length)
                 {
                     return -1;
                 }
 
                 int mismatch = 0;
-
-                for (int i = 0; i < first.Length; i++)
+                    
+                for (int i = 0; i < first.Count; i++)
                 {
-                    if (first[i].Value != second[i].Value)
+                    if (!first[i].Value.CheckValue(second[i]))
                     {
                         mismatch++;
                     }

@@ -28,7 +28,9 @@ namespace qon.Layers.StateLayers
             Constraints = constraints;
         }
 
-        public Result Prepare(QVariable<T>[] field)
+        #region Solving lifecycle
+
+        public Result Prepare(Field<T> field)
         {
             int filterChanges = 0;
 
@@ -45,7 +47,7 @@ namespace qon.Layers.StateLayers
                 }
 
                 changes += generalResult.ChangesAmount;
-                changes += AutoCollapse(field);
+                changes += AutoCollapse(field.Variables);
 
                 filterChanges += changes;
             }
@@ -54,19 +56,9 @@ namespace qon.Layers.StateLayers
             return Result.Success(filterChanges);
         }
 
-        public bool Validate(QVariable<T>[] field)
+        public PreValidationResult PreValidate(Field<T> field)
         {
-            if (Constraints.ValidationConstraints.IsNullOrEmpty())
-            {
-                return true;
-            }
-
-            return !ExecuteConstraints(Constraints.ValidationConstraints, field, null).Failed;
-        }
-
-        public PreValidationResult PreValidate(QVariable<T>[] field)
-        {
-            foreach (var variable in field)
+            foreach (var variable in field.Variables)
             {
                 if (DomainLayer<T>.With(variable).IsEmpty() && variable.State == ValueState.Uncertain)
                     return PreValidationResult.InvalidState;
@@ -77,6 +69,57 @@ namespace qon.Layers.StateLayers
 
             return PreValidationResult.PreValidated;
         }
+
+        public bool Validate(Field<T> field)
+        {
+            if (Constraints.ValidationConstraints.IsNullOrEmpty())
+            {
+                return true;
+            }
+
+            return !ExecuteConstraints(Constraints.ValidationConstraints, field, null).Failed;
+        }
+
+        public void Execute(Field<T>? previousField, Field<T> currentField, Random random)
+        {
+            double entropy = double.MaxValue;
+            QVariable<T>? candidate = null;
+
+            foreach (QVariable<T> variable in currentField)
+            {
+                if (variable.State != ValueState.Uncertain)
+                {
+                    continue;
+                }
+
+                DomainLayer<T> domain = DomainLayer<T>.With(variable);
+                double potentialEntropy = domain.Entropy;
+
+                if (potentialEntropy < entropy)
+                {
+                    entropy = potentialEntropy;
+                    candidate = variable;
+                }
+            }
+
+            ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
+
+            DomainLayer<T> domainLayer = DomainLayer<T>.With(candidate);
+            T value = domainLayer.GetRandomValue(random);
+
+            Collapse(candidate, value);
+
+            if (!previousField.IsNullOrEmpty())
+            {
+                QVariable<T>? previousCandidate = previousField.FirstOrDefault(v => v.Name == candidate.Name);
+
+                ExceptionHelper.ThrowIfInternalValueIsNull(previousCandidate, nameof(previousCandidate));
+
+                DomainLayer<T>.With(previousCandidate).RemoveValue(value);
+            }
+        }
+
+        #endregion
 
         public static ConstraintLayer<T> TryCreate(MachineState<T> state, RuleHandler<T> constraints)
         {
@@ -108,7 +151,7 @@ namespace qon.Layers.StateLayers
             return value;
         }
 
-        private static Result ExecuteConstraints(List<IPreparation<T>> rules, QVariable<T>[] field, QMachine<T>? machine)
+        private static Result ExecuteConstraints(List<IPreparation<T>> rules, Field<T> field, QMachine<T>? machine)
         {
             int changes = 0;
             foreach (var rule in rules)
@@ -147,47 +190,6 @@ namespace qon.Layers.StateLayers
         public ILayer<T, MachineState<T>> Copy()
         {
             throw new NotImplementedException();
-        }
-
-        public void Execute(QVariable<T>[]? previousField, QVariable<T>[] currentField, Random random)
-        {
-            double entropy = double.MaxValue;
-            QVariable<T>? candidate = null;
-
-            foreach (var variable in currentField)
-            {
-                if (variable.State != ValueState.Uncertain)
-                {
-                    continue;
-                }
-
-                var domain = DomainLayer<T>.With(variable);
-                var potentialEntropy = domain.Entropy;
-
-                if (potentialEntropy >= entropy)
-                {
-                    continue;
-                }
-
-                entropy = potentialEntropy;
-                candidate = variable;
-            }
-
-            ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
-
-            var selected = DomainLayer<T>.With(candidate);
-            var value = selected.GetRandomValue(random);
-
-            Collapse(candidate, value);
-
-            if (!previousField.IsNullOrEmpty())
-            {
-                var previousCandidate = previousField.FirstOrDefault(v => v.Name == candidate.Name);
-
-                ExceptionHelper.ThrowIfInternalValueIsNull(previousCandidate, nameof(previousCandidate));
-
-                DomainLayer<T>.With(previousCandidate).RemoveValue(value);
-            }
         }
     }
 }

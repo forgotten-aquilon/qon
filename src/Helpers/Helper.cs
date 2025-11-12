@@ -73,6 +73,21 @@ namespace qon.Helpers
             return false;
         }
 
+        public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this Field<T>? field)
+        {
+            if (field is null)
+            {
+                return true;
+            }
+
+            if (field.Count == 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue TryGetOrCreate<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) where TKey : notnull where TValue : new()
         {

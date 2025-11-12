@@ -20,7 +20,16 @@ namespace qon.Layers
         where THolder : ILayerHolder<T, THolder>
     {
         public THolder? Holder {get; set; }
-        public QMachine<T>? Machine => Holder?.Layers.Machine;
+
+        public QMachine<T> Machine
+        {
+            get
+            {
+                //TODO: Add new generic method to helper later
+                ExceptionHelper.ThrowIfInternalValueIsNull(Holder?.Layers.Machine, nameof(Holder.Layers.Machine));
+                return Holder.Layers.Machine;
+            }
+        }
 
         public static TSelf With(THolder holder)
         {
