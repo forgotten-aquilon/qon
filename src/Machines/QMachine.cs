@@ -1,13 +1,14 @@
 ﻿using qon.Domains;
 using qon.Exceptions;
+using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
+using qon.Solvers;
 using qon.Variables;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Helpers;
 
 namespace qon.Machines
 {
@@ -48,7 +49,7 @@ namespace qon.Machines
         public IReadOnlyDictionary<string, int> NamedIndexer => _namedIndexer;
         public IReadOnlyDictionary<Guid, int> GuidIndexer => _guidIndexer;
 
-        public IEnumerator<MachineState<T>> Solver { get; protected set; }
+        public ISolver<T> Solver { get; protected set; }
 
         public States<T> States { get; protected set; }
         public MachineState<T> State { get; protected set; }
@@ -61,7 +62,7 @@ namespace qon.Machines
 
         public QVariable<T> this[Guid id] => State.Field[id];
 
-        public QMachine(QMachineParameter<T> parameter, Func<QMachine<T>, IEnumerator<MachineState<T>>> factory)
+        public QMachine(QMachineParameter<T> parameter, Func<QMachine<T>, ISolver<T>> factory)
         {
             State = new MachineState<T>(this);
             StateType = MachineStateType.Created;

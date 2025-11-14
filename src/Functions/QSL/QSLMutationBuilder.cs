@@ -9,14 +9,6 @@ namespace qon.Functions.QSL
 {
     public class QSLMutationBuilder<T>
     {
-        public class QSLMutationBuilderGeneral<T>
-        {
-            private QPredicate<T>? _guard;
-            private double _frequency = 1.0;
-            private int _sampling = 1;
-            private VariableMutation<T>? _mutation;
-        }
-
         private QPredicate<T>? _guard;
         private double _frequency = 1.0;
         private int _sampling = 1;

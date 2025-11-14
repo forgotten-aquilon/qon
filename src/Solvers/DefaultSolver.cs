@@ -10,10 +10,12 @@ using qon.Machines;
 
 namespace qon.Solvers
 {
-    public class DefaultSolver<T> : IEnumerator<MachineState<T>>
+    public class DefaultSolver<T> : ISolver<T>
     {
-        protected readonly QMachine<T> _machine;
+        public int StepCounter { get; protected set; } = -1;
+        public int BackStepCounter { get; protected set; } = -1;
 
+        protected readonly QMachine<T> _machine;
         public MachineState<T> Current => _machine.State;
 
         object IEnumerator.Current => Current;
@@ -29,6 +31,7 @@ namespace qon.Solvers
         private int GoForth()
         {
             _solutionStack.Push(Current.Field.Copy());
+            StepCounter++;
             return 1;
         }
 
@@ -43,6 +46,8 @@ namespace qon.Solvers
             }
 
             Current.SetField(_solutionStack.Peek().Copy().Variables);
+
+            BackStepCounter++;
 
             return 1;
         }
