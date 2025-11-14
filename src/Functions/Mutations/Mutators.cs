@@ -35,9 +35,14 @@ namespace qon.Functions.Mutations
             private readonly List<T> _possibleValues;
             public int MutationCount => _possibleValues.Count;
 
-            public ValueMutator(List<T> possibleValues)
+            public ValueMutator(IEnumerable<T> possibleValues)
             {
-                _possibleValues = possibleValues;
+                _possibleValues = possibleValues.ToList();
+            }
+
+            public ValueMutator(params T[] possibleValues)
+            {
+                _possibleValues = possibleValues.ToList();
             }
 
             public void Mutate(List<QVariable<T>> variables)

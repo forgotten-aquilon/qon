@@ -10,9 +10,6 @@ namespace qon.Layers.VariableLayers
         public int Y { get; set; }
         public int Z { get; set; }
 
-        //TODO: Remove
-        public WFCMachine<T>? Machine { get; protected set; }
-
         public EuclideanLayer()
         {
             X = 0;
@@ -20,17 +17,23 @@ namespace qon.Layers.VariableLayers
             Z = 0;
         }
 
-        public EuclideanLayer(int x, int y, int z, WFCMachine<T> machine)
+        public EuclideanLayer(int x, int y, int z)
         {
             X = x;
             Y = y;
             Z = z;
-            Machine = machine;
+        }
+
+        public void Update(int x, int y, int z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
         }
 
         ILayer<T, QVariable<T>> ICopy<ILayer<T, QVariable<T>>>.Copy()
         {
-            return new EuclideanLayer<T>(X, Y, Z, Machine!);
+            return new EuclideanLayer<T>(X, Y, Z);
         }
     }
 }

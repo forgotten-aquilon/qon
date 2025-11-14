@@ -31,17 +31,21 @@ namespace qon.Functions.Replacers
         public List<Field<T>> All(Field<T> field)
         {
             var sequences = _searcher.Search(field);
+            List<Field<T>> samples = new();
 
             foreach (var sequence in sequences)
             {
                 var newField = field.Copy();
 
+                //TODO Fix order
                 var localSequence = sequence.Select(v => newField[v.Id]).ToList();
 
                 _mutator.Mutate(localSequence);
+
+                samples.Add(newField);
             }
 
-            throw new NotImplementedException();
+            return samples;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Examples
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
-                Preparation = QSL.Mutation<char>()
+                MutationFunction = QSL.Mutation<char>()
                     .When(Filters.All<char>())
                     .Sampling(100)
                     .Frequency(0.1)

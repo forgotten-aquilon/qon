@@ -1,24 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using qon.Domains;
+﻿using qon.Domains;
 using qon.Exceptions;
 using qon.Helpers;
 using qon.Variables;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace qon.Layers.VariableLayers
 {
     public class DomainLayer<T> : BaseLayer<T, DomainLayer<T>, QVariable<T>>, ILayer<T, QVariable<T>>
     {
-        private IDomain<T> _domain = EmptyDomain<T>.Instance;
+        private IDomain<T> _domain;
 
         public IDomain<T> Domain
         {
             get => _domain;
-            set
-            {
-                ExceptionHelper.ThrowIfArgumentIsNull(value, nameof(value));
-                _domain = value.Copy();
-            }
+
+            //Can't wait to use 'field' keyword when Unity finally switches to CoreCLR
+            [MemberNotNull(nameof(_domain))]
+            set => _domain = value.Copy();
         }
 
         public double Entropy => Domain.GetEntropy();
@@ -70,6 +70,12 @@ namespace qon.Layers.VariableLayers
             return Domain.SingleOrEmptyValue();
         }
 
+        public void Collapse(T value, bool isConstant = false)
+        {
+            Holder.WithValue(value, isConstant ? ValueState.Constant : ValueState.Defined);
+            AssignEmptyDomain();
+        }
+
         public bool MatchesDomain(Func<IDomain<T>, bool> predicate)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
@@ -111,7 +117,7 @@ namespace qon.Layers.VariableLayers
         }
 
         public DomainLayer()
-            : this(new DiscreteDomain<T>())
+            : this(EmptyDomain<T>.Instance)
         {
         }
 

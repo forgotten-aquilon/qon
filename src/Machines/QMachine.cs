@@ -1,11 +1,13 @@
-﻿using System;
+﻿using qon.Domains;
+using qon.Exceptions;
+using qon.Layers.StateLayers;
+using qon.Layers.VariableLayers;
+using qon.Variables;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Domains;
-using qon.Exceptions;
-using qon.Layers.VariableLayers;
-using qon.Variables;
+using qon.Helpers;
 
 namespace qon.Machines
 {
@@ -69,7 +71,6 @@ namespace qon.Machines
 
             if (parameter.Field is not null)
             {
-                ExceptionHelper.ThrowIfFieldIsNull(parameter.Field, nameof(parameter.Field));
                 SetField(parameter.Field);
             }
         }
@@ -119,6 +120,44 @@ namespace qon.Machines
                 field.Add(variable);
             }
             SetField(field);
+        }
+
+        public void GenerateField(IDomain<T> domain, (int x, int y, int z) dimensions, Optional<T> defaultValue = new Optional<T>())
+        {
+            List<QVariable<T>> variables = new();
+
+            if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
+            {
+                throw new InternalLogicException("Dimension can't be a non-positive number");
+            }
+
+            var layer = EuclideanStateLayer<T>.GetOrCreate(State);
+            layer.FieldGrid = new string[dimensions.x, dimensions.y, dimensions.z];
+
+            for (int x = 0; x < dimensions.x; x++)
+            {
+                for (int y = 0; y < dimensions.y; y++)
+                {
+                    for (int z = 0; z < dimensions.z; z++)
+                    {
+                        string name = $"{x}x{y}x{z}";
+                        var v = new QVariable<T>(name);
+                        DomainLayer<T>.GetOrCreate(v).AssignDomain(domain);
+                        EuclideanLayer<T>.GetOrCreate(v).Update(x, y, z);
+
+                        layer.FieldGrid[x, y, z] = name;
+
+                        if (defaultValue.HasValue)
+                        {
+                            DomainLayer<T>.With(v).Collapse(defaultValue.Value, true);
+                        }
+
+                        variables.Add(v);
+                    }
+                }
+            }
+
+            SetField(variables);
         }
     }
 }

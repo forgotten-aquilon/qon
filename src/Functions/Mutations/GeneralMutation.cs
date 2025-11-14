@@ -11,7 +11,7 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class GeneralMutation<T> : IPreparation<T>
+    public class GeneralMutation<T>
     {
         private readonly QPredicate<T> _filter;
         private readonly int _sampling = 1;
@@ -26,7 +26,7 @@ namespace qon.Functions.Mutations
             _mutationFunction = implementation;
         }
 
-        public Result Execute(Field<T> field, QMachine<T>? machine = null)
+        public List<Field<T>> Execute(Field<T> field, QMachine<T>? machine = null)
         {
             List<Field<T>> samples = new List<Field<T>>();
 
@@ -36,21 +36,16 @@ namespace qon.Functions.Mutations
 
                 foreach (var variable in sample)
                 {
-                    if (_filter.ApplyTo(variable) && (machine?.Random.GetRandomBool(_frequency) ?? false))
+                    if (_filter.ApplyTo(variable) && field.Machine.Random.GetRandomBool(_frequency))
                     {
                         _mutationFunction.Execute(variable);
                     }
                 }
 
                 samples.Add(sample);
-            }
+            } 
 
-            if (machine?.State is not null)
-            {
-                MutationLayer<T>.With(machine.State).Samples = samples;
-            }
-
-            return Result.Success(0);
+            return samples;
         }
     }
 }

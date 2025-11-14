@@ -1,12 +1,13 @@
-﻿using qon.Variables;
+﻿using qon.Helpers;
+using qon.Layers.VariableLayers;
+using qon.Machines;
+using qon.Variables;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using qon.Helpers;
-using qon.Machines;
 
 namespace qon
 {
@@ -33,6 +34,11 @@ namespace qon
             Variables = variables;
         }
 
+        public void Update(Field<T> anotherField)
+        {
+            Variables = anotherField.Variables;
+        }
+
         public Field<T> Copy()
         {
             return new Field<T>(Machine, Variables.Select(x => x.Copy()).ToArray());
@@ -54,6 +60,19 @@ namespace qon
         {
             get => Variables[Machine.GuidIndexer[id]];
             set => Variables[Machine.GuidIndexer[id]] = value;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder result = new StringBuilder("{ ");
+
+            var fieldRepresentation = Variables.Select(v =>
+                v.State != ValueState.Uncertain ? $"{v.Value}" : $"{v.Name}:[{DomainLayer<T>.With(v).DescribeDomain()}]");
+
+            result.AppendJoin(" ", fieldRepresentation);
+            result.Append("}");
+
+            return result.ToString();
         }
 
         public IEnumerator<QVariable<T>> GetEnumerator()

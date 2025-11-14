@@ -134,8 +134,7 @@ namespace qon.Layers.StateLayers
 
         public static void Collapse(QVariable<T> variable, T value, bool isConstant = false)
         {
-            variable.WithValue(value, isConstant ? ValueState.Constant : ValueState.Defined);
-            DomainLayer<T>.With(variable).AssignEmptyDomain();
+            DomainLayer<T>.With(variable).Collapse(value, isConstant);
         }
 
         public static Optional<T> TryCollapseVariable(QVariable<T> variable)

@@ -14,8 +14,19 @@ namespace qon.Functions.Anchors
         public List<IAnchor<T>> Anchors { get; private set; } = new List<IAnchor<T>>();
         public List<AnchoredPath<T>> Paths { get; private set; } = new List<AnchoredPath<T>>();
 
+        public AnchorManager()
+        {
+
+        }
+
+        public AnchorManager(List<IAnchor<T>> anchors)
+        {
+            Anchors = anchors;
+        }
+
         public void Execute(QVariable<T>[] field)
         {
+            Paths.Clear();
             Paths.Add(new AnchoredPath<T>(field));
 
             foreach (var anchor in Anchors)
@@ -25,7 +36,7 @@ namespace qon.Functions.Anchors
                 foreach (var path in Paths)
                 {
                     path.Reduce(anchor.GetPredicate());
-                    var additionalPaths = path.Normalize();
+                    var additionalPaths = path.Normalize(field);
 
                     foreach (var additionalPath in additionalPaths)
                     {       

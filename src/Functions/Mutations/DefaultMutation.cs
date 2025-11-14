@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace qon.Functions.Mutations
 {
-    internal class DefaultMutation<T> : IPreparation<T>
+    public class DefaultMutation<T>
     {
         private readonly IReplacer<T> _replacer;
 
@@ -19,22 +19,11 @@ namespace qon.Functions.Mutations
             _replacer = replacer;
         }
 
-        public Result Execute(Field<T> field, QMachine<T>? machine = null)
+        public List<Field<T>> Execute(Field<T> field)
         {
             var samples = _replacer.All(field);
 
-            if (samples.Count == 0)
-            {
-                return Result.HasErrors();
-            }
-
-
-            if (machine?.State is not null)
-            {
-                MutationLayer<T>.With(machine.State).Samples = samples;
-            }
-
-            return Result.Success(0);
+            return samples;
         }
     }
 }

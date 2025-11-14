@@ -16,13 +16,13 @@ namespace qon.Functions.Anchors
 
         private AnchoredPath(List<QVariable<T>> fixedPath, QVariable<T> end)
         {
-            FixedPath = fixedPath;
-            fixedPath.Add(end);
+            FixedPath = new List<QVariable<T>>(fixedPath);
+            FixedPath.Add(end);
         }
 
-        public AnchoredPath()
+        public AnchoredPath(QVariable<T> initialValue)
         {
-
+            FixedPath.Add(initialValue);
         }
 
         public AnchoredPath(QVariable<T>[] list)
@@ -45,14 +45,17 @@ namespace qon.Functions.Anchors
             AlternativeEnds = ends.Where(e => !FixedPath.Contains(e)).ToList();
         }
 
-        public List<AnchoredPath<T>> Normalize()
+        public List<AnchoredPath<T>> Normalize(QVariable<T>[] field)
         {
             List<AnchoredPath<T>> result = new List<AnchoredPath<T>>();
 
             foreach (var end in AlternativeEnds)
             {
-                result.Add(new AnchoredPath<T>(FixedPath, end));
+                var p = new AnchoredPath<T>(FixedPath, end);
+                p.AlternativeEnds = field.Where(v => !p.FixedPath.Contains(v)).ToList();
+                result.Add(p);
             }
+
             AlternativeEnds.Clear();
             return result;
         }

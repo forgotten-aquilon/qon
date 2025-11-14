@@ -19,17 +19,11 @@ namespace qon.Layers
         where TSelf : BaseLayer<T, TSelf, THolder>, ILayer<T, THolder>, new()
         where THolder : ILayerHolder<T, THolder>
     {
-        public THolder? Holder {get; set; }
+        protected THolder? _holder;
 
-        public QMachine<T> Machine
-        {
-            get
-            {
-                //TODO: Add new generic method to helper later
-                ExceptionHelper.ThrowIfInternalValueIsNull(Holder?.Layers.Machine, nameof(Holder.Layers.Machine));
-                return Holder.Layers.Machine;
-            }
-        }
+        public THolder Holder => ExceptionHelper.ThrowIfFieldIsNull(_holder, nameof(_holder));
+
+        public QMachine<T> Machine => ExceptionHelper.ThrowIfInternalValueIsNull(Holder?.Layers.Machine, nameof(Holder.Layers.Machine));
 
         public static TSelf With(THolder holder)
         {
@@ -52,7 +46,7 @@ namespace qon.Layers
             {
                 layer = new TSelf();
                 holder.Layers.Add(layer);
-                layer.Holder = holder;
+                layer._holder = holder;
             }
 
             return layer;

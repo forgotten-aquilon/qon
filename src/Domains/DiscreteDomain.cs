@@ -27,6 +27,11 @@ namespace qon.Domains
             Domain = d.ToDictionary(x => x, _ => 1);
         }
 
+        public DiscreteDomain(params T[] values)
+        {
+            Domain = values.ToDictionary(x => x, _ => 1);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Size()
         {

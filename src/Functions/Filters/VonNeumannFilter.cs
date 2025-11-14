@@ -39,9 +39,8 @@ namespace qon.Functions.Filters
         {
             var layer = EuclideanLayer<T>.With(input);
             ExceptionHelper.ThrowIfFieldIsNull(layer, nameof(layer));
-            ExceptionHelper.ThrowIfFieldIsNull(layer.Machine, nameof(layer.Machine));
 
-            var machine = layer.Machine;
+            var machine = ExceptionHelper.ThrowIfFieldIsNull(input.Machine, nameof(input.Machine));
             var stateLayer = EuclideanStateLayer<T>.With(machine.State);
 
             VonNeumannParameter<T> result = new VonNeumannParameter<T>

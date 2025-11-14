@@ -48,9 +48,9 @@ namespace qon.Machines
                         string name = $"{x}x{y}x{z}";
                         var v = new QVariable<T>(name);
                         DomainLayer<T>.GetOrCreate(v).AssignDomain(domain);
-                        v.Layers.Add(new EuclideanLayer<T>(x, y, z, this));
+                        EuclideanLayer<T>.GetOrCreate(v).Update(x, y, z);
 
-                        EuclideanStateLayer<T>.With(State).FieldGrid[x, y, z] = name;
+                        layer.FieldGrid[x, y, z] = name;
 
                         variables.Add(v);
                     }
@@ -59,6 +59,5 @@ namespace qon.Machines
 
             SetField(variables);
         }
-
     }
 }

@@ -1,13 +1,22 @@
-﻿using System;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
 using qon.Variables;
+using System;
+using System.Collections.Generic;
 
 namespace qon.Functions.QSL
 {
     public class QSLMutationBuilder<T>
     {
+        public class QSLMutationBuilderGeneral<T>
+        {
+            private QPredicate<T>? _guard;
+            private double _frequency = 1.0;
+            private int _sampling = 1;
+            private VariableMutation<T>? _mutation;
+        }
+
         private QPredicate<T>? _guard;
         private double _frequency = 1.0;
         private int _sampling = 1;
@@ -44,17 +53,14 @@ namespace qon.Functions.QSL
         }
 
 
-        public IPreparation<T> Build()
+        public Func<Field<T>, List<Field<T>>> Build()
         {
             ExceptionHelper.ThrowIfInternalValueIsNull(_guard, nameof(_guard));
             ExceptionHelper.ThrowIfInternalValueIsNull(_mutation, nameof(_mutation));
 
-            if (_sampling > 1)
-            {
-                return new GeneralMutation<T>(_guard, _sampling, _frequency, _mutation);
-            }
+            var mutation = new GeneralMutation<T>(_guard, _sampling, _frequency, _mutation);
 
-            throw new NotImplementedException();
+            return field => mutation.Execute(field);
         }
     }
 }
