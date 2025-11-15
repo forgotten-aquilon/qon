@@ -1,5 +1,4 @@
 using qon;
-using qon.Domains;
 using qon.Functions.Constraints;
 using qon.Functions.QSL;
 using qon.Functions.Filters;
@@ -12,6 +11,7 @@ using qon.Solvers;
 using qon.Variables;
 using System;
 using System.Collections.Generic;
+using qon.Variables.Domains;
 
 namespace Examples
 {
@@ -21,31 +21,28 @@ namespace Examples
         {
             List<int> domain = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-            var parameters = new WFCParameter<int>()
+            var machine = new QMachine<int>(new QMachineParameter<int>());
+            ConstraintLayer<int>.GetOrCreate(machine.State).Constraints = new()
             {
-                Constraints = new()
+                GeneralConstraints = new()
                 {
-                    GeneralConstraints = new()
-                    {
-                        QSL.Constraint<int>()
-                            .GroupBy(EuclideanFilters.GroupByRectangle<int>(2, 2))
-                            .Propagate(Propagators.AllDistinct<int>())
-                            .Build(),
-                        QSL.Constraint<int>()
-                            .GroupBy(EuclideanFilters.GroupByX<int>())
-                            .Propagate(Propagators.AllDistinct<int>())
-                            .Build(),
-                        QSL.Constraint<int>()
-                            .GroupBy(EuclideanFilters.GroupByY<int>())
-                            .Propagate(Propagators.AllDistinct<int>())
-                            .Build(),
-                    }
+                    QSL.Constraint<int>()
+                        .GroupBy(EuclideanFilters.GroupByRectangle<int>(2, 2))
+                        .Propagate(Propagators.AllDistinct<int>())
+                        .Build(),
+                    QSL.Constraint<int>()
+                        .GroupBy(EuclideanFilters.GroupByX<int>())
+                        .Propagate(Propagators.AllDistinct<int>())
+                        .Build(),
+                    QSL.Constraint<int>()
+                        .GroupBy(EuclideanFilters.GroupByY<int>())
+                        .Propagate(Propagators.AllDistinct<int>())
+                        .Build(),
                 }
             };
 
-            var machine = new WFCMachine<int>(parameters, m => new DefaultSolver<int>(m));
             var numericalDomain = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 9) });
-            machine.CreateEuclideanSpace((9, 9, 1), numericalDomain);
+            machine.GenerateField(numericalDomain, (9, 9, 1));
 
             SeedField(machine);
 
@@ -60,7 +57,7 @@ namespace Examples
             }
         }
 
-        private static void SeedField(WFCMachine<int> machine)
+        private static void SeedField(QMachine<int> machine)
         {
             var grid = EuclideanStateLayer<int>.With(machine.State);
 

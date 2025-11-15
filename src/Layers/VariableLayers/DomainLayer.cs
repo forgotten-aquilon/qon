@@ -1,7 +1,7 @@
-﻿using qon.Domains;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Helpers;
 using qon.Variables;
+using qon.Variables.Domains;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -121,14 +121,18 @@ namespace qon.Layers.VariableLayers
         {
         }
 
-        public DomainLayer(IDomain<T> domain)  
+        public DomainLayer(IDomain<T> domain)
         {
             Domain = domain;
         }
 
-        ILayer<T, QVariable<T>> ICopy<ILayer<T, QVariable<T>>>.Copy()
+        #region Overrides of BaseLayer<T,DomainLayer<T>,QVariable<T>>
+
+        public override ILayer<T, QVariable<T>> Copy()
         {
             return new DomainLayer<T>(Domain.Copy());
         }
+
+        #endregion
     }
 }

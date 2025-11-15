@@ -1,5 +1,4 @@
 using qon;
-using qon.Domains;
 using qon.Functions.Constraints;
 using qon.Functions.QSL;
 using qon.Functions.Filters;
@@ -10,6 +9,8 @@ using qon.Variables;
 using System;
 using System.Collections.Generic;
 using qon.Functions;
+using qon.Layers.StateLayers;
+using qon.Variables.Domains;
 
 namespace Examples
 {
@@ -55,18 +56,14 @@ namespace Examples
                         .Build());
             }
 
-            var parameters = new WFCParameter<EuclideanBlock<string>>()
+            var machine = new QMachine<EuclideanBlock<string>>(new QMachineParameter<EuclideanBlock<string>>(){Random = new Random(100) });
+
+            ConstraintLayer<EuclideanBlock<string>>.GetOrCreate(machine.State).Constraints = new()
             {
-                Constraints = new()
-                {
-                    GeneralConstraints = rotationRules
-                },
-                Random = new Random(100)
+                GeneralConstraints = rotationRules
             };
 
-            var machine = new WFCMachine<EuclideanBlock<string>>(parameters, m => new DefaultSolver<EuclideanBlock<string>>(m));
-
-            machine.CreateEuclideanSpace((size, size, 1), new DiscreteDomain<EuclideanBlock<string>>(domain));
+            machine.GenerateField(new DiscreteDomain<EuclideanBlock<string>>(domain), (size, size, 1));
             int i = 0;
             foreach (var state in machine.States)
             {

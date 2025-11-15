@@ -1,5 +1,4 @@
-﻿using qon.Domains;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
@@ -9,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using qon.Variables.Domains;
 
 namespace qon.Machines
 {
@@ -52,6 +52,7 @@ namespace qon.Machines
         public ISolver<T> Solver { get; protected set; }
 
         public States<T> States { get; protected set; }
+
         public MachineState<T> State { get; protected set; }
 
         public MachineStateType StateType {  get; set; }
@@ -62,11 +63,12 @@ namespace qon.Machines
 
         public QVariable<T> this[Guid id] => State.Field[id];
 
-        public QMachine(QMachineParameter<T> parameter, Func<QMachine<T>, ISolver<T>> factory)
+        //TODO: remove factory
+        public QMachine(QMachineParameter<T> parameter)
         {
             State = new MachineState<T>(this);
             StateType = MachineStateType.Created;
-            Solver = factory(this);
+            Solver = parameter.SolverInjection(this);
             States = new States<T>(this);
             Random = parameter.Random;
 

@@ -35,5 +35,14 @@ namespace qon.Layers.VariableLayers
         {
             return new EuclideanLayer<T>(X, Y, Z);
         }
+
+        #region Overrides of BaseLayer<T,EuclideanLayer<T>,QVariable<T>>
+
+        public override ILayer<T, QVariable<T>> Copy()
+        {
+            return new EuclideanLayer<T>(X, Y, Z);
+        }
+
+        #endregion
     }
 }

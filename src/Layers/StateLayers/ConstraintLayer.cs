@@ -1,5 +1,4 @@
-﻿using qon.Domains;
-using qon.Functions;
+﻿using qon.Functions;
 using qon.Helpers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
@@ -14,13 +13,13 @@ using qon.Exceptions;
 
 namespace qon.Layers.StateLayers
 {
-    public class ConstraintLayer<T> : BaseLayer<T, ConstraintLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>, IStateLayer<T>
+    public class ConstraintLayer<T> : BaseLayer<T, ConstraintLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>,
+        IStateLayer<T>
     {
         public RuleHandler<T> Constraints { get; set; } = new();
 
         public ConstraintLayer()
         {
-
         }
 
         public ConstraintLayer(RuleHandler<T> constraints)
@@ -50,8 +49,7 @@ namespace qon.Layers.StateLayers
                 changes += AutoCollapse(field.Variables);
 
                 filterChanges += changes;
-            }
-            while (changes != 0);
+            } while (changes != 0);
 
             return Result.Success(filterChanges);
         }
@@ -186,7 +184,7 @@ namespace qon.Layers.StateLayers
             return changes;
         }
 
-        public ILayer<T, MachineState<T>> Copy()
+        public override ILayer<T, MachineState<T>> Copy()
         {
             throw new NotImplementedException();
         }

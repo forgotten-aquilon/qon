@@ -1,11 +1,12 @@
 using System;
 using qon;
-using qon.Domains;
 using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Machines;
 using qon.Solvers;
+using qon.Variables.Domains;
+using qon.Layers.StateLayers;
 
 namespace Examples
 {
@@ -13,21 +14,18 @@ namespace Examples
     {
         public static void Run()
         {
-            var parameter = new WFCParameter<int>()
+            var machine = new QMachine<int>(new QMachineParameter<int>());
+
+            ConstraintLayer<int>.GetOrCreate(machine.State).Constraints = new()
             {
-                Constraints = new()
+                GeneralConstraints = new()
                 {
-                    GeneralConstraints = new()
-                    {
-                        QSL.Constraint<int>()
-                            .Select(Filters.All<int>())
-                            .Propagate(Propagators.AllDistinct<int>())
-                            .Build()
-                    }
+                    QSL.Constraint<int>()
+                        .Select(Filters.All<int>())
+                        .Propagate(Propagators.AllDistinct<int>())
+                        .Build()
                 }
             };
-
-            var machine = new QMachine<int>(parameter, m => new DefaultSolver<int>(m));
 
             machine.GenerateField(new NumericalDomain<int>(), new[] { "V1", "V2", "V3", "V4" });
 

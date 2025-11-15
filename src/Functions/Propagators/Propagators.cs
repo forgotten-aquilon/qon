@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using qon.Domains;
 using qon.Exceptions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
@@ -9,16 +8,17 @@ using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
+using qon.Variables.Domains;
 
 namespace qon.Functions.Propagators
 {
     public static class Propagators
     {
-        public static Result AllDistinctPropagator<T>(IEnumerable<QVariable<T>> field)
+        public static Result AllDistinctPropagator<T>(IEnumerable<QVariable<T>> variables)
         {
             int changes = 0;
 
-            var decided = field.Where(x => x.State != ValueState.Uncertain).Select(y => y.Value.Value);
+            var decided = variables.Where(x => x.State != ValueState.Uncertain).Select(y => y.Value.Value);
 
             var certainVariablesCount = decided.Count();
             var distinctVariables = decided.ToHashSet();
@@ -28,7 +28,7 @@ namespace qon.Functions.Propagators
                 return Result.HasErrors();
             }
 
-            var openVariables = field.Where(x => x.State == ValueState.Uncertain);
+            var openVariables = variables.Where(x => x.State == ValueState.Uncertain);
 
             foreach (var variable in openVariables)
             {
@@ -44,15 +44,13 @@ namespace qon.Functions.Propagators
             return new Propagator<T>(AllDistinctPropagator);
         }
 
-        public static Propagator<T> DomainIntersection<T>(HashSet<T> filteringCollection)
+        public static Propagator<T> ReduceDomainTo<T>(HashSet<T> filteringCollection)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(filteringCollection, nameof(filteringCollection));
-
-            return new Propagator<T>(field =>
+            return new Propagator<T>(variables =>
             {
                 int changes = 0;
 
-                foreach (var variable in field)
+                foreach (var variable in variables)
                 {
                     if (variable.State != ValueState.Uncertain)
                     {
@@ -88,7 +86,7 @@ namespace qon.Functions.Propagators
                 //TODO optimize
                 int cumulativeChanges = 0;
 
-                var leftResult = DomainIntersection(param[Side.Left]).ApplyTo(vnp.Left.FromNullableToArray());
+                var leftResult = ReduceDomainTo(param[Side.Left]).ApplyTo(vnp.Left.FromNullableToArray());
                 if (leftResult.Failed)
                 {
                     return leftResult;
@@ -98,7 +96,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += leftResult.ChangesAmount;
                 }
 
-                var rightResult = DomainIntersection(param[Side.Right]).ApplyTo(vnp.Right.FromNullableToArray());
+                var rightResult = ReduceDomainTo(param[Side.Right]).ApplyTo(vnp.Right.FromNullableToArray());
                 if (rightResult.Failed)
                 {
                     return rightResult;
@@ -108,7 +106,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += rightResult.ChangesAmount;
                 }
 
-                var frontResult = DomainIntersection(param[Side.Front]).ApplyTo(vnp.Front.FromNullableToArray());
+                var frontResult = ReduceDomainTo(param[Side.Front]).ApplyTo(vnp.Front.FromNullableToArray());
                 if (frontResult.Failed)
                 {
                     return frontResult;
@@ -118,7 +116,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += frontResult.ChangesAmount;
                 }
 
-                var backResult = DomainIntersection(param[Side.Back]).ApplyTo(vnp.Back.FromNullableToArray());
+                var backResult = ReduceDomainTo(param[Side.Back]).ApplyTo(vnp.Back.FromNullableToArray());
                 if (backResult.Failed)
                 {
                     return backResult;
@@ -128,7 +126,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += backResult.ChangesAmount;
                 }
 
-                var topResult = DomainIntersection(param[Slab.Top]).ApplyTo(vnp.Top.FromNullableToArray());
+                var topResult = ReduceDomainTo(param[Slab.Top]).ApplyTo(vnp.Top.FromNullableToArray());
                 if (topResult.Failed)
                 {
                     return topResult;
@@ -138,7 +136,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += topResult.ChangesAmount;
                 }
 
-                var bottomResult = DomainIntersection(param[Slab.Bottom]).ApplyTo(vnp.Bottom.FromNullableToArray());
+                var bottomResult = ReduceDomainTo(param[Slab.Bottom]).ApplyTo(vnp.Bottom.FromNullableToArray());
                 if (bottomResult.Failed)
                 {
                     return bottomResult;

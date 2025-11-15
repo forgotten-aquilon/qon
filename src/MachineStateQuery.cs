@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Domains;
 using qon.Exceptions;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
+using qon.Variables.Domains;
 
 namespace qon
 {

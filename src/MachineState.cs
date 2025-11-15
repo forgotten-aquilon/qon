@@ -73,14 +73,14 @@ namespace qon
         public MachineState(QMachine<T> machine)
         {
             Machine = machine;
-            Layers = new LayersManager<T, MachineState<T>>(Machine);
+            Layers = new LayersManager<T, MachineState<T>>(this);
             Field = new Field<T>(machine);
         }
 
         public MachineState(QMachine<T> machine, QVariable<T>[] field)
         {
             Machine = machine;
-            Layers = new LayersManager<T, MachineState<T>>(Machine);
+            Layers = new LayersManager<T, MachineState<T>>(this);
             Field = new Field<T>(machine, field);
         }
 

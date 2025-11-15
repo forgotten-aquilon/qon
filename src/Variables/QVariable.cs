@@ -1,5 +1,4 @@
-﻿using qon.Domains;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Helpers;
 using System;
 using System.Collections.Generic;
@@ -22,29 +21,28 @@ namespace qon.Variables
         public string Name { get; protected set; }
         public bool Protected { get; set; } = false;
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
-        public LayersManager<T, QVariable<T>> Layers { get; protected set; } = new LayersManager<T, QVariable<T>>();
+        public LayersManager<T, QVariable<T>> Layers { get; protected set; }
         public Optional<T> Value { get; set; } = Optional<T>.Empty;
         public ValueState State { get; set; } = ValueState.Uncertain;
 
-        [NotNull]
-        public QMachine<T>? Machine
+        public QMachine<T> Machine
         {
-            get
-            {
-                ExceptionHelper.ThrowIfInternalValueIsNull(_machine, nameof(Machine));
-                return _machine;
-            }
+            get => ExceptionHelper.ThrowIfInternalValueIsNull(_machine, nameof(Machine));
             set => _machine = value;
         }
 
         protected QVariable()
         {
+            Layers = new LayersManager<T, QVariable<T>>(this);
+
             Name = "";
         }
 
         //TODO Rework with New/Empty
         public QVariable(string name)
         {
+            Layers = new LayersManager<T, QVariable<T>>(this);
+
             if (string.IsNullOrEmpty(name))
             {
                 Name = Id.ToString();
@@ -88,16 +86,19 @@ namespace qon.Variables
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual QVariable<T> Copy()
         {
-            return new QVariable<T>()
+            var result = new QVariable<T>()
             {
                 Id = Id,
                 Name = Name,
                 Properties = new Dictionary<string, object>(Properties),
                 Value = Value,
                 State = State,
-                Layers = Layers.Copy(),
                 Machine = Machine
             };
+
+            result.Layers = Layers.Copy(result);
+
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

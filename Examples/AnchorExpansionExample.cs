@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using qon;
-using qon.Domains;
 using qon.Functions.Anchors;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
@@ -11,6 +10,7 @@ using qon.Layers.StateLayers;
 using qon.Machines;
 using qon.Solvers;
 using qon.Variables;
+using qon.Variables.Domains;
 
 namespace Examples
 {
@@ -22,8 +22,7 @@ namespace Examples
         {
             var random = new Random();
             var machine = new QMachine<char>(
-                new QMachineParameter<char> { Random = random },
-                solverMachine => new DefaultSolver<char>(solverMachine));
+                new QMachineParameter<char> { Random = random });
 
             machine.GenerateField(new DiscreteDomain<char>('@', '.'), (GridSize, GridSize, 1), Optional<char>.Of('.'));
 

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using qon;
-using qon.Domains;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
 using qon.Layers.StateLayers;
 using qon.Machines;
 using qon.Variables;
+using qon.Variables.Domains;
 
 namespace qon.Tests
 {
@@ -97,7 +97,7 @@ namespace qon.Tests
             var numerical = new NumericalDomain<int>(new[] { new Interval<int>(0, 5) });
             var variable = new QVariable<int>("num");
             DomainLayer<int>.SetDomain(variable, numerical);
-            var filter = Propagators.DomainIntersection(new HashSet<int> { 2, 9 });
+            var filter = Propagators.ReduceDomainTo(new HashSet<int> { 2, 9 });
 
             var result = filter.ApplyTo(new[] { variable });
 

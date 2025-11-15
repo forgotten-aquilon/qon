@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using qon;
-using qon.Domains;
 using qon.Functions.Constraints;
 using qon.Functions.QSL;
 using qon.Functions.Filters;
@@ -11,6 +10,8 @@ using qon.Machines;
 using qon.Solvers;
 using qon.Variables;
 using qon.Functions;
+using qon.Layers.StateLayers;
+using qon.Variables.Domains;
 
 namespace Examples
 {
@@ -66,18 +67,14 @@ namespace Examples
             mazeRules.Add(CreateRule("╩", leftConn, rightConn, topConn, bottomWall));
             mazeRules.Add(CreateRule(" ", leftWall, rightWall, topWall, bottomWall));
 
-            var parameters = new WFCParameter<string>()
+            QMachine<string> machine = new(new QMachineParameter<string>(){Random = new Random(10) });
+
+            ConstraintLayer<string>.GetOrCreate(machine.State).Constraints = new()
             {
-                Constraints = new()
-                {
-                    GeneralConstraints = mazeRules
-                },
-                Random = new Random(10)
+                GeneralConstraints = mazeRules
             };
 
-            WFCMachine<string> machine = new(parameters, m => new DefaultSolver<string>(m));
-
-            machine.CreateEuclideanSpace((25, 25, 1), new DiscreteDomain<string>(domain));
+            machine.GenerateField(new DiscreteDomain<string>(domain), (25, 25, 1));
 
             foreach (var variable in machine.State.Field)
             {

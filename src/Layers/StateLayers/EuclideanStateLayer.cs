@@ -30,7 +30,7 @@ namespace qon.Layers.StateLayers
             }
         }
 
-        public ILayer<T, MachineState<T>> Copy()
+        public override ILayer<T, MachineState<T>> Copy()
         {
             throw new NotImplementedException();
         }

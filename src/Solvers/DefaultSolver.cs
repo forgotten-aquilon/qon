@@ -12,11 +12,14 @@ namespace qon.Solvers
 {
     public class DefaultSolver<T> : ISolver<T>
     {
+        public static Func<QMachine<T>, ISolver<T>> Injection => (machine) => new DefaultSolver<T>(machine);
+
         public int StepCounter { get; protected set; } = -1;
         public int BackStepCounter { get; protected set; } = -1;
 
-        protected readonly QMachine<T> _machine;
-        public MachineState<T> Current => _machine.State;
+        public QMachine<T> Machine { get; }
+
+        public MachineState<T> Current => Machine.State;
 
         object IEnumerator.Current => Current;
     
@@ -25,7 +28,8 @@ namespace qon.Solvers
         public DefaultSolver(QMachine<T> machine)
         {
             _solutionStack = new Stack<Field<T>>();
-            _machine = machine;
+
+            Machine = machine;
         }
 
         private int GoForth()
@@ -41,7 +45,7 @@ namespace qon.Solvers
 
             if (_solutionStack.Count == 0)
             {
-                _machine.StateType = MachineStateType.Error;
+                Machine.StateType = MachineStateType.Error;
                 return 1;
             }
 
@@ -54,17 +58,17 @@ namespace qon.Solvers
 
         public bool MoveNext()
         {
-            ExceptionHelper.ThrowIfFieldIsNull(_machine, nameof(_machine));
+            ExceptionHelper.ThrowIfFieldIsNull(Machine, nameof(Machine));
 
             int changes = 0;
 
-            switch (_machine.StateType)
+            switch (Machine.StateType)
             {
                 case MachineStateType.Created:
                     throw new InternalLogicException("Machine is not prepared for solving");
                 case MachineStateType.Ready:
                     changes += GoForth();
-                    _machine.StateType = MachineStateType.IsSolving;
+                    Machine.StateType = MachineStateType.IsSolving;
                     break;
                 case MachineStateType.IsSolving:
                     var result = Prepare();
@@ -80,7 +84,7 @@ namespace qon.Solvers
 
                     if (preValidationResult == PreValidationResult.PreValidated)
                     {
-                        _machine.StateType = MachineStateType.Validation;
+                        Machine.StateType = MachineStateType.Validation;
                         changes++;
                     }
                     else if (preValidationResult == PreValidationResult.InvalidState)
@@ -99,12 +103,12 @@ namespace qon.Solvers
                     if (Validate())
                     {
                         changes += GoForth();
-                        _machine.StateType = MachineStateType.Finished;
+                        Machine.StateType = MachineStateType.Finished;
                     }
                     else
                     {
                         changes += GoBack();
-                        _machine.StateType = MachineStateType.IsSolving;
+                        Machine.StateType = MachineStateType.IsSolving;
                     }
 
                     break;
@@ -191,7 +195,7 @@ namespace qon.Solvers
 
                 _solutionStack.TryPeek(out var previousField);
 
-                stateLayer.Execute(previousField, Current.Field, _machine.Random);
+                stateLayer.Execute(previousField, Current.Field, Machine.Random);
             }
         }
 

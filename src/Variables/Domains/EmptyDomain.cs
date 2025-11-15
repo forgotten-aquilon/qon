@@ -1,15 +1,12 @@
-﻿using qon.Exceptions;
-using qon.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using qon.Exceptions;
+using qon.Helpers;
 
-namespace qon.Domains
+namespace qon.Variables.Domains
 {
 #pragma warning disable CS8714
-   
+
     public class EmptyDomain<T> : IDomain<T>
     {
         public static EmptyDomain<T> Instance => Lazy.Value;
@@ -71,7 +68,7 @@ namespace qon.Domains
             return Instance;
         }
 
-        public IEnumerable<KeyValuePair<T, int>> GetIEnumerable()
+        public IEnumerable<T> GetValues()
         {
             throw new InternalLogicException("Should never be called");
         }

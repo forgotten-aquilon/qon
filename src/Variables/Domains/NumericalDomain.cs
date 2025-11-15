@@ -1,13 +1,12 @@
-﻿using qon.Exceptions;
-using qon.Helpers;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using qon.Exceptions;
+using qon.Helpers;
 
-namespace qon.Domains
+namespace qon.Variables.Domains
 {
     public enum Operation
     {
@@ -19,6 +18,7 @@ namespace qon.Domains
     {
         public T Start { get; set; }
         public T End { get; set; }
+
         public UInt64 Length
         {
             get
@@ -84,8 +84,7 @@ namespace qon.Domains
         public override string ToString() => $"[{Start}..{End}]";
     }
 
-
-    public class NumericalDomain<T> : IDomain<T> //TODO: Refactor this shit with INumber<T> as soon as available in Unity3D
+    public class NumericalDomain<T> : IWeightedDomain<T> //TODO: Refactor this shit with INumber<T> as soon as available in Unity3D
     {
         private static readonly IComparer<T> Comparer = Comparer<T>.Default;
 
@@ -128,15 +127,6 @@ namespace qon.Domains
             }
 
             Domain = intervals.Select(x => x).ToList();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public UInt64 TrueSize()
-        {
-            if (Domain.Count == 0)
-                return 0;
-
-            return Domain.Select(x => x.Length).Aggregate((a, b) => a+b);
         }
 
         #region IDomain<T> interface
@@ -220,7 +210,7 @@ namespace qon.Domains
                 var leftInterval = new Interval<T>(interval.Start, UnaryOperation(item, Operation.Decrement));
                 var rightInterval = new Interval<T>(UnaryOperation(item, Operation.Increment), interval.End);
                 Domain[position] = leftInterval;
-                Domain.Insert(position+1, rightInterval);
+                Domain.Insert(position + 1, rightInterval);
             }
 
             return 1;
@@ -233,7 +223,7 @@ namespace qon.Domains
 
             foreach (var v in items.Distinct().OrderBy(x => x))
                 changeCount += Remove(v);
-            
+
             return changeCount;
         }
 
@@ -296,20 +286,34 @@ namespace qon.Domains
             return new NumericalDomain<T>(Domain);
         }
 
-        public IEnumerable<KeyValuePair<T, int>> GetIEnumerable()
+        public IEnumerable<T> GetValues()
         {
             foreach (var r in Domain)
             {
-                for (T x = r.Start; ; x = UnaryOperation(x, Operation.Increment))
+                for (T x = r.Start;; x = UnaryOperation(x, Operation.Increment))
+                {
+                    yield return x;
+                    if (Compare(x, r.End) == 0)
+                        break;
+                }
+            }
+        }
+
+        public IEnumerable<KeyValuePair<T, int>> GetValuesWithWeights()
+        {
+            foreach (var r in Domain)
+            {
+                for (T x = r.Start;; x = UnaryOperation(x, Operation.Increment))
                 {
                     yield return new KeyValuePair<T, int>(x, 1);
-                    if (Compare(x, r.End) == 0) 
+                    if (Compare(x, r.End) == 0)
                         break;
                 }
             }
         }
 
         #endregion
+
         public override string ToString()
         {
             if (IsEmpty())
@@ -365,6 +369,7 @@ namespace qon.Domains
                 {
                     high = mid - 1;
                 }
+
                 mid = (low + high) / 2;
             }
 
@@ -403,6 +408,15 @@ namespace qon.Domains
         }
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public UInt64 TrueSize()
+        {
+            if (Domain.Count == 0)
+                return 0;
+
+            return Domain.Select(x => x.Length).Aggregate((a, b) => a + b);
+        }
 
         public static int Compare(T leftObject, T rightObject)
         {

@@ -91,7 +91,7 @@ namespace qon.Layers.StateLayers
 
         #endregion
 
-        public ILayer<T, MachineState<T>> Copy()
+        public override ILayer<T, MachineState<T>> Copy()
         {
             throw new NotImplementedException();
         }

@@ -1,8 +1,8 @@
-﻿using qon.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using qon.Helpers;
 
-namespace qon.Domains
+namespace qon.Variables.Domains
 {
 #pragma warning disable CS8714
     public interface IDomain<T> : ICopy<IDomain<T>>
@@ -16,6 +16,6 @@ namespace qon.Domains
         double GetEntropy();
         T GetRandomValue(Random random);
         Optional<T> SingleOrEmptyValue();
-        IEnumerable<KeyValuePair<T, int>> GetIEnumerable();
+        IEnumerable<T> GetValues();
     }
 }

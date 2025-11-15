@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using qon;
-using qon.Domains;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
 using qon.Functions.QSL;
@@ -10,6 +9,7 @@ using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.Solvers;
 using qon.Variables;
+using qon.Variables.Domains;
 
 namespace Examples
 {
@@ -34,10 +34,10 @@ namespace Examples
             QMachineParameter<char> parameter = new QMachineParameter<char>
             {
                 Field = field,
-                Random = new Random()
+                Random = new Random(),
             };
 
-            QMachine<char> machine = new QMachine<char>(parameter, m => new DefaultSolver<char>(m));
+            QMachine<char> machine = new QMachine<char>(parameter);
 
             var target = "ME THINKS IT IS LIKE A WEASEL";
 

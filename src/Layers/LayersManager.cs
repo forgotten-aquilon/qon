@@ -8,13 +8,14 @@ using qon.Machines;
 
 namespace qon.Layers
 {
-    public class LayersManager<T, THolder> : KeyedCollection<Type, ILayer<T, THolder>>
+    public class LayersManager<T, THolder> : KeyedCollection<Type, ILayer<T, THolder>> where THolder : ILayerHolder<T, THolder>
     {
-        public QMachine<T>? Machine { get; set; }
+        public THolder Holder { get; private set; }
+        public QMachine<T> Machine => Holder.Machine;
 
-        public LayersManager(QMachine<T>? machine = null)
+        public LayersManager(THolder holder)
         {
-            Machine = machine;
+            Holder = holder;
         }
 
         public bool TryGetLayer<TLayer>([NotNullWhen(true)]out TLayer? layer)  
@@ -53,13 +54,16 @@ namespace qon.Layers
             return item.GetType();
         }
 
-        public LayersManager<T, THolder> Copy()
+        public LayersManager<T, THolder> Copy(THolder newHolder)
         {
-            var result = new LayersManager<T, THolder>();
+            var result = new LayersManager<T, THolder>(newHolder);
 
-            foreach (var item in this.Items)
+            foreach (var item in Items)
             {
-                result.Add(item.Copy());
+                var newItem = item.Copy();
+                newItem.UpdateHolder(newHolder);
+
+                result.Add(newItem);
             }
 
             return result;
