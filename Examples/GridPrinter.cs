@@ -11,7 +11,7 @@ namespace Examples
         public static void Print<T>(MachineState<T> state, int size, bool correctionIndent = false)
         {
             string result = "";
-            for (int y = 0; y < size; y++)
+            for (int y = size; y > 0; y--)
             {
                 for (int x = 0; x < size; x++)
                 {

@@ -64,10 +64,8 @@ namespace qon.Functions.Propagators
                         return Result.HasErrors();
                     }
 
-                    if (ConstraintLayer<TQ>.TryCollapseVariable(variable).HasValue || removed > 0)
-                    {
-                        changes += removed;
-                    }
+                    changes += removed;
+                    changes += ConstraintLayer<TQ>.TryCollapseVariable(variable).HasValue ? 1 : 0;
                 }
 
                 return Result.Success(changes);

@@ -105,7 +105,6 @@ namespace qon.Machines
             {
                 var variable = QVariable<TQ>.Empty();
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
-                DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
             SetField(field);
@@ -141,7 +140,6 @@ namespace qon.Machines
                 {
                     for (int z = 0; z < dimensions.z; z++)
                     {
-                        //int fixedY = dimensions.y - y - 1;
                         string name = $"{x}x{y}x{z}";
 
                         QVariable<TQ> newVariable = defaultValue.HasValue 

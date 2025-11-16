@@ -116,42 +116,42 @@ namespace qon.Functions.Filters
             MooreParameter<TQ> result = new()
             {
                 //Left
-                LeftFrontTop = GetNeighbor(-1, -1, 1),
-                LeftFrontCenter = GetNeighbor(-1, -1, 0),
-                LeftFrontBottom = GetNeighbor(-1, -1, -1),
+                LeftFrontTop = GetNeighbor(-1, 1, 1),
+                LeftFrontCenter = GetNeighbor(-1, 1, 0),
+                LeftFrontBottom = GetNeighbor(-1, 1, -1),
 
                 LeftCenterTop = GetNeighbor(-1, 0, 1),
                 LeftCenterCenter = GetNeighbor(-1, 0, 0),
                 LeftCenterBottom = GetNeighbor(-1, 0, -1),
 
-                LeftBackTop = GetNeighbor(-1, 1, 1),
-                LeftBackCenter = GetNeighbor(-1, 1, 0),
-                LeftBackBottom = GetNeighbor(-1, 1, -1),
+                LeftBackTop = GetNeighbor(-1, -1, 1),
+                LeftBackCenter = GetNeighbor(-1, -1, 0),
+                LeftBackBottom = GetNeighbor(-1, -1, -1),
 
                 //Center
-                CenterFrontTop = GetNeighbor(0, -1, 1),
-                CenterFrontCenter = GetNeighbor(0, -1, 0),
-                CenterFrontBottom = GetNeighbor(0, -1, -1),
+                CenterFrontTop = GetNeighbor(0, 1, 1),
+                CenterFrontCenter = GetNeighbor(0, 1, 0),
+                CenterFrontBottom = GetNeighbor(0, 1, -1),
 
                 CenterCenterTop = GetNeighbor(0, 0, 1),
                 CenterCenterBottom = GetNeighbor(0, 0, -1),
 
-                CenterBackTop = GetNeighbor(0, 1, 1),
-                CenterBackCenter = GetNeighbor(0, 1, 0),
-                CenterBackBottom = GetNeighbor(0, 1, -1),
+                CenterBackTop = GetNeighbor(0, -1, 1),
+                CenterBackCenter = GetNeighbor(0, -1, 0),
+                CenterBackBottom = GetNeighbor(0, -1, -1),
 
                 //Right
-                RightFrontTop = GetNeighbor(1, -1, 1),
-                RightFrontCenter = GetNeighbor(1, -1, 0),
-                RightFrontBottom = GetNeighbor(1, -1, -1),
+                RightFrontTop = GetNeighbor(1, 1, 1),
+                RightFrontCenter = GetNeighbor(1, 1, 0),
+                RightFrontBottom = GetNeighbor(1, 1, -1),
 
                 RightCenterTop = GetNeighbor(1, 0, 1),
                 RightCenterCenter = GetNeighbor(1, 0, 0),
                 RightCenterBottom = GetNeighbor(1, 0, -1),
 
-                RightBackTop = GetNeighbor(1, 1, 1),
-                RightBackCenter = GetNeighbor(1, 1, 0),
-                RightBackBottom = GetNeighbor(1, 1, -1),
+                RightBackTop = GetNeighbor(1, -1, 1),
+                RightBackCenter = GetNeighbor(1, -1, 0),
+                RightBackBottom = GetNeighbor(1, -1, -1),
             };
 
             return result;
