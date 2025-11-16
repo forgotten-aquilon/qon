@@ -84,7 +84,7 @@ namespace qon.Variables.Domains
         public override string ToString() => $"[{Start}..{End}]";
     }
 
-    public class NumericalDomain<TQ> : IWeightedDomain<TQ> where TQ : notnull //TODO: Refactor this shit with INumber<TQ> as soon as available in Unity3D
+    public class NumericalDomain<TQ> : IDomain<TQ> where TQ : notnull //TODO: Refactor this shit with INumber<TQ> as soon as available in Unity3D
     {
         private static readonly IComparer<TQ> Comparer = Comparer<TQ>.Default;
 
@@ -299,18 +299,18 @@ namespace qon.Variables.Domains
             }
         }
 
-        public IEnumerable<KeyValuePair<TQ, int>> GetValuesWithWeights()
-        {
-            foreach (var r in Domain)
-            {
-                for (TQ x = r.Start;; x = UnaryOperation(x, Operation.Increment))
-                {
-                    yield return new KeyValuePair<TQ, int>(x, 1);
-                    if (Compare(x, r.End) == 0)
-                        break;
-                }
-            }
-        }
+        //public IEnumerable<KeyValuePair<TQ, int>> GetValuesWithWeights()
+        //{
+        //    foreach (var r in Domain)
+        //    {
+        //        for (TQ x = r.Start;; x = UnaryOperation(x, Operation.Increment))
+        //        {
+        //            yield return new KeyValuePair<TQ, int>(x, 1);
+        //            if (Compare(x, r.End) == 0)
+        //                break;
+        //        }
+        //    }
+        //}
 
         #endregion
 

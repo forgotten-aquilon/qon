@@ -62,8 +62,6 @@ namespace qon.Machines
         public QVariable<TQ> this[string name] => State.Field[name];
 
         public QVariable<TQ> this[Guid id] => State.Field[id];
-
-        //TODO: remove factory
         public QMachine(QMachineParameter<TQ> parameter)
         {
             State = new MachineState<TQ>(this);
@@ -105,7 +103,7 @@ namespace qon.Machines
             var field = new List<QVariable<TQ>>();
             for (int i = 0; i < count; i++)
             {
-                var variable = new QVariable<TQ>(string.Empty);
+                var variable = QVariable<TQ>.Empty();
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
                 field.Add(variable);
@@ -118,7 +116,7 @@ namespace qon.Machines
             var field = new List<QVariable<TQ>>();
             foreach (var name in names)
             {
-                var variable = new QVariable<TQ>(name);
+                var variable = QVariable<TQ>.Empty(name);
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
@@ -143,19 +141,18 @@ namespace qon.Machines
                 {
                     for (int z = 0; z < dimensions.z; z++)
                     {
+                        //int fixedY = dimensions.y - y - 1;
                         string name = $"{x}x{y}x{z}";
-                        var v = new QVariable<TQ>(name);
-                        DomainLayer<TQ>.GetOrCreate(v).AssignDomain(domain);
-                        EuclideanLayer<TQ>.GetOrCreate(v).Update(x, y, z);
+
+                        QVariable<TQ> newVariable = defaultValue.HasValue 
+                            ? QVariable<TQ>.New(name, defaultValue.Value) 
+                            : QVariable<TQ>.Empty(name);
+
+                        DomainLayer<TQ>.GetOrCreate(newVariable).AssignDomain(domain);
+                        EuclideanLayer<TQ>.GetOrCreate(newVariable).Update(x, y, z);
 
                         layer.FieldGrid[x, y, z] = name;
-
-                        if (defaultValue.HasValue)
-                        {
-                            DomainLayer<TQ>.With(v).Collapse(defaultValue.Value, true);
-                        }
-
-                        variables.Add(v);
+                        variables.Add(newVariable);
                     }
                 }
             }

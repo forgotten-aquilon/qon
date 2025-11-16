@@ -19,8 +19,8 @@ namespace qon.Variables
 
         public Guid Id { get; protected set; } = Guid.NewGuid();
         public string Name { get; protected set; }
-        public bool Protected { get; set; } = false;
-        public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
+        //TODO: Still not sure about general properties, when there are layers
+        public Dictionary<string, ValueType> Properties { get; set; } = new Dictionary<string, ValueType>();
         public LayersManager<TQ, QVariable<TQ>> Layers { get; protected set; }
         public Optional<TQ> Value { get; set; } = Optional<TQ>.Empty;
         public ValueState State { get; set; } = ValueState.Uncertain;
@@ -52,7 +52,9 @@ namespace qon.Variables
             Name = name;
         }
 
-        public QVariable<TQ> AddProperty(string name, object value)
+        #region Methods
+
+        public QVariable<TQ> AddProperty(string name, ValueType value)
         {
             AddNewProperty(name, value);
             return this;
@@ -66,7 +68,7 @@ namespace qon.Variables
             return this;
         }
 
-        protected void AddNewProperty(string name, object value)
+        protected void AddNewProperty(string name, ValueType value)
         {
             if (Properties.ContainsKey(name))
             {
@@ -76,7 +78,7 @@ namespace qon.Variables
             Properties[name] = value;
         }
 
-        public virtual object this[string propertyName]
+        public virtual ValueType this[string propertyName]
         {
             get => Properties[propertyName];
 
@@ -90,7 +92,7 @@ namespace qon.Variables
             {
                 Id = Id,
                 Name = Name,
-                Properties = new Dictionary<string, object>(Properties),
+                Properties = new Dictionary<string, ValueType>(Properties),
                 Value = Value,
                 State = State,
                 Machine = Machine,
@@ -101,12 +103,12 @@ namespace qon.Variables
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual object? GetNullOrValueProperty(string propertyName)
         {
-            Properties.TryGetValue(propertyName, out object? property);
+            Properties.TryGetValue(propertyName, out ValueType? property);
             return property;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool TryGetProperty(string propertyName, out object? property)
+        public virtual bool TryGetProperty(string propertyName, out ValueType? property)
         {
             return Properties.TryGetValue(propertyName, out property);
         }
@@ -122,16 +124,32 @@ namespace qon.Variables
             return $"{Name.ToShortString(5)}:{Value}";
         }
 
-        public static QVariable<TQ> New()
+        #endregion
+
+        public static QVariable<TQ> Empty()
         {
             var newVariable = new QVariable<TQ>();
             newVariable.Name = newVariable.Id.ToString();
             return newVariable;
         }
 
+        public static QVariable<TQ> Empty(string name)
+        {
+            QVariable<TQ> newVariable = new()
+            {
+                Name = name
+            };
+            return newVariable;
+        }
+
         public static QVariable<TQ> New(TQ value, ValueState state = ValueState.Constant)
         {
-            return New().WithValue(value, state);
+            return Empty().WithValue(value, state);
+        }
+
+        public static QVariable<TQ> New(string name, TQ value, ValueState state = ValueState.Constant)
+        {
+            return Empty(name).WithValue(value, state);
         }
     }
 }

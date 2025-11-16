@@ -10,35 +10,29 @@ using qon.Variables.Domains;
 
 namespace qon
 {
+    //TODO: integrate into the QSL
     public class MachineStateQuery<TQ> : IEnumerable<QVariable<TQ>> where TQ : notnull
     {
         private readonly IEnumerable<QVariable<TQ>> _query;
 
         internal MachineStateQuery(IEnumerable<QVariable<TQ>> source)
         {
-            //TODO remove
-            ExceptionHelper.ThrowIfArgumentIsNull(source, nameof(source));
             _query = source;
         }
 
         public MachineStateQuery<TQ> Where(Func<QVariable<TQ>, bool> predicate)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
             return new MachineStateQuery<TQ>(_query.Where(predicate));
         }
 
         public MachineStateQuery<TQ> WithProperty(string name, object value)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
             return new MachineStateQuery<TQ>(_query.Where(variable =>
                 Equals(variable.GetNullOrValueProperty(name), value)));
         }
 
         public MachineStateQuery<TQ> WhereProperty(string name, Func<object?, bool> predicate)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
-            ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-
             return new MachineStateQuery<TQ>(_query.Where(variable =>
             {
                 variable.TryGetProperty(name, out var property);
@@ -48,17 +42,12 @@ namespace qon
 
         public MachineStateQuery<TQ> WithLayer<TLayer>(Func<TLayer, bool> predicate)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-
             return new MachineStateQuery<TQ>(_query.Where(variable =>
                 variable.Layers.TryGetLayer<TLayer>(out var layer) && predicate(layer)));
         }
 
         public MachineStateQuery<TQ> WhereLayer<TLayer, TResult>(Func<TLayer, TResult> selector, Func<TResult, bool> predicate)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(selector, nameof(selector));
-            ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-
             return new MachineStateQuery<TQ>(_query.Where(variable =>
             {
                 if (!variable.Layers.TryGetLayer<TLayer>(out var layer))
@@ -78,8 +67,6 @@ namespace qon
 
         public MachineStateQuery<TQ> WhereStates(params ValueState[] states)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(states, nameof(states));
-
             var stateSet = new HashSet<ValueState>(states);
 
             return new MachineStateQuery<TQ>(_query.Where(variable =>
@@ -88,16 +75,12 @@ namespace qon
 
         public MachineStateQuery<TQ> WhereDomain(Func<IDomain<TQ>, bool> predicate)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-
             return new MachineStateQuery<TQ>(_query.Where(variable =>
                 DomainLayer<TQ>.With(variable).MatchesDomain(predicate)));
         }
 
         public MachineStateQuery<TQ> WhereDomainSize(Func<int, bool> condition)
         {
-            ExceptionHelper.ThrowIfArgumentIsNull(condition, nameof(condition));
-
             return new MachineStateQuery<TQ>(_query.Where(variable =>
                 DomainLayer<TQ>.With(variable).DomainSizeSatisfies(condition)));
         }

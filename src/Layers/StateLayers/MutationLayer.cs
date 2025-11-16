@@ -64,8 +64,8 @@ namespace qon.Layers.StateLayers
 
             for (int i = 0; i < bestSample.Count; i++)
             {
-                //TODO: Update with proper copy of other properties
                 field[i].Value = bestSample[i].Value;
+                field[i].Properties = new Dictionary<string, ValueType>(bestSample[i].Properties);
             }
 
             _bestSample = bestSample;

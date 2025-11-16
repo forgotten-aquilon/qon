@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using qon.Exceptions;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Machines;
@@ -49,7 +50,7 @@ namespace qon.Functions.Constraints
 
                     return Propagator.ApplyTo(aggregation);
                 default:
-                    throw new NotImplementedException();
+                    throw new NonExhaustiveExpressionException(typeof(FilteringType), FilteringType);
             }
         }
     }

@@ -17,10 +17,9 @@ namespace Examples
     {
         public static void Run()
         {
-            //TODO: Add domain prefabs
-            var alphabet = Enumerable.Range('A', 26).Select(n => (char)n).ToList();
-            alphabet.Add(' ');
-            DiscreteDomain<char> domain = new DiscreteDomain<char>(alphabet);
+            var domain = DomainHelper.SymbolicalDomain(new DomainHelper.CharDomainOptions()
+                    .WithAlphabet('A', 'Z')
+                    .WithOtherSymbols(' '));
 
             var field = "FGUQJPIPMOFUSPW MRHJQMNLF GZP"
                 .Select(c => QVariable<char>.New(c, ValueState.Defined))

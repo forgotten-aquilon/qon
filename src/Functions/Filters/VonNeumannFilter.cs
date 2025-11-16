@@ -47,10 +47,10 @@ namespace qon.Functions.Filters
             {
                 Left = stateLayer[(layer.X - 1, layer.Y, layer.Z)],
                 Right = stateLayer[(layer.X + 1, layer.Y, layer.Z)],
-                Front = stateLayer[(layer.X, layer.Y - 1, layer.Z)],
-                Back = stateLayer[(layer.X, layer.Y + 1, layer.Z)],
+                Back = stateLayer[(layer.X, layer.Y - 1, layer.Z)],
+                Front = stateLayer[(layer.X, layer.Y + 1, layer.Z)],
+                Bottom = stateLayer[(layer.X, layer.Y, layer.Z - 1)],
                 Top = stateLayer[(layer.X, layer.Y, layer.Z + 1)],
-                Bottom = stateLayer[(layer.X, layer.Y, layer.Z - 1)]
             };
 
             return result;

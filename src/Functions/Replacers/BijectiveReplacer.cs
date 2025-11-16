@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Exceptions;
 using qon.Functions.Mutations;
 using qon.Variables;
 
@@ -21,8 +22,7 @@ namespace qon.Functions.Replacers
 
             if (searcher.SearchDepth != mutator.MutationCount)
             {
-                //TODO: Custom exception
-                throw new ArgumentException("Searcher count must be equal to mutator count for bijective replacer.");
+                throw new ValidationException("Searcher count must be equal to mutator count for bijective replacer.");
             }
 
             _size = searcher.SearchDepth;
@@ -37,7 +37,6 @@ namespace qon.Functions.Replacers
             {
                 var newField = field.Copy();
 
-                //TODO Fix order
                 var localSequence = sequence.Select(v => newField[v.Id]).ToList();
 
                 _mutator.Mutate(localSequence);

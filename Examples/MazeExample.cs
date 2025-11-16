@@ -27,11 +27,11 @@ namespace Examples
             HashSet<string> rightConn = new() { "╬", "═", "╗", "╝", "╣", "╩", "╦" };
             HashSet<string> rightWall = new() { "║", "╚", "╔", "╠", " " };
 
-            HashSet<string> topConn = new() { "╬", "║", "╗", "╔", "╣", "╠", "╦" };
-            HashSet<string> topWall = new() { "═", "╚", "╝", "╩", " " };
+            HashSet<string> frontConn = new() { "╬", "║", "╗", "╔", "╣", "╠", "╦" };
+            HashSet<string> frontWall = new() { "═", "╚", "╝", "╩", " " };
 
-            HashSet<string> bottomConn = new() { "╬", "║", "╚", "╝", "╣", "╠", "╩" };
-            HashSet<string> bottomWall = new() { "╔", "╗", "═", "╦", " " };
+            HashSet<string> backConn = new() { "╬", "║", "╚", "╝", "╣", "╠", "╩" };
+            HashSet<string> backWall = new() { "╔", "╗", "═", "╦", " " };
 
             List<IPreparation<string>> mazeRules = new();
 
@@ -54,18 +54,18 @@ namespace Examples
                     .Build();
             }
 
-            mazeRules.Add(CreateRule("╬", leftConn, rightConn, topConn, bottomConn));
-            mazeRules.Add(CreateRule("║", leftWall, rightWall, topConn, bottomConn));
-            mazeRules.Add(CreateRule("═", leftConn, rightConn, topWall, bottomWall));
-            mazeRules.Add(CreateRule("╔", leftWall, rightConn, topWall, bottomConn));
-            mazeRules.Add(CreateRule("╗", leftConn, rightWall, topWall, bottomConn));
-            mazeRules.Add(CreateRule("╚", leftWall, rightConn, topConn, bottomWall));
-            mazeRules.Add(CreateRule("╝", leftConn, rightWall, topConn, bottomWall));
-            mazeRules.Add(CreateRule("╠", leftWall, rightConn, topConn, bottomConn));
-            mazeRules.Add(CreateRule("╣", leftConn, rightWall, topConn, bottomConn));
-            mazeRules.Add(CreateRule("╦", leftConn, rightConn, topWall, bottomConn));
-            mazeRules.Add(CreateRule("╩", leftConn, rightConn, topConn, bottomWall));
-            mazeRules.Add(CreateRule(" ", leftWall, rightWall, topWall, bottomWall));
+            mazeRules.Add(CreateRule("╬", leftConn, rightConn, frontConn, backConn));
+            mazeRules.Add(CreateRule("║", leftWall, rightWall, frontConn, backConn));
+            mazeRules.Add(CreateRule("═", leftConn, rightConn, frontWall, backWall));
+            mazeRules.Add(CreateRule("╔", leftWall, rightConn, frontWall, backConn));
+            mazeRules.Add(CreateRule("╗", leftConn, rightWall, frontWall, backConn));
+            mazeRules.Add(CreateRule("╚", leftWall, rightConn, frontConn, backWall));
+            mazeRules.Add(CreateRule("╝", leftConn, rightWall, frontConn, backWall));
+            mazeRules.Add(CreateRule("╠", leftWall, rightConn, frontConn, backConn));
+            mazeRules.Add(CreateRule("╣", leftConn, rightWall, frontConn, backConn));
+            mazeRules.Add(CreateRule("╦", leftConn, rightConn, frontWall, backConn));
+            mazeRules.Add(CreateRule("╩", leftConn, rightConn, frontConn, backWall));
+            mazeRules.Add(CreateRule(" ", leftWall, rightWall, frontWall, backWall));
 
             QMachine<string> machine = new(new QMachineParameter<string>(){Random = new Random(10) });
 
@@ -74,16 +74,11 @@ namespace Examples
                 GeneralConstraints = mazeRules
             };
 
-            machine.GenerateField(new DiscreteDomain<string>(domain), (25, 25, 1));
+            var d = new DiscreteDomain<string>(domain);
+            d.UpdateWeight(" ", 21);
+            d.UpdateWeight("╣", 51);
 
-            foreach (var variable in machine.State.Field)
-            {
-                if (DomainLayer<string>.With(variable).TryGetDomain<DiscreteDomain<string>>(out var localDomain))
-                {
-                    localDomain.UpdateWeight(" ", 21);
-                    localDomain.UpdateWeight("╣", 51);
-                }
-            }
+            machine.GenerateField(d, (25, 25, 1));
 
             foreach (var state in machine.States)
             {

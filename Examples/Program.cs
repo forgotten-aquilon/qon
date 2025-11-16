@@ -1,14 +1,16 @@
 #pragma warning disable
 
+using System;
 using Examples;
+using qon.Variables.Domains;
 
 //NumberExample.Run();
 //SimplestExample.Run();
 //SimpleSudokuExample.Run();
 //SudokuExample.Run();
-EverestSudokuExample.Run();
+//EverestSudokuExample.Run();
 //EightQueensExample.Run();
 //RotationExample.Run(22);
-//MazeExample.Run();
+MazeExample.Run();
 //WeaselExample.Run();
 //AnchorExpansionExample.Run();

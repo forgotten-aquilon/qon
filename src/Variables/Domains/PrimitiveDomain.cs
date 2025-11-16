@@ -44,7 +44,7 @@ namespace qon.Variables.Domains
             Domain.ExceptWith(items);
             int postRemoveCount = Domain.Count;
 
-            return postRemoveCount - preRemoveCount;
+            return preRemoveCount - postRemoveCount;
         }
 
         public void Clear()
@@ -84,6 +84,15 @@ namespace qon.Variables.Domains
         public IDomain<TQ> Copy()
         {
             return new PrimitiveDomain<TQ>(new HashSet<TQ>(Domain));
+        }
+
+        #endregion
+
+        #region Overrides of Object
+
+        public override string ToString()
+        {
+            return string.Join(", ", Domain.Select(v => $"{v}"));
         }
 
         #endregion

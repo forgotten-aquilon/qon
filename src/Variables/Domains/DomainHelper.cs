@@ -8,6 +8,127 @@ using System.Runtime.CompilerServices;
 
 namespace qon.Variables.Domains
 {
+    public static class DomainHelper
+    {
+        #region Pre-built Domains
+
+        private const int EnglishAlphabetLength = 26;
+
+        public enum Case
+        {
+            Lower,
+            Upper,
+            Both
+        }
+
+        public class CharDomainOptions
+        {
+            public HashSet<char> Symbols { get; } = new();
+
+            public CharDomainOptions WithAlphabet(char leftSymbol, char rightSymbol)
+            {
+                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsLetter(leftSymbol));
+                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, symbol => char.IsLetter(rightSymbol));
+
+                if (char.IsLower(validatedLeftSymbol) != char.IsLower(validatedRightSymbol))
+                {
+                    throw new ValidationException($"Symbols '{validatedLeftSymbol}' and '{validatedRightSymbol}' should be of the same case");
+                }
+
+                var diff = ExceptionHelper.ThrowIfPredicateFalse(validatedRightSymbol - validatedLeftSymbol, diff => diff > 0);
+
+                Symbols.UnionWith(Enumerable.Range(validatedLeftSymbol, diff + 1).Select(n => (char)n));
+
+                return this;
+            }
+
+            public CharDomainOptions WithDigits(char leftSymbol, char rightSymbol)
+            {
+                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsDigit(leftSymbol));
+                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, symbol => char.IsDigit(rightSymbol));
+
+                var diff = ExceptionHelper.ThrowIfPredicateFalse(validatedRightSymbol - validatedLeftSymbol, diff => diff > 0);
+
+                Symbols.UnionWith(Enumerable.Range(validatedLeftSymbol, diff + 1).Select(n => (char)n));
+
+                return this;
+            }
+
+            public CharDomainOptions WithOtherSymbols(params char[] symbols)
+            {
+                Symbols.UnionWith(symbols);
+                return this;
+            }
+        }
+
+        public static PrimitiveDomain<char> SymbolicalDomain(CharDomainOptions options)
+        {
+            return new PrimitiveDomain<char>(options.Symbols);
+        }
+
+        public static PrimitiveDomain<int> SimpleNumericalDomain(int fromInclusive, int toInclusive)
+        {
+            ExceptionHelper.ThrowIfPredicateFalse(toInclusive - fromInclusive, diff => diff >= 0);
+            var symbols = Enumerable.Range(fromInclusive, toInclusive - fromInclusive + 1).ToHashSet();
+            return new PrimitiveDomain<int>(symbols);
+        }
+
+        //TODO: God, I really need INumber<T>, Unity, WHEN???
+        public static NumericalDomain<int> NumericalDomain(params (int, int)[] ranges)
+        {
+            if (ranges.Length == 0)
+            {
+                return new NumericalDomain<int>();
+            }
+            else
+            {
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                return new NumericalDomain<int>(validatedRanges.Select(x => new Interval<int>(x.Item1, x.Item2)));
+            }
+        }
+
+        public static NumericalDomain<uint> NumericalDomain(params (uint, uint)[] ranges)
+        {
+            if (ranges.Length == 0)
+            {
+                return new NumericalDomain<uint>();
+            }
+            else
+            {
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                return new NumericalDomain<uint>(validatedRanges.Select(x => new Interval<uint>(x.Item1, x.Item2)));
+            }
+        }
+
+        public static NumericalDomain<long> NumericalDomain(params (long, long)[] ranges)
+        {
+            if (ranges.Length == 0)
+            {
+                return new NumericalDomain<long>();
+            }
+            else
+            {
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                return new NumericalDomain<long>(validatedRanges.Select(x => new Interval<long>(x.Item1, x.Item2)));
+            }
+        }
+
+        public static NumericalDomain<ulong> NumericalDomain(params (ulong, ulong)[] ranges)
+        {
+            if (ranges.Length == 0)
+            {
+                return new NumericalDomain<ulong>();
+            }
+            else
+            {
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                return new NumericalDomain<ulong>(validatedRanges.Select(x => new Interval<ulong>(x.Item1, x.Item2)));
+            }
+        }
+
+        #endregion
+    }
+
     public static class DomainHelper<TQ> where TQ : notnull
     {
         private static readonly Dictionary<Type, Func<QVariable<TQ>, IDomain<TQ>, HashSet<TQ>, int>> HashSetIntersections = new();
@@ -150,12 +271,6 @@ namespace qon.Variables.Domains
 
             return Math.Max(0, originalSize - layer.GetDomain().Size());
         }
-
-        #endregion
-
-        #region MyRegion
-
-        
 
         #endregion
     }

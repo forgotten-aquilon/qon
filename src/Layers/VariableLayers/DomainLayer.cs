@@ -104,7 +104,7 @@ namespace qon.Layers.VariableLayers
             return Domain;
         }
 
-        public bool TryGetDomain<TDomain>(out TDomain? domain) where TDomain : class, IDomain<TQ>
+        public bool TryGetDomain<TDomain>([NotNullWhen(true)] out TDomain? domain) where TDomain : class, IDomain<TQ>
         {
             if (Domain is TDomain typed)
             {

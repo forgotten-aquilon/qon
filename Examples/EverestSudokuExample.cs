@@ -20,7 +20,7 @@ namespace Examples
     {
         public static void Run()
         {
-            List<int> domain = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            var domain = DomainHelper.SimpleNumericalDomain(1, 9);
 
             var machine = new QMachine<int>(new QMachineParameter<int>()
             {
@@ -46,7 +46,7 @@ namespace Examples
                 }
             };
 
-            machine.GenerateField(new DiscreteDomain<int>(domain), (9, 9, 1));
+            machine.GenerateField(domain, (9, 9, 1));
 
             SeedField(machine);
 

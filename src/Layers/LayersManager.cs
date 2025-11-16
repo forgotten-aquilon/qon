@@ -48,8 +48,7 @@ namespace qon.Layers
                 return l!;
             }
 
-            //TODO
-            throw new InternalLogicException("");
+            throw new KeyNotFoundException($"Layer of Type {typeof(TLayer)} is not registered in LayersManager of {typeof(THolder)}:{Holder}");
         }
 
         protected override Type GetKeyForItem(ILayer<TQ, THolder> item)

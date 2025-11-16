@@ -7,35 +7,42 @@ using System.Collections.Generic;
 
 namespace qon.Functions.Filters
 {
-    //TODO: Update naming
     public class MooreParameter<TQ> where TQ : notnull
     {
-        public QVariable<TQ>? Left { get; set; }
-        public QVariable<TQ>? Right { get; set; }
-        public QVariable<TQ>? Front { get; set; }
-        public QVariable<TQ>? Back { get; set; }
-        public QVariable<TQ>? Top { get; set; }
-        public QVariable<TQ>? Bottom { get; set; }
-        public QVariable<TQ>? FrontLeft { get; set; }
-        public QVariable<TQ>? FrontRight { get; set; }
-        public QVariable<TQ>? BackLeft { get; set; }
-        public QVariable<TQ>? BackRight { get; set; }
-        public QVariable<TQ>? TopLeft { get; set; }
-        public QVariable<TQ>? TopRight { get; set; }
-        public QVariable<TQ>? TopFront { get; set; }
-        public QVariable<TQ>? TopBack { get; set; }
-        public QVariable<TQ>? TopFrontLeft { get; set; }
-        public QVariable<TQ>? TopFrontRight { get; set; }
-        public QVariable<TQ>? TopBackLeft { get; set; }
-        public QVariable<TQ>? TopBackRight { get; set; }
-        public QVariable<TQ>? BottomLeft { get; set; }
-        public QVariable<TQ>? BottomRight { get; set; }
-        public QVariable<TQ>? BottomFront { get; set; }
-        public QVariable<TQ>? BottomBack { get; set; }
-        public QVariable<TQ>? BottomFrontLeft { get; set; }
-        public QVariable<TQ>? BottomFrontRight { get; set; }
-        public QVariable<TQ>? BottomBackLeft { get; set; }
-        public QVariable<TQ>? BottomBackRight { get; set; }
+        public QVariable<TQ>? LeftFrontTop { get; set; }
+        public QVariable<TQ>? LeftFrontCenter { get; set; }
+        public QVariable<TQ>? LeftFrontBottom { get; set; }
+
+        public QVariable<TQ>? LeftCenterTop { get; set; }
+        public QVariable<TQ>? LeftCenterCenter { get; set; }
+        public QVariable<TQ>? LeftCenterBottom { get; set; }
+
+        public QVariable<TQ>? LeftBackTop { get; set; }
+        public QVariable<TQ>? LeftBackCenter { get; set; }
+        public QVariable<TQ>? LeftBackBottom { get; set; }
+
+        public QVariable<TQ>? CenterFrontTop { get; set; }
+        public QVariable<TQ>? CenterFrontCenter { get; set; }
+        public QVariable<TQ>? CenterFrontBottom { get; set; }
+
+        public QVariable<TQ>? CenterCenterTop { get; set; }
+        public QVariable<TQ>? CenterCenterBottom { get; set; }
+
+        public QVariable<TQ>? CenterBackTop { get; set; }
+        public QVariable<TQ>? CenterBackCenter { get; set; }
+        public QVariable<TQ>? CenterBackBottom { get; set; }
+
+        public QVariable<TQ>? RightFrontTop { get; set; }
+        public QVariable<TQ>? RightFrontCenter { get; set; }
+        public QVariable<TQ>? RightFrontBottom { get; set; }
+
+        public QVariable<TQ>? RightCenterTop { get; set; }
+        public QVariable<TQ>? RightCenterCenter { get; set; }
+        public QVariable<TQ>? RightCenterBottom { get; set; }
+
+        public QVariable<TQ>? RightBackTop { get; set; }
+        public QVariable<TQ>? RightBackCenter { get; set; }
+        public QVariable<TQ>? RightBackBottom { get; set; }
 
         public QVariable<TQ>[] ToArray()
         {
@@ -49,32 +56,43 @@ namespace qon.Functions.Filters
                 }
             }
 
-            Add(Left);
-            Add(Right);
-            Add(Front);
-            Add(Back);
-            Add(Top);
-            Add(Bottom);
-            Add(FrontLeft);
-            Add(FrontRight);
-            Add(BackLeft);
-            Add(BackRight);
-            Add(TopLeft);
-            Add(TopRight);
-            Add(TopFront);
-            Add(TopBack);
-            Add(TopFrontLeft);
-            Add(TopFrontRight);
-            Add(TopBackLeft);
-            Add(TopBackRight);
-            Add(BottomLeft);
-            Add(BottomRight);
-            Add(BottomFront);
-            Add(BottomBack);
-            Add(BottomFrontLeft);
-            Add(BottomFrontRight);
-            Add(BottomBackLeft);
-            Add(BottomBackRight);
+            //Left
+            Add(LeftFrontTop);
+            Add(LeftFrontCenter);
+            Add(LeftFrontBottom);
+
+            Add(LeftCenterTop);
+            Add(LeftCenterCenter);
+            Add(LeftCenterBottom);
+
+            Add(LeftBackTop);
+            Add(LeftBackCenter);
+            Add(LeftBackBottom);
+
+            //Center
+            Add(CenterFrontTop);
+            Add(CenterFrontCenter);
+            Add(CenterFrontBottom);
+
+            Add(CenterCenterTop);
+            Add(CenterCenterBottom);
+
+            Add(CenterBackTop);
+            Add(CenterBackCenter);
+            Add(CenterBackBottom);
+
+            //Right
+            Add(RightFrontTop);
+            Add(RightFrontCenter);
+            Add(RightFrontBottom);
+
+            Add(RightCenterTop);
+            Add(RightCenterCenter);
+            Add(RightCenterBottom);
+
+            Add(RightBackTop);
+            Add(RightBackCenter);
+            Add(RightBackBottom);
 
             return neighbors.ToArray();
         }
@@ -85,10 +103,9 @@ namespace qon.Functions.Filters
         public MooreParameter<TQ> ApplyTo(QVariable<TQ> input)
         {
             var layer = EuclideanLayer<TQ>.With(input);
-            ExceptionHelper.ThrowIfFieldIsNull(layer, nameof(layer));
-            ExceptionHelper.ThrowIfFieldIsNull(layer.Machine, nameof(layer.Machine));
 
             var machine = layer.Machine;
+
             var stateLayer = EuclideanStateLayer<TQ>.With(machine.State);
 
             QVariable<TQ>? GetNeighbor(int dx, int dy, int dz)
@@ -98,32 +115,43 @@ namespace qon.Functions.Filters
 
             MooreParameter<TQ> result = new()
             {
-                Left = GetNeighbor(-1, 0, 0),
-                Right = GetNeighbor(1, 0, 0),
-                Front = GetNeighbor(0, -1, 0),
-                Back = GetNeighbor(0, 1, 0),
-                Top = GetNeighbor(0, 0, 1),
-                Bottom = GetNeighbor(0, 0, -1),
-                FrontLeft = GetNeighbor(-1, -1, 0),
-                FrontRight = GetNeighbor(1, -1, 0),
-                BackLeft = GetNeighbor(-1, 1, 0),
-                BackRight = GetNeighbor(1, 1, 0),
-                TopLeft = GetNeighbor(-1, 0, 1),
-                TopRight = GetNeighbor(1, 0, 1),
-                TopFront = GetNeighbor(0, -1, 1),
-                TopBack = GetNeighbor(0, 1, 1),
-                TopFrontLeft = GetNeighbor(-1, -1, 1),
-                TopFrontRight = GetNeighbor(1, -1, 1),
-                TopBackLeft = GetNeighbor(-1, 1, 1),
-                TopBackRight = GetNeighbor(1, 1, 1),
-                BottomLeft = GetNeighbor(-1, 0, -1),
-                BottomRight = GetNeighbor(1, 0, -1),
-                BottomFront = GetNeighbor(0, -1, -1),
-                BottomBack = GetNeighbor(0, 1, -1),
-                BottomFrontLeft = GetNeighbor(-1, -1, -1),
-                BottomFrontRight = GetNeighbor(1, -1, -1),
-                BottomBackLeft = GetNeighbor(-1, 1, -1),
-                BottomBackRight = GetNeighbor(1, 1, -1)
+                //Left
+                LeftFrontTop = GetNeighbor(-1, -1, 1),
+                LeftFrontCenter = GetNeighbor(-1, -1, 0),
+                LeftFrontBottom = GetNeighbor(-1, -1, -1),
+
+                LeftCenterTop = GetNeighbor(-1, 0, 1),
+                LeftCenterCenter = GetNeighbor(-1, 0, 0),
+                LeftCenterBottom = GetNeighbor(-1, 0, -1),
+
+                LeftBackTop = GetNeighbor(-1, 1, 1),
+                LeftBackCenter = GetNeighbor(-1, 1, 0),
+                LeftBackBottom = GetNeighbor(-1, 1, -1),
+
+                //Center
+                CenterFrontTop = GetNeighbor(0, -1, 1),
+                CenterFrontCenter = GetNeighbor(0, -1, 0),
+                CenterFrontBottom = GetNeighbor(0, -1, -1),
+
+                CenterCenterTop = GetNeighbor(0, 0, 1),
+                CenterCenterBottom = GetNeighbor(0, 0, -1),
+
+                CenterBackTop = GetNeighbor(0, 1, 1),
+                CenterBackCenter = GetNeighbor(0, 1, 0),
+                CenterBackBottom = GetNeighbor(0, 1, -1),
+
+                //Right
+                RightFrontTop = GetNeighbor(1, -1, 1),
+                RightFrontCenter = GetNeighbor(1, -1, 0),
+                RightFrontBottom = GetNeighbor(1, -1, -1),
+
+                RightCenterTop = GetNeighbor(1, 0, 1),
+                RightCenterCenter = GetNeighbor(1, 0, 0),
+                RightCenterBottom = GetNeighbor(1, 0, -1),
+
+                RightBackTop = GetNeighbor(1, 1, 1),
+                RightBackCenter = GetNeighbor(1, 1, 0),
+                RightBackBottom = GetNeighbor(1, 1, -1),
             };
 
             return result;

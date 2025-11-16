@@ -43,7 +43,13 @@ namespace qon.Exceptions
     public class NonExhaustiveExpressionException : InternalLogicException
     {
         public NonExhaustiveExpressionException(Type type, object? obj) : base($"Value {obj} of {type} was not handled") { }
-        public NonExhaustiveExpressionException(object? obj) : base($"Value {obj} of {obj?.GetType()} was not handled") { }
+        public NonExhaustiveExpressionException(object obj) : base($"Value {obj} of {obj?.GetType()} was not handled") { }
         public NonExhaustiveExpressionException(string message) : base(message) { }
+    }
+
+    public class ValidationException : BaseException
+    {
+        public ValidationException(string message) : base(message) { }
+        public ValidationException(object obj, object funcObj) : base($"Object \"{obj}\" of Type {obj.GetType()} has invalid state according to {funcObj}") { }
     }
 }
