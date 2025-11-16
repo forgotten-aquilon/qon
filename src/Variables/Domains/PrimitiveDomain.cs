@@ -16,7 +16,7 @@ namespace qon.Variables.Domains
             Domain = domain;
         }
 
-        #region IDomain<T>
+        #region IDomain<TQ>
 
         public int Size()
         {
@@ -79,7 +79,7 @@ namespace qon.Variables.Domains
 
         #endregion
 
-        #region ICopy<IDomain<T>>
+        #region ICopy<IDomain<TQ>>
 
         public IDomain<TQ> Copy()
         {

@@ -8,7 +8,7 @@ namespace qon.Functions.Filters
     public static class EuclideanFilters
     {
 
-        //TODO: Rewrite with EuclideanLayer<T>
+        //TODO: Rewrite with EuclideanLayer<TQ>
         public static Func<QVariable<TQ>, QPredicate<TQ>> SelectRegion<TQ>((int x, int y, int z) l1, (int x, int y, int z) l2) where TQ : notnull
         {
             return referenceVar =>

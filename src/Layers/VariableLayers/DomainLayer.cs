@@ -126,7 +126,7 @@ namespace qon.Layers.VariableLayers
             Domain = domain;
         }
 
-        #region Overrides of BaseLayer<T,DomainLayer<T>,QVariable<T>>
+        #region Overrides of BaseLayer<TQ,DomainLayer<TQ>,QVariable<TQ>>
 
         public override ILayer<TQ, QVariable<TQ>> Copy()
         {

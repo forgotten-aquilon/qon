@@ -17,14 +17,14 @@ namespace qon.Functions.Constraints
         Bottom = 1,
     }
 
-    public class EuclideanConstraintParameter<T>
+    public class EuclideanConstraintParameter<TQ> where TQ : notnull
     {
-        public HashSet<T> Left { get; set; } = new();
-        public HashSet<T> Right { get; set; } = new();
-        public HashSet<T> Front { get; set; } = new();
-        public HashSet<T> Back { get; set; } = new();
-        public HashSet<T> Top { get; set; } = new();
-        public HashSet<T> Bottom { get; set; } = new();
+        public HashSet<TQ> Left { get; set; } = new();
+        public HashSet<TQ> Right { get; set; } = new();
+        public HashSet<TQ> Front { get; set; } = new();
+        public HashSet<TQ> Back { get; set; } = new();
+        public HashSet<TQ> Top { get; set; } = new();
+        public HashSet<TQ> Bottom { get; set; } = new();
 
         public EuclideanConstraintParameter()
         {
@@ -36,7 +36,7 @@ namespace qon.Functions.Constraints
             Bottom = new();
         }
 
-        public HashSet<T> this[Side side]
+        public HashSet<TQ> this[Side side]
         {
             get => side switch
             {
@@ -48,7 +48,7 @@ namespace qon.Functions.Constraints
             };
         }
 
-        public HashSet<T> this[Slab side]
+        public HashSet<TQ> this[Slab side]
         {
             get => side switch
             {

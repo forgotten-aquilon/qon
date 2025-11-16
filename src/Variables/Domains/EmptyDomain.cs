@@ -5,14 +5,12 @@ using qon.Helpers;
 
 namespace qon.Variables.Domains
 {
-#pragma warning disable CS8714
-
-    public class EmptyDomain<T> : IDomain<T>
+    public class EmptyDomain<TQ> : IDomain<TQ> where TQ : notnull
     {
-        public static EmptyDomain<T> Instance => Lazy.Value;
+        public static EmptyDomain<TQ> Instance => Lazy.Value;
 
-        private static readonly Lazy<EmptyDomain<T>> Lazy =
-            new(() => new EmptyDomain<T>());
+        private static readonly Lazy<EmptyDomain<TQ>> Lazy =
+            new(() => new EmptyDomain<TQ>());
 
         private EmptyDomain()
         {
@@ -28,17 +26,17 @@ namespace qon.Variables.Domains
             return true;
         }
 
-        public bool ContainsValue(T value)
+        public bool ContainsValue(TQ value)
         {
             throw new InternalLogicException("Should never be called");
         }
 
-        public int Remove(T item)
+        public int Remove(TQ item)
         {
             throw new InternalLogicException("Should never be called");
         }
 
-        public int Remove(IEnumerable<T> items)
+        public int Remove(IEnumerable<TQ> items)
         {
             throw new InternalLogicException("Should never be called");
         }
@@ -53,22 +51,22 @@ namespace qon.Variables.Domains
             throw new InternalLogicException("Should never be called");
         }
 
-        public T GetRandomValue(Random random)
+        public TQ GetRandomValue(Random random)
         {
             throw new InternalLogicException("Should never be called");
         }
 
-        public Optional<T> SingleOrEmptyValue()
+        public Optional<TQ> SingleOrEmptyValue()
         {
             throw new InternalLogicException("Should never be called");
         }
 
-        public IDomain<T> Copy()
+        public IDomain<TQ> Copy()
         {
             return Instance;
         }
 
-        public IEnumerable<T> GetValues()
+        public IEnumerable<TQ> GetValues()
         {
             throw new InternalLogicException("Should never be called");
         }

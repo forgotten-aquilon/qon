@@ -84,7 +84,7 @@ namespace qon.Variables.Domains
         public override string ToString() => $"[{Start}..{End}]";
     }
 
-    public class NumericalDomain<TQ> : IWeightedDomain<TQ> where TQ : notnull //TODO: Refactor this shit with INumber<T> as soon as available in Unity3D
+    public class NumericalDomain<TQ> : IWeightedDomain<TQ> where TQ : notnull //TODO: Refactor this shit with INumber<TQ> as soon as available in Unity3D
     {
         private static readonly IComparer<TQ> Comparer = Comparer<TQ>.Default;
 
@@ -129,7 +129,7 @@ namespace qon.Variables.Domains
             Domain = intervals.Select(x => x).ToList();
         }
 
-        #region IDomain<T> interface
+        #region IDomain<TQ> interface
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Size()
