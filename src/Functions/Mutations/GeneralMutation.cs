@@ -11,14 +11,14 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class GeneralMutation<T>
+    public class GeneralMutation<TQ> where TQ : notnull
     {
-        private readonly QPredicate<T> _filter;
+        private readonly QPredicate<TQ> _filter;
         private readonly int _sampling = 1;
         private readonly double _frequency = 1.0;
-        private readonly VariableMutation<T> _mutationFunction;
+        private readonly VariableMutation<TQ> _mutationFunction;
 
-        public GeneralMutation(QPredicate<T> filter, int sampling, double frequency, VariableMutation<T> implementation)
+        public GeneralMutation(QPredicate<TQ> filter, int sampling, double frequency, VariableMutation<TQ> implementation)
         {
             _filter = filter;
             _sampling = sampling;
@@ -26,13 +26,13 @@ namespace qon.Functions.Mutations
             _mutationFunction = implementation;
         }
 
-        public List<Field<T>> Execute(Field<T> field, QMachine<T>? machine = null)
+        public List<Field<TQ>> Execute(Field<TQ> field, QMachine<TQ>? machine = null)
         {
-            List<Field<T>> samples = new List<Field<T>>();
+            List<Field<TQ>> samples = new List<Field<TQ>>();
 
             for (int i = 0; i < _sampling; i++)
             {
-                Field<T> sample = field.Copy();
+                Field<TQ> sample = field.Copy();
 
                 foreach (var variable in sample)
                 {

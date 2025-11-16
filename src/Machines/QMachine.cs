@@ -22,16 +22,16 @@ namespace qon.Machines
         Error
     }
 
-    public class States<T> : IEnumerable<MachineState<T>>
+    public class States<TQ> : IEnumerable<MachineState<TQ>> where TQ : notnull
     {
-        private readonly QMachine<T> _machine;
+        private readonly QMachine<TQ> _machine;
 
-        public States(QMachine<T> machine)
+        public States(QMachine<TQ> machine)
         {
             _machine = machine;
         }
 
-        public IEnumerator<MachineState<T>> GetEnumerator()
+        public IEnumerator<MachineState<TQ>> GetEnumerator()
         {
             return _machine.Solver;
         }
@@ -42,34 +42,34 @@ namespace qon.Machines
         }
     }
 
-    public class QMachine<T>
+    public class QMachine<TQ> where TQ : notnull
     {
         protected Dictionary<string, int> _namedIndexer { get; set; } = new Dictionary<string, int>();
         protected Dictionary<Guid, int> _guidIndexer { get; set; } = new Dictionary<Guid, int>();
         public IReadOnlyDictionary<string, int> NamedIndexer => _namedIndexer;
         public IReadOnlyDictionary<Guid, int> GuidIndexer => _guidIndexer;
 
-        public ISolver<T> Solver { get; protected set; }
+        public ISolver<TQ> Solver { get; protected set; }
 
-        public States<T> States { get; protected set; }
+        public States<TQ> States { get; protected set; }
 
-        public MachineState<T> State { get; protected set; }
+        public MachineState<TQ> State { get; protected set; }
 
         public MachineStateType StateType {  get; set; }
 
         public Random Random { get; }
 
-        public QVariable<T> this[string name] => State.Field[name];
+        public QVariable<TQ> this[string name] => State.Field[name];
 
-        public QVariable<T> this[Guid id] => State.Field[id];
+        public QVariable<TQ> this[Guid id] => State.Field[id];
 
         //TODO: remove factory
-        public QMachine(QMachineParameter<T> parameter)
+        public QMachine(QMachineParameter<TQ> parameter)
         {
-            State = new MachineState<T>(this);
+            State = new MachineState<TQ>(this);
             StateType = MachineStateType.Created;
             Solver = parameter.SolverInjection(this);
-            States = new States<T>(this);
+            States = new States<TQ>(this);
             Random = parameter.Random;
 
             if (parameter.Field is not null)
@@ -78,7 +78,7 @@ namespace qon.Machines
             }
         }
 
-        public void SetField(IEnumerable<QVariable<T>> field)
+        public void SetField(IEnumerable<QVariable<TQ>> field)
         {
             State.SetField(field.ToArray());
 
@@ -95,46 +95,46 @@ namespace qon.Machines
             StateType = MachineStateType.Ready;
         }
 
-        public void SetState(MachineState<T> state)
+        public void SetState(MachineState<TQ> state)
         {
             State = state;
         }
 
-        public void GenerateField(IDomain<T> d, int count)
+        public void GenerateField(IDomain<TQ> d, int count)
         {
-            var field = new List<QVariable<T>>();
+            var field = new List<QVariable<TQ>>();
             for (int i = 0; i < count; i++)
             {
-                var variable = new QVariable<T>(string.Empty);
-                DomainLayer<T>.GetOrCreate(variable).AssignDomain(d);
-                DomainLayer<T>.GetOrCreate(variable).AssignDomain(d);
+                var variable = new QVariable<TQ>(string.Empty);
+                DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
+                DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
             SetField(field);
         }
 
-        public void GenerateField(IDomain<T> d, IEnumerable<string> names)
+        public void GenerateField(IDomain<TQ> d, IEnumerable<string> names)
         {
-            var field = new List<QVariable<T>>();
+            var field = new List<QVariable<TQ>>();
             foreach (var name in names)
             {
-                var variable = new QVariable<T>(name);
-                DomainLayer<T>.GetOrCreate(variable).AssignDomain(d);
+                var variable = new QVariable<TQ>(name);
+                DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(d);
                 field.Add(variable);
             }
             SetField(field);
         }
 
-        public void GenerateField(IDomain<T> domain, (int x, int y, int z) dimensions, Optional<T> defaultValue = new Optional<T>())
+        public void GenerateField(IDomain<TQ> domain, (int x, int y, int z) dimensions, Optional<TQ> defaultValue = new Optional<TQ>())
         {
-            List<QVariable<T>> variables = new();
+            List<QVariable<TQ>> variables = new();
 
             if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
             {
                 throw new InternalLogicException("Dimension can't be a non-positive number");
             }
 
-            var layer = EuclideanStateLayer<T>.GetOrCreate(State);
+            var layer = EuclideanStateLayer<TQ>.GetOrCreate(State);
             layer.FieldGrid = new string[dimensions.x, dimensions.y, dimensions.z];
 
             for (int x = 0; x < dimensions.x; x++)
@@ -144,15 +144,15 @@ namespace qon.Machines
                     for (int z = 0; z < dimensions.z; z++)
                     {
                         string name = $"{x}x{y}x{z}";
-                        var v = new QVariable<T>(name);
-                        DomainLayer<T>.GetOrCreate(v).AssignDomain(domain);
-                        EuclideanLayer<T>.GetOrCreate(v).Update(x, y, z);
+                        var v = new QVariable<TQ>(name);
+                        DomainLayer<TQ>.GetOrCreate(v).AssignDomain(domain);
+                        EuclideanLayer<TQ>.GetOrCreate(v).Update(x, y, z);
 
                         layer.FieldGrid[x, y, z] = name;
 
                         if (defaultValue.HasValue)
                         {
-                            DomainLayer<T>.With(v).Collapse(defaultValue.Value, true);
+                            DomainLayer<TQ>.With(v).Collapse(defaultValue.Value, true);
                         }
 
                         variables.Add(v);

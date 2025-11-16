@@ -7,23 +7,23 @@ using qon.Variables;
 
 namespace qon.Functions.Constraints
 {
-    public class Constraint<T> : ConstraintBase<T>
+    public class Constraint<TQ> : ConstraintBase<TQ> where TQ : notnull
     {
-        protected Propagator<T> Propagator { get; set; }
+        protected Propagator<TQ> Propagator { get; set; }
 
-        public Constraint(Filter<T> grouping,
-            Propagator<T> method) : base(grouping)
+        public Constraint(Filter<TQ> grouping,
+            Propagator<TQ> method) : base(grouping)
         {
             Propagator = method;
         }
 
-        public Constraint(QPredicate<T> selecting,
-            Propagator<T> method) : base(selecting)
+        public Constraint(QPredicate<TQ> selecting,
+            Propagator<TQ> method) : base(selecting)
         {
             Propagator = method;
         }
 
-        public override Result Execute(Field<T> field, QMachine<T>? machine)
+        public override Result Execute(Field<TQ> field, QMachine<TQ>? machine)
         {
             switch (FilteringType)
             {

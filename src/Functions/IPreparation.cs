@@ -4,8 +4,8 @@ using qon.Variables;
 
 namespace qon.Functions
 {
-    public interface IPreparation<T>
+    public interface IPreparation<TQ> where TQ : notnull
     {
-        public Result Execute(Field<T> field, QMachine<T>? machine = null);
+        public Result Execute(Field<TQ> field, QMachine<TQ>? machine = null);
     }
 }

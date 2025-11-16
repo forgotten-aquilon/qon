@@ -14,10 +14,10 @@ namespace qon.Variables.Domains
         Decrement,
     }
 
-    public struct Interval<T>
+    public struct Interval<TQ> where TQ : notnull
     {
-        public T Start { get; set; }
-        public T End { get; set; }
+        public TQ Start { get; set; }
+        public TQ End { get; set; }
 
         public UInt64 Length
         {
@@ -59,24 +59,24 @@ namespace qon.Variables.Domains
             }
         }
 
-        public Interval(T start, T end)
+        public Interval(TQ start, TQ end)
         {
             Start = start;
             End = end;
         }
 
-        public Interval((T minValue, T maxValue) value) : this(value.minValue, value.maxValue)
+        public Interval((TQ minValue, TQ maxValue) value) : this(value.minValue, value.maxValue)
         {
         }
 
-        public bool ContainsValue(T value)
+        public bool ContainsValue(TQ value)
         {
-            if (NumericalDomain<T>.Compare(Start, End) == 0 && NumericalDomain<T>.Compare(Start, value) == 0)
+            if (NumericalDomain<TQ>.Compare(Start, End) == 0 && NumericalDomain<TQ>.Compare(Start, value) == 0)
                 return true;
 
-            var leftCheck = NumericalDomain<T>.Compare(Start, value);
+            var leftCheck = NumericalDomain<TQ>.Compare(Start, value);
 
-            var rightCheck = NumericalDomain<T>.Compare(End, value);
+            var rightCheck = NumericalDomain<TQ>.Compare(End, value);
 
             return rightCheck > leftCheck;
         }
@@ -84,22 +84,22 @@ namespace qon.Variables.Domains
         public override string ToString() => $"[{Start}..{End}]";
     }
 
-    public class NumericalDomain<T> : IWeightedDomain<T> //TODO: Refactor this shit with INumber<T> as soon as available in Unity3D
+    public class NumericalDomain<TQ> : IWeightedDomain<TQ> where TQ : notnull //TODO: Refactor this shit with INumber<T> as soon as available in Unity3D
     {
-        private static readonly IComparer<T> Comparer = Comparer<T>.Default;
+        private static readonly IComparer<TQ> Comparer = Comparer<TQ>.Default;
 
         private readonly bool _isSigned = true;
-        private readonly Type _type = typeof(T);
+        private readonly Type _type = typeof(TQ);
 
-        public readonly List<Interval<T>> Domain = new();
+        public readonly List<Interval<TQ>> Domain = new();
 
         public NumericalDomain()
         {
-            TypeCode typeCode = Type.GetTypeCode(typeof(T));
+            TypeCode typeCode = Type.GetTypeCode(typeof(TQ));
 
             if (typeCode is < TypeCode.Boolean or > TypeCode.UInt64)
             {
-                throw new InternalLogicException($"{typeof(T)} should be bool or integer");
+                throw new InternalLogicException($"{typeof(TQ)} should be bool or integer");
             }
 
             //Typecodes of unsigned numerical types
@@ -108,16 +108,16 @@ namespace qon.Variables.Domains
                 _isSigned = false;
             }
 
-            Domain.Add(new Interval<T>(GetLimits()));
+            Domain.Add(new Interval<TQ>(GetLimits()));
         }
 
-        public NumericalDomain(IEnumerable<Interval<T>> intervals)
+        public NumericalDomain(IEnumerable<Interval<TQ>> intervals)
         {
-            TypeCode typeCode = Type.GetTypeCode(typeof(T));
+            TypeCode typeCode = Type.GetTypeCode(typeof(TQ));
 
             if (typeCode is < TypeCode.Boolean or > TypeCode.UInt64)
             {
-                throw new InternalLogicException($"{typeof(T)} should be bool or integer");
+                throw new InternalLogicException($"{typeof(TQ)} should be bool or integer");
             }
 
             //Typecodes of unsigned numerical types
@@ -174,13 +174,13 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ContainsValue(T value)
+        public bool ContainsValue(TQ value)
         {
             return GetItemIndex(value) > -1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Remove(T item)
+        public int Remove(TQ item)
         {
             int position = GetItemIndex(item);
 
@@ -189,7 +189,7 @@ namespace qon.Variables.Domains
                 return 0;
             }
 
-            Interval<T> interval = Domain[position];
+            Interval<TQ> interval = Domain[position];
 
             if (Compare(interval.Start, interval.End) == 0)
             {
@@ -207,8 +207,8 @@ namespace qon.Variables.Domains
             }
             else
             {
-                var leftInterval = new Interval<T>(interval.Start, UnaryOperation(item, Operation.Decrement));
-                var rightInterval = new Interval<T>(UnaryOperation(item, Operation.Increment), interval.End);
+                var leftInterval = new Interval<TQ>(interval.Start, UnaryOperation(item, Operation.Decrement));
+                var rightInterval = new Interval<TQ>(UnaryOperation(item, Operation.Increment), interval.End);
                 Domain[position] = leftInterval;
                 Domain.Insert(position + 1, rightInterval);
             }
@@ -217,7 +217,7 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Remove(IEnumerable<T> items)
+        public int Remove(IEnumerable<TQ> items)
         {
             int changeCount = 0;
 
@@ -244,7 +244,7 @@ namespace qon.Variables.Domains
 
         //TODO: C# 10 supports random long
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetRandomValue(Random random)
+        public TQ GetRandomValue(Random random)
         {
             UInt64 topProbabilityLimit = TrueSize();
 
@@ -271,26 +271,26 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Optional<T> SingleOrEmptyValue()
+        public Optional<TQ> SingleOrEmptyValue()
         {
             if (Size() == 1)
             {
-                return new Optional<T>(Domain[0].Start);
+                return new Optional<TQ>(Domain[0].Start);
             }
 
-            return Optional<T>.Empty;
+            return Optional<TQ>.Empty;
         }
 
-        public IDomain<T> Copy()
+        public IDomain<TQ> Copy()
         {
-            return new NumericalDomain<T>(Domain);
+            return new NumericalDomain<TQ>(Domain);
         }
 
-        public IEnumerable<T> GetValues()
+        public IEnumerable<TQ> GetValues()
         {
             foreach (var r in Domain)
             {
-                for (T x = r.Start;; x = UnaryOperation(x, Operation.Increment))
+                for (TQ x = r.Start;; x = UnaryOperation(x, Operation.Increment))
                 {
                     yield return x;
                     if (Compare(x, r.End) == 0)
@@ -299,13 +299,13 @@ namespace qon.Variables.Domains
             }
         }
 
-        public IEnumerable<KeyValuePair<T, int>> GetValuesWithWeights()
+        public IEnumerable<KeyValuePair<TQ, int>> GetValuesWithWeights()
         {
             foreach (var r in Domain)
             {
-                for (T x = r.Start;; x = UnaryOperation(x, Operation.Increment))
+                for (TQ x = r.Start;; x = UnaryOperation(x, Operation.Increment))
                 {
-                    yield return new KeyValuePair<T, int>(x, 1);
+                    yield return new KeyValuePair<TQ, int>(x, 1);
                     if (Compare(x, r.End) == 0)
                         break;
                 }
@@ -327,18 +327,18 @@ namespace qon.Variables.Domains
         #region Helpers
 
         //TODO: Holy fuck, redo this shit, when will be able to work with generic math via INumber<T>
-        private static (T minValue, T maxValue) GetLimits()
+        private static (TQ minValue, TQ maxValue) GetLimits()
         {
-            var innerType = typeof(T);
+            var innerType = typeof(TQ);
             var minField = innerType.GetField("MinValue", BindingFlags.Public | BindingFlags.Static);
             var maxField = innerType.GetField("MaxValue", BindingFlags.Public | BindingFlags.Static);
 
             if (minField is not null && maxField is not null)
             {
-                return ((T)minField.GetValue(null)!, (T)maxField.GetValue(null)!);
+                return ((TQ)minField.GetValue(null)!, (TQ)maxField.GetValue(null)!);
             }
 
-            throw new InternalLogicException($"{typeof(T)} does not support MinValue and MaxValue fields");
+            throw new InternalLogicException($"{typeof(TQ)} does not support MinValue and MaxValue fields");
         }
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace qon.Variables.Domains
         /// <param name="value"></param>
         /// <returns>-1 if there is no interval with such value, returns index of interval from _intervals collection</returns>
         /// <exception cref="InternalNullException"></exception>
-        private int GetItemIndex(T value)
+        private int GetItemIndex(TQ value)
         {
             if (IsEmpty())
             {
@@ -383,15 +383,15 @@ namespace qon.Variables.Domains
             }
         }
 
-        private T UnaryOperation(T value, Operation operation, UInt64 operand = 1)
+        private TQ UnaryOperation(TQ value, Operation operation, UInt64 operand = 1)
         {
             if (_isSigned)
             {
                 Int64 number = Convert.ToInt64(value);
                 return operation switch
                 {
-                    Operation.Increment => (T)Convert.ChangeType(number + (Int64)operand, _type),
-                    Operation.Decrement => (T)Convert.ChangeType(number - (Int64)operand, _type),
+                    Operation.Increment => (TQ)Convert.ChangeType(number + (Int64)operand, _type),
+                    Operation.Decrement => (TQ)Convert.ChangeType(number - (Int64)operand, _type),
                     _ => throw new NonExhaustiveExpressionException(operation)
                 };
             }
@@ -400,8 +400,8 @@ namespace qon.Variables.Domains
                 UInt64 number = Convert.ToUInt64(value);
                 return operation switch
                 {
-                    Operation.Increment => (T)Convert.ChangeType(number + operand, _type),
-                    Operation.Decrement => (T)Convert.ChangeType(number - operand, _type),
+                    Operation.Increment => (TQ)Convert.ChangeType(number + operand, _type),
+                    Operation.Decrement => (TQ)Convert.ChangeType(number - operand, _type),
                     _ => throw new NonExhaustiveExpressionException(operation)
                 };
             }
@@ -418,17 +418,17 @@ namespace qon.Variables.Domains
             return Domain.Select(x => x.Length).Aggregate((a, b) => a + b);
         }
 
-        public static int Compare(T leftObject, T rightObject)
+        public static int Compare(TQ leftObject, TQ rightObject)
         {
             return Comparer.Compare(leftObject, rightObject);
         }
 
-        public static T Min(T obj1, T obj2)
+        public static TQ Min(TQ obj1, TQ obj2)
         {
             return (Compare(obj1, obj2) < 0) ? obj1 : obj2;
         }
 
-        public static T Max(T obj1, T obj2)
+        public static TQ Max(TQ obj1, TQ obj2)
         {
             return (Compare(obj1, obj2) > 0) ? obj1 : obj2;
         }

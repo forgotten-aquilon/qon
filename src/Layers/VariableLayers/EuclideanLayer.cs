@@ -4,7 +4,7 @@ using qon.Variables;
 
 namespace qon.Layers.VariableLayers
 {
-    public class EuclideanLayer<T> : BaseLayer<T, EuclideanLayer<T>, QVariable<T>>, ILayer<T, QVariable<T>>
+    public class EuclideanLayer<TQ> : BaseLayer<TQ, EuclideanLayer<TQ>, QVariable<TQ>>, ILayer<TQ, QVariable<TQ>> where TQ : notnull
     {
         public int X { get; set; }
         public int Y { get; set; }
@@ -31,16 +31,16 @@ namespace qon.Layers.VariableLayers
             Z = z;
         }
 
-        ILayer<T, QVariable<T>> ICopy<ILayer<T, QVariable<T>>>.Copy()
+        ILayer<TQ, QVariable<TQ>> ICopy<ILayer<TQ, QVariable<TQ>>>.Copy()
         {
-            return new EuclideanLayer<T>(X, Y, Z);
+            return new EuclideanLayer<TQ>(X, Y, Z);
         }
 
         #region Overrides of BaseLayer<T,EuclideanLayer<T>,QVariable<T>>
 
-        public override ILayer<T, QVariable<T>> Copy()
+        public override ILayer<TQ, QVariable<TQ>> Copy()
         {
-            return new EuclideanLayer<T>(X, Y, Z);
+            return new EuclideanLayer<TQ>(X, Y, Z);
         }
 
         #endregion

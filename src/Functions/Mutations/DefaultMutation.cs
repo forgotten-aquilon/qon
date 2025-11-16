@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 
 namespace qon.Functions.Mutations
 {
-    public class DefaultMutation<T>
+    public class DefaultMutation<TQ> where TQ : notnull
     {
-        private readonly IReplacer<T> _replacer;
+        private readonly IReplacer<TQ> _replacer;
 
-        public DefaultMutation(IReplacer<T> replacer)
+        public DefaultMutation(IReplacer<TQ> replacer)
         {
             _replacer = replacer;
         }
 
-        public List<Field<T>> Execute(Field<T> field)
+        public List<Field<TQ>> Execute(Field<TQ> field)
         {
             var samples = _replacer.All(field);
 

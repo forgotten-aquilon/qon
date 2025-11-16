@@ -9,16 +9,16 @@ using qon.Variables;
 
 namespace qon.Functions.Constraints
 {
-    public class ConstraintBuilder<T> : IPreparation<T>
+    public class ConstraintBuilder<TQ> : IPreparation<TQ> where TQ : notnull
     {
-        public Func<QVariable<T>[], Result> Constraint { get; }
+        public Func<QVariable<TQ>[], Result> Constraint { get; }
 
-        public ConstraintBuilder(Func<QVariable<T>[], Result> constraint)
+        public ConstraintBuilder(Func<QVariable<TQ>[], Result> constraint)
         {
             Constraint = constraint;
         }
 
-        public Result Execute(Field<T> field, QMachine<T>? machine)
+        public Result Execute(Field<TQ> field, QMachine<TQ>? machine)
         {
             return Constraint(field.Variables);
         }

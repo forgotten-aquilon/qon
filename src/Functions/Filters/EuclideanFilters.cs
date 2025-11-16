@@ -9,13 +9,13 @@ namespace qon.Functions.Filters
     {
 
         //TODO: Rewrite with EuclideanLayer<T>
-        public static Func<QVariable<T>, QPredicate<T>> SelectRegion<T>((int x, int y, int z) l1, (int x, int y, int z) l2)
+        public static Func<QVariable<TQ>, QPredicate<TQ>> SelectRegion<TQ>((int x, int y, int z) l1, (int x, int y, int z) l2) where TQ : notnull
         {
             return referenceVar =>
             {
                 ExceptionHelper.ThrowIfArgumentIsNull(referenceVar, nameof(referenceVar));
 
-                return new QPredicate<T>(candidateVar =>
+                return new QPredicate<TQ>(candidateVar =>
                 {
                     int rx = (int)referenceVar["x"];
                     int ry = (int)referenceVar["y"];
@@ -32,24 +32,24 @@ namespace qon.Functions.Filters
             };
         }
 
-        public static Filter<T> GroupByRectangle<T>(int width, int height)
+        public static Filter<TQ> GroupByRectangle<TQ>(int width, int height) where TQ : notnull
         {
-            return Filters.GroupWith<EuclideanLayer<T>, T>(l => $"{l.X/width}x{l.Y/height}");
+            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => $"{l.X/width}x{l.Y/height}");
         }
 
-        public static Filter<T> GroupByX<T>()
+        public static Filter<TQ> GroupByX<TQ>() where TQ : notnull
         {
-            return Filters.GroupWith<EuclideanLayer<T>, T>(l => l.X);
+            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.X);
         }
 
-        public static Filter<T> GroupByY<T>()
+        public static Filter<TQ> GroupByY<TQ>() where TQ : notnull
         {
-            return Filters.GroupWith<EuclideanLayer<T>, T>(l => l.Y);
+            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.Y);
         }
 
-        public static Filter<T> GroupByZ<T>()
+        public static Filter<TQ> GroupByZ<TQ>() where TQ : notnull
         {
-            return Filters.GroupWith<EuclideanLayer<T>, T>(l => l.Z);
+            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.Z);
         }
     }
 }

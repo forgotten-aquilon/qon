@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace qon.Layers.StateLayers
 {
-    public class EuclideanStateLayer<T> : BaseLayer<T, EuclideanStateLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>
+    public class EuclideanStateLayer<TQ> : BaseLayer<TQ, EuclideanStateLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>> where TQ : notnull
     {
         public string[,,] FieldGrid { get; set; } = new string[0, 0, 0];
 
-        public QVariable<T>? this[(int x, int y, int z) coordinate]
+        public QVariable<TQ>? this[(int x, int y, int z) coordinate]
         {
             get
             {
@@ -30,7 +30,7 @@ namespace qon.Layers.StateLayers
             }
         }
 
-        public override ILayer<T, MachineState<T>> Copy()
+        public override ILayer<TQ, MachineState<TQ>> Copy()
         {
             throw new NotImplementedException();
         }

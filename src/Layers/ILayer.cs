@@ -2,9 +2,11 @@
 
 namespace qon.Layers
 {
-    public interface ILayer<T, THolder> : ICopy<ILayer<T, THolder>> where THolder : ILayerHolder<T, THolder>
+    public interface ILayer<TQ, THolder> : ICopy<ILayer<TQ, THolder>>
+        where TQ : notnull
+        where THolder : ILayerHolder<TQ, THolder>
     {
-        public void UpdateHolder(THolder holder);
+        public void UpdateManager(LayersManager<TQ, THolder> manager);
     }
 }
 

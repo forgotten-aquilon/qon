@@ -14,7 +14,7 @@ namespace qon.Functions.Propagators
 {
     public static class Propagators
     {
-        public static Result AllDistinctPropagator<T>(IEnumerable<QVariable<T>> variables)
+        public static Result AllDistinctPropagator<TQ>(IEnumerable<QVariable<TQ>> variables) where TQ : notnull
         {
             int changes = 0;
 
@@ -32,21 +32,21 @@ namespace qon.Functions.Propagators
 
             foreach (var variable in openVariables)
             {
-                changes += DomainLayer<T>.With(variable).RemoveValues(distinctVariables);
-                changes += ConstraintLayer<T>.TryCollapseVariable(variable).HasValue ? 1 : 0;
+                changes += DomainLayer<TQ>.With(variable).RemoveValues(distinctVariables);
+                changes += ConstraintLayer<TQ>.TryCollapseVariable(variable).HasValue ? 1 : 0;
             }
 
             return Result.Success(changes);
         }
 
-        public static Propagator<T> AllDistinct<T>()
+        public static Propagator<TQ> AllDistinct<TQ>() where TQ : notnull
         {
-            return new Propagator<T>(AllDistinctPropagator);
+            return new Propagator<TQ>(AllDistinctPropagator);
         }
 
-        public static Propagator<T> ReduceDomainTo<T>(HashSet<T> filteringCollection)
+        public static Propagator<TQ> ReduceDomainTo<TQ>(HashSet<TQ> filteringCollection) where TQ : notnull
         {
-            return new Propagator<T>(variables =>
+            return new Propagator<TQ>(variables =>
             {
                 int changes = 0;
 
@@ -57,14 +57,14 @@ namespace qon.Functions.Propagators
                         continue;
                     }
 
-                    int removed = DomainHelper<T>.DomainIntersectionWithHashSet(variable, filteringCollection);
+                    int removed = DomainHelper<TQ>.DomainIntersectionWithHashSet(variable, filteringCollection);
 
-                    if (DomainLayer<T>.With(variable).IsEmpty())
+                    if (DomainLayer<TQ>.With(variable).IsEmpty())
                     {
                         return Result.HasErrors();
                     }
 
-                    if (ConstraintLayer<T>.TryCollapseVariable(variable).HasValue || removed > 0)
+                    if (ConstraintLayer<TQ>.TryCollapseVariable(variable).HasValue || removed > 0)
                     {
                         changes += removed;
                     }
@@ -79,9 +79,9 @@ namespace qon.Functions.Propagators
             return new DefaultPropagator<bool>(value => new Result(value ^ invert, 0));
         }
 
-        public static DefaultPropagator<VonNeumannParameter<T>> FromVonNeumann<T>(EuclideanConstraintParameter<T> param)
+        public static DefaultPropagator<VonNeumannParameter<TQ>> FromVonNeumann<TQ>(EuclideanConstraintParameter<TQ> param) where TQ : notnull
         {
-            return new DefaultPropagator<VonNeumannParameter<T>>(vnp =>
+            return new DefaultPropagator<VonNeumannParameter<TQ>>(vnp =>
             {
                 //TODO optimize
                 int cumulativeChanges = 0;

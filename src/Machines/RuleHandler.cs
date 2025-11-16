@@ -3,9 +3,9 @@ using qon.Functions;
 
 namespace qon.Machines
 {
-    public class RuleHandler<T>
+    public class RuleHandler<TQ> where TQ : notnull
     {
-        public List<IPreparation<T>> GeneralConstraints { get; set; } = new List<IPreparation<T>>();
-        public List<IPreparation<T>>? ValidationConstraints { get; set; } = new List<IPreparation<T>>();
+        public List<IPreparation<TQ>> GeneralConstraints { get; set; } = new List<IPreparation<TQ>>();
+        public List<IPreparation<TQ>>? ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
     }
 }

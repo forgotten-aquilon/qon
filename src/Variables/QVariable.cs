@@ -13,19 +13,19 @@ using qon.Machines;
 
 namespace qon.Variables
 {
-    public class QVariable<T> : ICopy<QVariable<T>>, ILayerHolder<T, QVariable<T>>
+    public class QVariable<TQ> : ICopy<QVariable<TQ>>, ILayerHolder<TQ, QVariable<TQ>> where TQ : notnull
     {
-        private QMachine<T>? _machine;
+        private QMachine<TQ>? _machine;
 
         public Guid Id { get; protected set; } = Guid.NewGuid();
         public string Name { get; protected set; }
         public bool Protected { get; set; } = false;
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
-        public LayersManager<T, QVariable<T>> Layers { get; protected set; }
-        public Optional<T> Value { get; set; } = Optional<T>.Empty;
+        public LayersManager<TQ, QVariable<TQ>> Layers { get; protected set; }
+        public Optional<TQ> Value { get; set; } = Optional<TQ>.Empty;
         public ValueState State { get; set; } = ValueState.Uncertain;
 
-        public QMachine<T> Machine
+        public QMachine<TQ> Machine
         {
             get => ExceptionHelper.ThrowIfInternalValueIsNull(_machine, nameof(Machine));
             set => _machine = value;
@@ -33,7 +33,7 @@ namespace qon.Variables
 
         protected QVariable()
         {
-            Layers = new LayersManager<T, QVariable<T>>(this);
+            Layers = new LayersManager<TQ, QVariable<TQ>>(this);
 
             Name = "";
         }
@@ -41,7 +41,7 @@ namespace qon.Variables
         //TODO Rework with New/Empty
         public QVariable(string name)
         {
-            Layers = new LayersManager<T, QVariable<T>>(this);
+            Layers = new LayersManager<TQ, QVariable<TQ>>(this);
 
             if (string.IsNullOrEmpty(name))
             {
@@ -52,15 +52,15 @@ namespace qon.Variables
             Name = name;
         }
 
-        public QVariable<T> AddProperty(string name, object value)
+        public QVariable<TQ> AddProperty(string name, object value)
         {
             AddNewProperty(name, value);
             return this;
         }
 
-        public QVariable<T> WithValue(T value, ValueState state = ValueState.Constant)
+        public QVariable<TQ> WithValue(TQ value, ValueState state = ValueState.Constant)
         {
-            Value = Optional<T>.Of(value);
+            Value = Optional<TQ>.Of(value);
             State = state;
 
             return this;
@@ -84,21 +84,18 @@ namespace qon.Variables
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual QVariable<T> Copy()
+        public virtual QVariable<TQ> Copy()
         {
-            var result = new QVariable<T>()
+            return new QVariable<TQ>()
             {
                 Id = Id,
                 Name = Name,
                 Properties = new Dictionary<string, object>(Properties),
                 Value = Value,
                 State = State,
-                Machine = Machine
+                Machine = Machine,
+                Layers = { Layers }
             };
-
-            result.Layers = Layers.Copy(result);
-
-            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -125,14 +122,14 @@ namespace qon.Variables
             return $"{Name.ToShortString(5)}:{Value}";
         }
 
-        public static QVariable<T> New()
+        public static QVariable<TQ> New()
         {
-            var newVariable = new QVariable<T>();
+            var newVariable = new QVariable<TQ>();
             newVariable.Name = newVariable.Id.ToString();
             return newVariable;
         }
 
-        public static QVariable<T> New(T value, ValueState state = ValueState.Constant)
+        public static QVariable<TQ> New(TQ value, ValueState state = ValueState.Constant)
         {
             return New().WithValue(value, state);
         }

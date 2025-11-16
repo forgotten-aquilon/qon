@@ -7,11 +7,11 @@ using qon.Helpers;
 
 namespace qon.Variables.Domains
 {
-    public class PrimitiveDomain<T> :IDomain<T>
+    public class PrimitiveDomain<TQ> :IDomain<TQ> where TQ : notnull
     {
-        public HashSet<T> Domain { get; protected set; }
+        public HashSet<TQ> Domain { get; protected set; }
 
-        public PrimitiveDomain(HashSet<T> domain)
+        public PrimitiveDomain(HashSet<TQ> domain)
         {
             Domain = domain;
         }
@@ -28,17 +28,17 @@ namespace qon.Variables.Domains
             return Domain.Count == 0;
         }
 
-        public bool ContainsValue(T value)
+        public bool ContainsValue(TQ value)
         {
             return Domain.Contains(value);
         }
 
-        public int Remove(T item)
+        public int Remove(TQ item)
         {
             return Domain.Remove(item) ? 1 : 0;
         }
 
-        public int Remove(IEnumerable<T> items)
+        public int Remove(IEnumerable<TQ> items)
         {
             int preRemoveCount = Domain.Count;
             Domain.ExceptWith(items);
@@ -57,22 +57,22 @@ namespace qon.Variables.Domains
             return Math.Log(Size(), 2);
         }
 
-        public T GetRandomValue(Random random)
+        public TQ GetRandomValue(Random random)
         {
             return Domain.RandomItem(random);
         }
 
-        public Optional<T> SingleOrEmptyValue()
+        public Optional<TQ> SingleOrEmptyValue()
         {
             if (Size() == 1)
             {
-                return Optional<T>.Of(Domain.First());
+                return Optional<TQ>.Of(Domain.First());
             }
 
-            return Optional<T>.Empty;
+            return Optional<TQ>.Empty;
         }
 
-        public IEnumerable<T> GetValues()
+        public IEnumerable<TQ> GetValues()
         {
             return Domain;
         }
@@ -81,9 +81,9 @@ namespace qon.Variables.Domains
 
         #region ICopy<IDomain<T>>
 
-        public IDomain<T> Copy()
+        public IDomain<TQ> Copy()
         {
-            return new PrimitiveDomain<T>(new HashSet<T>(Domain));
+            return new PrimitiveDomain<TQ>(new HashSet<TQ>(Domain));
         }
 
         #endregion

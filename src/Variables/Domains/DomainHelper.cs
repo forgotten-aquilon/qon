@@ -8,36 +8,37 @@ using System.Runtime.CompilerServices;
 
 namespace qon.Variables.Domains
 {
-    public static class DomainHelper<T>
+    public static class DomainHelper<TQ> where TQ : notnull
     {
-        private static readonly Dictionary<Type, Func<QVariable<T>, IDomain<T>, HashSet<T>, int>> HashSetIntersections = new();
+        private static readonly Dictionary<Type, Func<QVariable<TQ>, IDomain<TQ>, HashSet<TQ>, int>> HashSetIntersections = new();
 
-        public static void RegisterHashSetIntersection<TDomain>(Func<QVariable<T>, TDomain, HashSet<T>, int> handler)
-            where TDomain : IDomain<T>
+        public static void RegisterHashSetIntersection<TDomain>(Func<QVariable<TQ>, TDomain, HashSet<TQ>, int> handler)
+            where TDomain : IDomain<TQ>
             => HashSetIntersections[typeof(TDomain)] = (variable, domain, values) => handler(variable, (TDomain)domain, values);
 
-        public static bool TryGetHashSetIntersection(IDomain<T> domain, [NotNullWhen(true)] out Func<QVariable<T>, IDomain<T>, HashSet<T>, int>? func)
+        public static bool TryGetHashSetIntersection(IDomain<TQ> domain, [NotNullWhen(true)] out Func<QVariable<TQ>, IDomain<TQ>, HashSet<TQ>, int>? func)
             => HashSetIntersections.TryGetValue(domain.GetType(), out func);
 
         static DomainHelper()
         {
-            RegisterHashSetIntersection<DiscreteDomain<T>>(static (_, domain, values) => IntersectDiscreteWithHashSet(domain, values));
-            RegisterHashSetIntersection<NumericalDomain<T>>(IntersectNumericalWithHashSet);
-            RegisterHashSetIntersection<EmptyDomain<T>>(static (_, __, ___) => 0);
-            RegisterHashSetIntersection<PrimitiveDomain<T>>(static (_, domain, values) => IntersectPrimitiveWithHashSet(domain, values));
+            RegisterHashSetIntersection<DiscreteDomain<TQ>>(static (_, domain, values) => IntersectDiscreteWithHashSet(domain, values));
+            RegisterHashSetIntersection<NumericalDomain<TQ>>(IntersectNumericalWithHashSet);
+            RegisterHashSetIntersection<EmptyDomain<TQ>>(static (_, __, ___) => 0);
+            RegisterHashSetIntersection<PrimitiveDomain<TQ>>(static (_, domain, values) => IntersectPrimitiveWithHashSet(domain, values));
         }
 
+        #region Domain intersections with HashSet
 
-        public static int DomainIntersectionWithHashSet(QVariable<T> variable, HashSet<T> values)
+        public static int DomainIntersectionWithHashSet(QVariable<TQ> variable, HashSet<TQ> values)
         {
-            var layer = DomainLayer<T>.With(variable);
+            var layer = DomainLayer<TQ>.With(variable);
             var domain = layer.GetDomain();
 
             var result = TryGetHashSetIntersection(domain, out var handler) 
                 ? handler(variable, domain, values) 
                 : IntersectDefaultWithHashSet(layer, values);
 
-            if (domain is not EmptyDomain<T> && domain.IsEmpty())
+            if (domain is not EmptyDomain<TQ> && domain.IsEmpty())
             {
                 layer.AssignEmptyDomain();
             }
@@ -45,7 +46,7 @@ namespace qon.Variables.Domains
             return result;
         }
 
-        private static int IntersectDiscreteWithHashSet(DiscreteDomain<T> domain, HashSet<T> values)
+        private static int IntersectDiscreteWithHashSet(DiscreteDomain<TQ> domain, HashSet<TQ> values)
         {
             int originalSize = domain.Size();
 
@@ -57,13 +58,10 @@ namespace qon.Variables.Domains
             return Math.Max(0, originalSize - domain.Size());
         }
 
-        private static int IntersectNumericalWithHashSet(QVariable<T> variable, NumericalDomain<T> domain, HashSet<T> values)
+        private static int IntersectNumericalWithHashSet(QVariable<TQ> variable, NumericalDomain<TQ> domain, HashSet<TQ> values)
         {
             int originalSize = domain.Size();
-
-#pragma warning disable CS8714
-            var filtered = new Dictionary<T, int>(values.Comparer);
-#pragma warning restore CS8714
+            var filtered = new Dictionary<TQ, int>(values.Comparer);
 
             foreach (var value in values)
             {
@@ -73,7 +71,7 @@ namespace qon.Variables.Domains
                 }
             }
 
-            var targetLayer = DomainLayer<T>.With(variable);
+            var targetLayer = DomainLayer<TQ>.With(variable);
 
             if (filtered.Count == 0)
             {
@@ -81,13 +79,13 @@ namespace qon.Variables.Domains
             }
             else
             {
-                targetLayer.AssignDomain(new DiscreteDomain<T>(filtered));
+                targetLayer.AssignDomain(new DiscreteDomain<TQ>(filtered));
             }
 
             return originalSize - targetLayer.GetDomain().Size();
         }
 
-        private static int IntersectPrimitiveWithHashSet(PrimitiveDomain<T> domain, HashSet<T> values)
+        private static int IntersectPrimitiveWithHashSet(PrimitiveDomain<TQ> domain, HashSet<TQ> values)
         {
             int originalSize = domain.Size();
             domain.Domain.IntersectWith(values);
@@ -95,11 +93,11 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int IntersectDefaultWithHashSet(DomainLayer<T> layer, HashSet<T> values)
+        private static int IntersectDefaultWithHashSet(DomainLayer<TQ> layer, HashSet<TQ> values)
         {
             var originalDomain = layer.GetDomain();
 
-            if (originalDomain is IWeightedDomain<T> weightedOriginalDomain)
+            if (originalDomain is IWeightedDomain<TQ> weightedOriginalDomain)
             {
                 return IntersectDefaultWeightedDomainWithHashSet(layer, weightedOriginalDomain, values);
             }
@@ -110,7 +108,7 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int IntersectDefaultDomainWithHashSet(DomainLayer<T> layer, IDomain<T> domain, HashSet<T> values)
+        private static int IntersectDefaultDomainWithHashSet(DomainLayer<TQ> layer, IDomain<TQ> domain, HashSet<TQ> values)
         {
             var filtered = domain
                 .GetValues()
@@ -123,9 +121,7 @@ namespace qon.Variables.Domains
             }
             else
             {
-#pragma warning disable CS8714
-                layer.AssignDomain(new DiscreteDomain<T>(filtered.ToDictionary(pair => pair, pair => 1, values.Comparer)));
-#pragma warning restore CS8714
+                layer.AssignDomain(new DiscreteDomain<TQ>(filtered.ToDictionary(pair => pair, pair => 1, values.Comparer)));
             }
 
             int originalSize = domain.Size();
@@ -134,7 +130,7 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int IntersectDefaultWeightedDomainWithHashSet(DomainLayer<T> layer, IWeightedDomain<T> domain, HashSet<T> values)
+        private static int IntersectDefaultWeightedDomainWithHashSet(DomainLayer<TQ> layer, IWeightedDomain<TQ> domain, HashSet<TQ> values)
         {
             var filtered = domain
                 .GetValuesWithWeights()
@@ -147,14 +143,20 @@ namespace qon.Variables.Domains
             }
             else
             {
-#pragma warning disable CS8714
-                layer.AssignDomain(new DiscreteDomain<T>(filtered.ToDictionary(pair => pair.Key, pair => pair.Value, values.Comparer)));
-#pragma warning restore CS8714
+                layer.AssignDomain(new DiscreteDomain<TQ>(filtered.ToDictionary(pair => pair.Key, pair => pair.Value, values.Comparer)));
             }
 
             int originalSize = domain.Size();
 
             return Math.Max(0, originalSize - layer.GetDomain().Size());
         }
+
+        #endregion
+
+        #region MyRegion
+
+        
+
+        #endregion
     }
 }

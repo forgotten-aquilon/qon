@@ -9,29 +9,29 @@ namespace qon.Functions.QSL
 {
     public static class QSL
     {
-        public static QSLConstraintBuilder<T> Constraint<T>()
+        public static QSLConstraintBuilder<TQ> Constraint<TQ>() where TQ : notnull
         {
-            return new QSLConstraintBuilder<T>();
+            return new QSLConstraintBuilder<TQ>();
         }
 
-        public static QSLMutationBuilder<T> Mutation<T>()
+        public static QSLMutationBuilder<TQ> Mutation<TQ>() where TQ : notnull
         {
-            return new QSLMutationBuilder<T>();
+            return new QSLMutationBuilder<TQ>();
         }
 
-        public static Func<QVariable<T>, Result> VonNeumann<T>(EuclideanConstraintParameter<T> parameter)
+        public static Func<QVariable<TQ>, Result> VonNeumann<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull
         {
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
             return variable =>
-                new VonNeumannFilter<T>().ApplyTo(variable)
+                new VonNeumannFilter<TQ>().ApplyTo(variable)
                 + ~Propagators.Propagators.FromVonNeumann(parameter);
         }
 
-        public static Func<QVariable<T>, QPredicate<T>> WithLayer<T, TLayer>(Func<TLayer, QPredicate<T>> predicate)
-            where TLayer : ILayer<T, QVariable<T>>
+        public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull
+            where TLayer : ILayer<TQ, QVariable<TQ>>
         {
-            return RelativeConstraint<T>.WithLayer(predicate);
+            return RelativeConstraint<TQ>.WithLayer(predicate);
         }
     }
 }

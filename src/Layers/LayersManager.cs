@@ -5,13 +5,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using qon.Exceptions;
 using qon.Machines;
+using qon.Variables;
 
 namespace qon.Layers
 {
-    public class LayersManager<T, THolder> : KeyedCollection<Type, ILayer<T, THolder>> where THolder : ILayerHolder<T, THolder>
+    public class LayersManager<TQ, THolder> : KeyedCollection<Type, ILayer<TQ, THolder>>
+        where TQ : notnull
+        where THolder : ILayerHolder<TQ, THolder>
     {
         public THolder Holder { get; private set; }
-        public QMachine<T> Machine => Holder.Machine;
+        public QMachine<TQ> Machine => Holder.Machine;
 
         public LayersManager(THolder holder)
         {
@@ -30,14 +33,14 @@ namespace qon.Layers
             return false;
         }
 
-        public ILayer<T, THolder>? GetLayerOrNull<TLayer>() where TLayer : ILayer<T, THolder>
+        public ILayer<TQ, THolder>? GetLayerOrNull<TLayer>() where TLayer : ILayer<TQ, THolder>
         {
-            TryGetValue(typeof(TLayer), out ILayer<T, THolder>? result);
+            TryGetValue(typeof(TLayer), out ILayer<TQ, THolder>? result);
 
             return result;
         }
 
-        public ILayer<T, THolder> GetLayer<TLayer>() where TLayer : ILayer<T, THolder>
+        public ILayer<TQ, THolder> GetLayer<TLayer>() where TLayer : ILayer<TQ, THolder>
         {
             
             if (TryGetLayer<TLayer>(out var l))
@@ -49,27 +52,12 @@ namespace qon.Layers
             throw new InternalLogicException("");
         }
 
-        protected override Type GetKeyForItem(ILayer<T, THolder> item)
+        protected override Type GetKeyForItem(ILayer<TQ, THolder> item)
         {
             return item.GetType();
         }
 
-        public LayersManager<T, THolder> Copy(THolder newHolder)
-        {
-            var result = new LayersManager<T, THolder>(newHolder);
-
-            foreach (var item in Items)
-            {
-                var newItem = item.Copy();
-                newItem.UpdateHolder(newHolder);
-
-                result.Add(newItem);
-            }
-
-            return result;
-        }
-
-        public TLayer? With<TLayer>() where TLayer : ILayer<T, THolder>
+        public TLayer? With<TLayer>() where TLayer : ILayer<TQ, THolder>
         {
             if (TryGetLayer<TLayer>(out var layer))
             {
@@ -79,11 +67,21 @@ namespace qon.Layers
             return default;
         }
 
-        public IEnumerable<ILayer<T, THolder>> SortedByPriority()
+        public IEnumerable<ILayer<TQ, THolder>> SortedByPriority()
         {
             return Items
                 .OrderBy(layer => (layer as BaseLayer)?.PriorityIndex ?? int.MaxValue)
                 .ToArray();
+        }
+
+        public void Add(LayersManager<TQ, THolder> layers)
+        {
+            foreach (var layer in layers)
+            {
+                var newLayer = layer.Copy();
+                newLayer.UpdateManager(this);
+                this.Add(newLayer);
+            }
         }
     }
 }

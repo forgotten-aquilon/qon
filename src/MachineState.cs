@@ -17,17 +17,17 @@ namespace qon
     /// TODO: Remove this as soon Unity supports recent .NET versions
     /// Or maybe keep, because public API looks much better this way.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class SearchResult<T>
+    /// <typeparam name="TQ"></typeparam>
+    public class SearchResult<TQ> where TQ : notnull
     {
-        public IEnumerable<QVariable<T>> Result { get; set; }
+        public IEnumerable<QVariable<TQ>> Result { get; set; }
 
-        public SearchResult(IEnumerable<QVariable<T>> field)
+        public SearchResult(IEnumerable<QVariable<TQ>> field)
         {
             Result = field;
         }
 
-        public SearchResult<T> this[string name, object value]
+        public SearchResult<TQ> this[string name, object value]
         {
             get
             {
@@ -36,7 +36,7 @@ namespace qon
             }
         }
 
-        public SearchResult<T> this[Func<QVariable<T>, bool> predicate]
+        public SearchResult<TQ> this[Func<QVariable<TQ>, bool> predicate]
         {
             get
             {
@@ -45,51 +45,51 @@ namespace qon
             }
         }
 
-        public static SearchResult<T> Search(IEnumerable<QVariable<T>> variables, string name, object value)
+        public static SearchResult<TQ> Search(IEnumerable<QVariable<TQ>> variables, string name, object value)
         {
             var result = variables.Where(x => object.Equals(x.GetNullOrValueProperty(name), value));
-            return new SearchResult<T>(result);
+            return new SearchResult<TQ>(result);
         }
 
-        public MachineStateQuery<T> AsQuery()
+        public MachineStateQuery<TQ> AsQuery()
         {
-            return new MachineStateQuery<T>(Result);
+            return new MachineStateQuery<TQ>(Result);
         }
 
-        public static SearchResult<T> Search(IEnumerable<QVariable<T>> variables, Func<QVariable<T>, bool> predicate)
+        public static SearchResult<TQ> Search(IEnumerable<QVariable<TQ>> variables, Func<QVariable<TQ>, bool> predicate)
         {
             var result = variables.Where(predicate);
 
-            return new SearchResult<T>(result);
+            return new SearchResult<TQ>(result);
         }
     }
 
-    public class MachineState<T> : ILayerHolder<T, MachineState<T>>
+    public class MachineState<TQ> : ILayerHolder<TQ, MachineState<TQ>> where TQ : notnull
     {
-        public QMachine<T> Machine { get; protected set; }
-        public LayersManager<T, MachineState<T>> Layers { get; set; }
-        public Field<T> Field { get; protected set; }
+        public QMachine<TQ> Machine { get; protected set; }
+        public LayersManager<TQ, MachineState<TQ>> Layers { get; set; }
+        public Field<TQ> Field { get; protected set; }
 
-        public MachineState(QMachine<T> machine)
+        public MachineState(QMachine<TQ> machine)
         {
             Machine = machine;
-            Layers = new LayersManager<T, MachineState<T>>(this);
-            Field = new Field<T>(machine);
+            Layers = new LayersManager<TQ, MachineState<TQ>>(this);
+            Field = new Field<TQ>(machine);
         }
 
-        public MachineState(QMachine<T> machine, QVariable<T>[] field)
+        public MachineState(QMachine<TQ> machine, QVariable<TQ>[] field)
         {
             Machine = machine;
-            Layers = new LayersManager<T, MachineState<T>>(this);
-            Field = new Field<T>(machine, field);
+            Layers = new LayersManager<TQ, MachineState<TQ>>(this);
+            Field = new Field<TQ>(machine, field);
         }
 
-        public void SetField(QVariable<T>[] field)
+        public void SetField(QVariable<TQ>[] field)
         {
             Field.Update(field);
         }
 
-        public SearchResult<T> this[string name, object value]
+        public SearchResult<TQ> this[string name, object value]
         {
             get
             {
@@ -98,7 +98,7 @@ namespace qon
             }
         }
 
-        public SearchResult<T> this[Func<QVariable<T>, bool> predicate]
+        public SearchResult<TQ> this[Func<QVariable<TQ>, bool> predicate]
         {
             get
             {
@@ -107,9 +107,9 @@ namespace qon
             }
         }
 
-        public MachineStateQuery<T> Query()
+        public MachineStateQuery<TQ> Query()
         {
-            return new MachineStateQuery<T>(Field.Variables);
+            return new MachineStateQuery<TQ>(Field.Variables);
         }
 
         public override string ToString()
@@ -117,7 +117,7 @@ namespace qon
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Field.Select(v =>
-                v.State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{DomainLayer<T>.With(v).DescribeDomain()}]");
+                v.State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{DomainLayer<TQ>.With(v).DescribeDomain()}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

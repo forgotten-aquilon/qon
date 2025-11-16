@@ -8,40 +8,40 @@ using System.Collections.Generic;
 namespace qon.Functions.Filters
 {
     //TODO: Update naming
-    public class MooreParameter<T>
+    public class MooreParameter<TQ> where TQ : notnull
     {
-        public QVariable<T>? Left { get; set; }
-        public QVariable<T>? Right { get; set; }
-        public QVariable<T>? Front { get; set; }
-        public QVariable<T>? Back { get; set; }
-        public QVariable<T>? Top { get; set; }
-        public QVariable<T>? Bottom { get; set; }
-        public QVariable<T>? FrontLeft { get; set; }
-        public QVariable<T>? FrontRight { get; set; }
-        public QVariable<T>? BackLeft { get; set; }
-        public QVariable<T>? BackRight { get; set; }
-        public QVariable<T>? TopLeft { get; set; }
-        public QVariable<T>? TopRight { get; set; }
-        public QVariable<T>? TopFront { get; set; }
-        public QVariable<T>? TopBack { get; set; }
-        public QVariable<T>? TopFrontLeft { get; set; }
-        public QVariable<T>? TopFrontRight { get; set; }
-        public QVariable<T>? TopBackLeft { get; set; }
-        public QVariable<T>? TopBackRight { get; set; }
-        public QVariable<T>? BottomLeft { get; set; }
-        public QVariable<T>? BottomRight { get; set; }
-        public QVariable<T>? BottomFront { get; set; }
-        public QVariable<T>? BottomBack { get; set; }
-        public QVariable<T>? BottomFrontLeft { get; set; }
-        public QVariable<T>? BottomFrontRight { get; set; }
-        public QVariable<T>? BottomBackLeft { get; set; }
-        public QVariable<T>? BottomBackRight { get; set; }
+        public QVariable<TQ>? Left { get; set; }
+        public QVariable<TQ>? Right { get; set; }
+        public QVariable<TQ>? Front { get; set; }
+        public QVariable<TQ>? Back { get; set; }
+        public QVariable<TQ>? Top { get; set; }
+        public QVariable<TQ>? Bottom { get; set; }
+        public QVariable<TQ>? FrontLeft { get; set; }
+        public QVariable<TQ>? FrontRight { get; set; }
+        public QVariable<TQ>? BackLeft { get; set; }
+        public QVariable<TQ>? BackRight { get; set; }
+        public QVariable<TQ>? TopLeft { get; set; }
+        public QVariable<TQ>? TopRight { get; set; }
+        public QVariable<TQ>? TopFront { get; set; }
+        public QVariable<TQ>? TopBack { get; set; }
+        public QVariable<TQ>? TopFrontLeft { get; set; }
+        public QVariable<TQ>? TopFrontRight { get; set; }
+        public QVariable<TQ>? TopBackLeft { get; set; }
+        public QVariable<TQ>? TopBackRight { get; set; }
+        public QVariable<TQ>? BottomLeft { get; set; }
+        public QVariable<TQ>? BottomRight { get; set; }
+        public QVariable<TQ>? BottomFront { get; set; }
+        public QVariable<TQ>? BottomBack { get; set; }
+        public QVariable<TQ>? BottomFrontLeft { get; set; }
+        public QVariable<TQ>? BottomFrontRight { get; set; }
+        public QVariable<TQ>? BottomBackLeft { get; set; }
+        public QVariable<TQ>? BottomBackRight { get; set; }
 
-        public QVariable<T>[] ToArray()
+        public QVariable<TQ>[] ToArray()
         {
-            List<QVariable<T>> neighbors = new();
+            List<QVariable<TQ>> neighbors = new();
 
-            void Add(QVariable<T>? neighbor)
+            void Add(QVariable<TQ>? neighbor)
             {
                 if (neighbor != null)
                 {
@@ -80,23 +80,23 @@ namespace qon.Functions.Filters
         }
     }
 
-    public class MooreFilter<T> : IChain<QVariable<T>, MooreParameter<T>>, IChain<QVariable<T>, QVariable<T>[]>
+    public class MooreFilter<TQ> : IChain<QVariable<TQ>, MooreParameter<TQ>>, IChain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
     {
-        public MooreParameter<T> ApplyTo(QVariable<T> input)
+        public MooreParameter<TQ> ApplyTo(QVariable<TQ> input)
         {
-            var layer = EuclideanLayer<T>.With(input);
+            var layer = EuclideanLayer<TQ>.With(input);
             ExceptionHelper.ThrowIfFieldIsNull(layer, nameof(layer));
             ExceptionHelper.ThrowIfFieldIsNull(layer.Machine, nameof(layer.Machine));
 
             var machine = layer.Machine;
-            var stateLayer = EuclideanStateLayer<T>.With(machine.State);
+            var stateLayer = EuclideanStateLayer<TQ>.With(machine.State);
 
-            QVariable<T>? GetNeighbor(int dx, int dy, int dz)
+            QVariable<TQ>? GetNeighbor(int dx, int dy, int dz)
             {
                 return stateLayer[(layer.X + dx, layer.Y + dy, layer.Z + dz)];
             }
 
-            MooreParameter<T> result = new()
+            MooreParameter<TQ> result = new()
             {
                 Left = GetNeighbor(-1, 0, 0),
                 Right = GetNeighbor(1, 0, 0),
@@ -129,7 +129,7 @@ namespace qon.Functions.Filters
             return result;
         }
 
-        QVariable<T>[] IChain<QVariable<T>, QVariable<T>[]>.ApplyTo(QVariable<T> input)
+        QVariable<TQ>[] IChain<QVariable<TQ>, QVariable<TQ>[]>.ApplyTo(QVariable<TQ> input)
         {
             return ApplyTo(input).ToArray();
         }

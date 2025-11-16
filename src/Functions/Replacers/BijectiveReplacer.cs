@@ -8,13 +8,13 @@ using qon.Variables;
 
 namespace qon.Functions.Replacers
 {
-    public class BijectiveReplacer<T> : IReplacer<T>
+    public class BijectiveReplacer<TQ> : IReplacer<TQ> where TQ : notnull
     {
-        private readonly ISearcher<T> _searcher;
-        private readonly IMutator<T> _mutator;
+        private readonly ISearcher<TQ> _searcher;
+        private readonly IMutator<TQ> _mutator;
         private int _size;
 
-        public BijectiveReplacer(ISearcher<T> searcher, IMutator<T> mutator)
+        public BijectiveReplacer(ISearcher<TQ> searcher, IMutator<TQ> mutator)
         {
             _searcher = searcher;
             _mutator = mutator;
@@ -28,10 +28,10 @@ namespace qon.Functions.Replacers
             _size = searcher.SearchDepth;
         }
 
-        public List<Field<T>> All(Field<T> field)
+        public List<Field<TQ>> All(Field<TQ> field)
         {
             var sequences = _searcher.Search(field);
-            List<Field<T>> samples = new();
+            List<Field<TQ>> samples = new();
 
             foreach (var sequence in sequences)
             {

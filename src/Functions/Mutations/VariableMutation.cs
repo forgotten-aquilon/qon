@@ -8,16 +8,16 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class VariableMutation<T>
+    public class VariableMutation<TQ> where TQ : notnull
     {
-        public Action<QVariable<T>> MutationFunction { get; protected set; }
+        public Action<QVariable<TQ>> MutationFunction { get; protected set; } 
 
-        public VariableMutation(Action<QVariable<T>> mutationFunction)
+        public VariableMutation(Action<QVariable<TQ>> mutationFunction)
         {
             MutationFunction = mutationFunction;
         }
 
-        public void Execute(QVariable<T> variable)
+        public void Execute(QVariable<TQ> variable)
         {
             MutationFunction(variable);
         }

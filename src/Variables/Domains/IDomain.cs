@@ -5,17 +5,17 @@ using qon.Helpers;
 namespace qon.Variables.Domains
 {
 #pragma warning disable CS8714
-    public interface IDomain<T> : ICopy<IDomain<T>>
+    public interface IDomain<TQ> : ICopy<IDomain<TQ>> where TQ : notnull
     {
         int Size();
         bool IsEmpty();
-        bool ContainsValue(T value);
-        int Remove(T item);
-        int Remove(IEnumerable<T> items);
+        bool ContainsValue(TQ value);
+        int Remove(TQ item);
+        int Remove(IEnumerable<TQ> items);
         void Clear();
         double GetEntropy();
-        T GetRandomValue(Random random);
-        Optional<T> SingleOrEmptyValue();
-        IEnumerable<T> GetValues();
+        TQ GetRandomValue(Random random);
+        Optional<TQ> SingleOrEmptyValue();
+        IEnumerable<TQ> GetValues();
     }
 }

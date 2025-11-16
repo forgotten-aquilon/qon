@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace qon.Layers.StateLayers
 {
-    public interface IStateLayer<T>
+    public interface IStateLayer<TQ> where TQ : notnull
     {
-        public Result Prepare(Field<T> field);
+        public Result Prepare(Field<TQ> field);
 
-        public bool Validate(Field<T> field);
+        public bool Validate(Field<TQ> field);
 
-        public PreValidationResult PreValidate(Field<T> field);
+        public PreValidationResult PreValidate(Field<TQ> field);
 
-        public void Execute(Field<T>? previousField, Field<T> currentField, Random random);
+        public void Execute(Field<TQ>? previousField, Field<TQ> currentField, Random random);
     }
 }

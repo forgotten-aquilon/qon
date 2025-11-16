@@ -8,18 +8,18 @@ using qon.Layers.VariableLayers;
 
 namespace qon.Functions.Mutations
 {
-    public static class Mutations<T>
+    public static class Mutations<TQ> where TQ : notnull
     {
-        public static VariableMutation<T> RandomFromDomain = new(v =>
+        public static VariableMutation<TQ> RandomFromDomain = new(v =>
         {
-            v.Value = Optional<T>.Of(DomainLayer<T>.With(v).GetRandomValue(v.Machine.Random));
+            v.Value = Optional<TQ>.Of(DomainLayer<TQ>.With(v).GetRandomValue(v.Machine.Random));
         });
 
-        public static VariableMutation<T> ToValue(T value)
+        public static VariableMutation<TQ> ToValue(TQ value)
         {
-            return new VariableMutation<T>(v =>
+            return new VariableMutation<TQ>(v =>
             {
-                v.Value = Optional<T>.Of(value);
+                v.Value = Optional<TQ>.Of(value);
             });
         }
     }

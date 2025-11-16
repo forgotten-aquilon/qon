@@ -73,7 +73,7 @@ namespace qon.Helpers
             return false;
         }
 
-        public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this Field<T>? field)
+        public static bool IsNullOrEmpty<TQ>([NotNullWhen(false)] this Field<TQ>? field) where TQ : notnull
         {
             if (field is null)
             {
@@ -105,16 +105,16 @@ namespace qon.Helpers
 
         #region Functional Extensions
 
-        public static QPredicate<T> Or<T>(this QPredicate<T> left, QPredicate<T> right)
+        public static QPredicate<TQ> Or<TQ>(this QPredicate<TQ> left, QPredicate<TQ> right) where TQ : notnull
         {
             var tempFunc = left.PredicateFunction;
-            return new QPredicate<T>(v => tempFunc(v) || right.PredicateFunction(v));
+            return new QPredicate<TQ>(v => tempFunc(v) || right.PredicateFunction(v));
         }
 
-        public static QPredicate<T> And<T>(this QPredicate<T> left, QPredicate<T> right)
+        public static QPredicate<TQ> And<TQ>(this QPredicate<TQ> left, QPredicate<TQ> right) where TQ : notnull
         {
             var tempFunc = left.PredicateFunction;
-            return new QPredicate<T>(v => tempFunc(v) && right.PredicateFunction(v));
+            return new QPredicate<TQ>(v => tempFunc(v) && right.PredicateFunction(v));
         }
 
         public struct WeakHashSet<T> : IEquatable<WeakHashSet<T>>

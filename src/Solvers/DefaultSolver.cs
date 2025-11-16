@@ -10,24 +10,24 @@ using qon.Machines;
 
 namespace qon.Solvers
 {
-    public class DefaultSolver<T> : ISolver<T>
+    public class DefaultSolver<TQ> : ISolver<TQ> where TQ : notnull
     {
-        public static Func<QMachine<T>, ISolver<T>> Injection => (machine) => new DefaultSolver<T>(machine);
+        public static Func<QMachine<TQ>, ISolver<TQ>> Injection => (machine) => new DefaultSolver<TQ>(machine);
 
         public int StepCounter { get; protected set; } = -1;
         public int BackStepCounter { get; protected set; } = -1;
 
-        public QMachine<T> Machine { get; }
+        public QMachine<TQ> Machine { get; }
 
-        public MachineState<T> Current => Machine.State;
+        public MachineState<TQ> Current => Machine.State;
 
         object IEnumerator.Current => Current;
     
-        private readonly Stack<Field<T>> _solutionStack;
+        private readonly Stack<Field<TQ>> _solutionStack;
 
-        public DefaultSolver(QMachine<T> machine)
+        public DefaultSolver(QMachine<TQ> machine)
         {
-            _solutionStack = new Stack<Field<T>>();
+            _solutionStack = new Stack<Field<TQ>>();
 
             Machine = machine;
         }
@@ -129,7 +129,7 @@ namespace qon.Solvers
 
             foreach (var layer in Current.Layers.SortedByPriority())
             {
-                if (layer is not IStateLayer<T> stateLayer) 
+                if (layer is not IStateLayer<TQ> stateLayer) 
                     continue;
 
                 var result = stateLayer.Prepare(Current.Field);
@@ -149,7 +149,7 @@ namespace qon.Solvers
         {
             foreach (var layer in Current.Layers.SortedByPriority())
             {
-                if (layer is not IStateLayer<T> stateLayer) 
+                if (layer is not IStateLayer<TQ> stateLayer) 
                     continue;
 
                 if (stateLayer.Validate(Current.Field)) 
@@ -167,7 +167,7 @@ namespace qon.Solvers
 
             foreach (var layer in Current.Layers.SortedByPriority())
             {
-                if (layer is not IStateLayer<T> stateLayer)
+                if (layer is not IStateLayer<TQ> stateLayer)
                     continue;
 
                 var layerResult = stateLayer.PreValidate(Current.Field);
@@ -190,7 +190,7 @@ namespace qon.Solvers
         {
             foreach (var layer in Current.Layers.SortedByPriority())
             {
-                if (layer is not IStateLayer<T> stateLayer)
+                if (layer is not IStateLayer<TQ> stateLayer)
                     continue;
 
                 _solutionStack.TryPeek(out var previousField);

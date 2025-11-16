@@ -12,26 +12,26 @@ using qon.Machines;
 
 namespace qon.Functions.Constraints
 {
-    public class RelativeConstraint<T> : IPreparation<T>
+    public class RelativeConstraint<TQ> : IPreparation<TQ> where TQ : notnull
     {
-        protected QPredicate<T> Guard { get; set; }
-        protected Propagator<T> Propagator { get; set; }
-        public Func<QVariable<T>, QPredicate<T>> AggregationFactory { get; set; }
+        protected QPredicate<TQ> Guard { get; set; }
+        protected Propagator<TQ> Propagator { get; set; }
+        public Func<QVariable<TQ>, QPredicate<TQ>> AggregationFactory { get; set; }
 
-        public RelativeConstraint(QPredicate<T> guard, Propagator<T> propagator, Func<QVariable<T>, QPredicate<T>> aggregationFactory)
+        public RelativeConstraint(QPredicate<TQ> guard, Propagator<TQ> propagator, Func<QVariable<TQ>, QPredicate<TQ>> aggregationFactory)
         {
             Guard = guard;
             Propagator = propagator;
             AggregationFactory = aggregationFactory;
         }
 
-        public virtual Result Execute(Field<T> field, QMachine<T>? machine)
+        public virtual Result Execute(Field<TQ> field, QMachine<TQ>? machine)
         {
-            IEnumerable<QVariable<T>>? relativeVariables = field.Where(Guard.ApplyTo);
+            IEnumerable<QVariable<TQ>>? relativeVariables = field.Where(Guard.ApplyTo);
 
-            HashSet<QVariable<T>> aggregation = new();
+            HashSet<QVariable<TQ>> aggregation = new();
 
-            foreach (QVariable<T> relativeVariable in relativeVariables)
+            foreach (QVariable<TQ> relativeVariable in relativeVariables)
             {
                 aggregation.UnionWith(field.Where(AggregationFactory(relativeVariable).ApplyTo));
             }
@@ -39,7 +39,7 @@ namespace qon.Functions.Constraints
             return Propagator.ApplyTo(aggregation);
         }
 
-        public static Func<QVariable<T>, QPredicate<T>> WithLayer<TLayer>(Func<TLayer, QPredicate<T>> predicate) where TLayer : ILayer<T, QVariable<T>>
+        public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TLayer : ILayer<TQ, QVariable<TQ>>
         {
             return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
         }

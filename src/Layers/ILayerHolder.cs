@@ -2,10 +2,10 @@
 
 namespace qon.Layers
 {
-    public interface ILayerHolder<T, TSelf> where TSelf : ILayerHolder<T, TSelf>
+    public interface ILayerHolder<TQ, TSelf> where TSelf : ILayerHolder<TQ, TSelf> where TQ : notnull
     {
-        LayersManager<T, TSelf> Layers { get; }
-        QMachine<T> Machine { get; }
+        LayersManager<TQ, TSelf> Layers { get; }
+        QMachine<TQ> Machine { get; }
 
     }
 }

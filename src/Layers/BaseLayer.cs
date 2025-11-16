@@ -15,17 +15,18 @@ namespace qon.Layers
         public int PriorityIndex { get; set; } = 0;
     }
 
-    public abstract class BaseLayer<T, TSelf, THolder> : BaseLayer, ILayer<T, THolder>
-        where TSelf : BaseLayer<T, TSelf, THolder>, ILayer<T, THolder>, new()
-        where THolder : ILayerHolder<T, THolder>
+    public abstract class BaseLayer<TQ, TSelf, THolder> : BaseLayer, ILayer<TQ, THolder>
+        where TQ : notnull
+        where TSelf : BaseLayer<TQ, TSelf, THolder>, ILayer<TQ, THolder>, new()
+        where THolder : ILayerHolder<TQ, THolder>
     {
-        protected LayersManager<T, THolder>? _manager;
+        protected LayersManager<TQ, THolder>? _manager;
 
-        public LayersManager<T, THolder> Manager => ExceptionHelper.ThrowIfFieldIsNull(_manager, nameof(_manager));
+        public LayersManager<TQ, THolder> Manager => ExceptionHelper.ThrowIfFieldIsNull(_manager, nameof(_manager));
 
         public THolder Holder => ExceptionHelper.ThrowIfFieldIsNull(Manager.Holder, nameof(Manager.Holder));
 
-        public QMachine<T> Machine => ExceptionHelper.ThrowIfFieldIsNull(Holder.Machine, nameof(Holder.Machine));
+        public QMachine<TQ> Machine => ExceptionHelper.ThrowIfFieldIsNull(Holder.Machine, nameof(Holder.Machine));
 
         public static TSelf With(THolder holder)
         {
@@ -56,15 +57,15 @@ namespace qon.Layers
 
         #region Implementation of ICopy<ILayer<T,THolder>>
 
-        public abstract ILayer<T, THolder> Copy();
+        public abstract ILayer<TQ, THolder> Copy();
 
         #endregion
 
         #region Implementation of ILayer<T,THolder>
 
-        public void UpdateHolder(THolder holder)
+        public void UpdateManager(LayersManager<TQ, THolder> manager)
         {
-            _manager = holder.Layers;
+            _manager = manager;
         }
 
         #endregion

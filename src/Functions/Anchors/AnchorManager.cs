@@ -9,29 +9,29 @@ using System.Threading.Tasks;
 
 namespace qon.Functions.Anchors
 {
-    public class AnchorManager<T> : ISearcher<T>
+    public class AnchorManager<TQ> : ISearcher<TQ> where TQ : notnull
     {
-        public List<IAnchor<T>> Anchors { get; private set; } = new List<IAnchor<T>>();
-        public List<AnchoredPath<T>> Paths { get; private set; } = new List<AnchoredPath<T>>();
+        public List<IAnchor<TQ>> Anchors { get; private set; } = new List<IAnchor<TQ>>();
+        public List<AnchoredPath<TQ>> Paths { get; private set; } = new List<AnchoredPath<TQ>>();
 
         public AnchorManager()
         {
 
         }
 
-        public AnchorManager(List<IAnchor<T>> anchors)
+        public AnchorManager(List<IAnchor<TQ>> anchors)
         {
             Anchors = anchors;
         }
 
-        public void Execute(QVariable<T>[] field)
+        public void Execute(QVariable<TQ>[] field)
         {
             Paths.Clear();
-            Paths.Add(new AnchoredPath<T>(field));
+            Paths.Add(new AnchoredPath<TQ>(field));
 
             foreach (var anchor in Anchors)
             {
-                List<AnchoredPath<T>> newPaths = new List<AnchoredPath<T>>();
+                List<AnchoredPath<TQ>> newPaths = new List<AnchoredPath<TQ>>();
 
                 foreach (var path in Paths)
                 {
@@ -46,13 +46,13 @@ namespace qon.Functions.Anchors
                     newPaths.AddRange(additionalPaths);
                 }
 
-                Paths = new List<AnchoredPath<T>>(newPaths);
+                Paths = new List<AnchoredPath<TQ>>(newPaths);
             }
         }
 
         public int SearchDepth => Anchors.Count;
 
-        public List<List<QVariable<T>>> Search(Field<T> field)
+        public List<List<QVariable<TQ>>> Search(Field<TQ> field)
         {
             Execute(field.Variables);
 

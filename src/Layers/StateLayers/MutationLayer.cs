@@ -10,29 +10,29 @@ using System.Threading.Tasks;
 
 namespace qon.Layers.StateLayers
 {
-    public class MutationLayerParameter<T>
+    public class MutationLayerParameter<TQ> where TQ : notnull
     {
-        public Func<Field<T>, List<Field<T>>>? MutationFunction { get; set; }
+        public Func<Field<TQ>, List<Field<TQ>>>? MutationFunction { get; set; }
 
-        public Func<Field<T>, int>? Fitness;
+        public Func<Field<TQ>, int>? Fitness;
     }
 
-    public class MutationLayer<T> : BaseLayer<T, MutationLayer<T>, MachineState<T>>, ILayer<T, MachineState<T>>, IStateLayer<T>
+    public class MutationLayer<TQ> : BaseLayer<TQ, MutationLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>, IStateLayer<TQ> where TQ : notnull
     {
-        private Field<T>? _bestSample;
+        private Field<TQ>? _bestSample;
 
-        public MutationLayerParameter<T> _parameter;
+        public MutationLayerParameter<TQ> _parameter;
 
-        public List<Field<T>> Samples { get; set; } = new();
+        public List<Field<TQ>> Samples { get; set; } = new();
 
         public MutationLayer()
         {
-            _parameter = new MutationLayerParameter<T>();
+            _parameter = new MutationLayerParameter<TQ>();
         }
 
         #region Solving lifecycle
 
-        public Result Prepare(Field<T> field)
+        public Result Prepare(Field<TQ> field)
         {
             var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter?.MutationFunction, nameof(_parameter.MutationFunction));
 
@@ -41,7 +41,7 @@ namespace qon.Layers.StateLayers
             return Result.Success(0);
         }
 
-        public PreValidationResult PreValidate(Field<T> field)
+        public PreValidationResult PreValidate(Field<TQ> field)
         {
             if (Samples.Count == 0)
             {
@@ -49,7 +49,7 @@ namespace qon.Layers.StateLayers
             }
 
             int fitness = int.MaxValue;
-            Field<T> bestSample = new Field<T>(Machine);
+            Field<TQ> bestSample = new Field<TQ>(Machine);
             ExceptionHelper.ThrowIfInternalValueIsNull(_parameter?.Fitness);
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
             foreach (var sample in Samples)
@@ -78,12 +78,12 @@ namespace qon.Layers.StateLayers
             return PreValidationResult.NotValidated;
         }
 
-        public bool Validate(Field<T> field)
+        public bool Validate(Field<TQ> field)
         {
             return true;
         }
 
-        public void Execute(Field<T>? previousField, Field<T> currentField, Random random)
+        public void Execute(Field<TQ>? previousField, Field<TQ> currentField, Random random)
         {
             ExceptionHelper.ThrowIfInternalValueIsNull(_bestSample);
             currentField.Update(_bestSample.Variables);
@@ -91,7 +91,7 @@ namespace qon.Layers.StateLayers
 
         #endregion
 
-        public override ILayer<T, MachineState<T>> Copy()
+        public override ILayer<TQ, MachineState<TQ>> Copy()
         {
             throw new NotImplementedException();
         }

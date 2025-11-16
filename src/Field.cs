@@ -11,52 +11,52 @@ using System.Threading.Tasks;
 
 namespace qon
 {
-    public class Field<T> : ICopy<Field<T>>, IEnumerable<QVariable<T>>
+    public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
     {
-        public QVariable<T>[] Variables { get; protected set; }
-        public readonly QMachine<T> Machine;    
+        public QVariable<TQ>[] Variables { get; protected set; }
+        public readonly QMachine<TQ> Machine;    
         public int Count => Variables.Length;
 
-        public Field(QMachine<T> machine)
+        public Field(QMachine<TQ> machine)
         {
             Machine = machine;
-            Variables = Array.Empty<QVariable<T>>();
+            Variables = Array.Empty<QVariable<TQ>>();
         }
 
-        public Field(QMachine<T> machine, QVariable<T>[] variables)
+        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables)
         {
             Machine = machine;
             Variables = variables;
         }
 
-        public void Update(QVariable<T>[] variables)
+        public void Update(QVariable<TQ>[] variables)
         {
             Variables = variables;
         }
 
-        public void Update(Field<T> anotherField)
+        public void Update(Field<TQ> anotherField)
         {
             Variables = anotherField.Variables;
         }
 
-        public Field<T> Copy()
+        public Field<TQ> Copy()
         {
-            return new Field<T>(Machine, Variables.Select(x => x.Copy()).ToArray());
+            return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray());
         }
 
-        public QVariable<T> this[int index]
+        public QVariable<TQ> this[int index]
         {
             get => Variables[index];
             set => Variables[index] = value;
         }
 
-        public QVariable<T> this[string name]
+        public QVariable<TQ> this[string name]
         {
             get => Variables[Machine.NamedIndexer[name]];
             set => Variables[Machine.NamedIndexer[name]] = value;
         }
 
-        public QVariable<T> this[Guid id]
+        public QVariable<TQ> this[Guid id]
         {
             get => Variables[Machine.GuidIndexer[id]];
             set => Variables[Machine.GuidIndexer[id]] = value;
@@ -67,7 +67,7 @@ namespace qon
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Variables.Select(v =>
-                v.State != ValueState.Uncertain ? $"{v.Value}" : $"{v.Name}:[{DomainLayer<T>.With(v).DescribeDomain()}]");
+                v.State != ValueState.Uncertain ? $"{v.Value}" : $"{v.Name}:[{DomainLayer<TQ>.With(v).DescribeDomain()}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");
@@ -75,7 +75,7 @@ namespace qon
             return result.ToString();
         }
 
-        public IEnumerator<QVariable<T>> GetEnumerator()
+        public IEnumerator<QVariable<TQ>> GetEnumerator()
         {
             return Variables.AsEnumerable().GetEnumerator();
         }

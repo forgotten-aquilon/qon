@@ -10,17 +10,17 @@ namespace qon.Functions.Mutations
 {
     public static class Mutators
     {
-        public class DefaultMutator<T> : IMutator<T>
+        public class DefaultMutator<TQ> : IMutator<TQ> where TQ : notnull
         {
-            private readonly List<VariableMutation<T>> _mutations;
+            private readonly List<VariableMutation<TQ>> _mutations;
             public int MutationCount => _mutations.Count;
 
-            public DefaultMutator(List<VariableMutation<T>> mutations)
+            public DefaultMutator(List<VariableMutation<TQ>> mutations)
             {
                 _mutations = mutations;
             }
 
-            public void Mutate(List<QVariable<T>> variables)
+            public void Mutate(List<QVariable<TQ>> variables)
             {
                 for (int i = 0; i < variables.Count; i++)
                 {
@@ -30,26 +30,26 @@ namespace qon.Functions.Mutations
         }
 
 
-        public class ValueMutator<T> : IMutator<T>
+        public class ValueMutator<TQ> : IMutator<TQ> where TQ : notnull
         {
-            private readonly List<T> _possibleValues;
+            private readonly List<TQ> _possibleValues;
             public int MutationCount => _possibleValues.Count;
 
-            public ValueMutator(IEnumerable<T> possibleValues)
+            public ValueMutator(IEnumerable<TQ> possibleValues)
             {
                 _possibleValues = possibleValues.ToList();
             }
 
-            public ValueMutator(params T[] possibleValues)
+            public ValueMutator(params TQ[] possibleValues)
             {
                 _possibleValues = possibleValues.ToList();
             }
 
-            public void Mutate(List<QVariable<T>> variables)
+            public void Mutate(List<QVariable<TQ>> variables)
             {
                 for (int i = 0; i < variables.Count; i++)
                 {
-                    variables[i].Value = Optional<T>.Of(_possibleValues[i]);
+                    variables[i].Value = Optional<TQ>.Of(_possibleValues[i]);
                 }
             }
         }

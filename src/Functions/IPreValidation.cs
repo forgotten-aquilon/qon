@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace qon.Functions
 {
-    public interface IPreValidation<T>
+    public interface IPreValidation<TQ> where TQ : notnull
     {
-        public PreValidationResult Execute(QVariable<T>[] field, QMachine<T>? machine = null);
+        public PreValidationResult Execute(QVariable<TQ>[] field, QMachine<TQ>? machine = null);
     }
 }

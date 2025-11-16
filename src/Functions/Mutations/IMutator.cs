@@ -7,9 +7,9 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public interface IMutator<T>
+    public interface IMutator<TQ> where TQ : notnull
     {
         public int MutationCount { get; }
-        public void Mutate(List<QVariable<T>> variables);
+        public void Mutate(List<QVariable<TQ>> variables);
     }
 }

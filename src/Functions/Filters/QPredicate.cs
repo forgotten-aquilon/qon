@@ -7,40 +7,40 @@ using static qon.Helpers.Helper;
 
 namespace qon.Functions.Filters
 {
-    public class QPredicate<T> : IChain<QVariable<T>, bool>
+    public class QPredicate<TQ> : IChain<QVariable<TQ>, bool> where TQ : notnull
     {
-        public static readonly QPredicate<T> Empty = new QPredicate<T>(o => false);
+        public static readonly QPredicate<TQ> Empty = new QPredicate<TQ>(o => false);
 
-        public Func<QVariable<T>, bool> PredicateFunction { get; protected set; }
+        public Func<QVariable<TQ>, bool> PredicateFunction { get; protected set; }
 
-        public QPredicate(Func<QVariable<T>, bool> predicateFunction)
+        public QPredicate(Func<QVariable<TQ>, bool> predicateFunction)
         {
             PredicateFunction = predicateFunction;
         }
 
-        public bool ApplyTo(QVariable<T> input)
+        public bool ApplyTo(QVariable<TQ> input)
         {
             return PredicateFunction(input);
         }
 
-        public IChain<QVariable<T>, bool> AsIChain()
+        public IChain<QVariable<TQ>, bool> AsIChain()
         {
             return this;
         }
 
-        public static QPredicate<T> operator |(QPredicate<T> left, QPredicate<T> right)
+        public static QPredicate<TQ> operator |(QPredicate<TQ> left, QPredicate<TQ> right)
         {
             return left.Or(right);
         }
 
-        public static QPredicate<T> operator &(QPredicate<T> left, QPredicate<T> right)
+        public static QPredicate<TQ> operator &(QPredicate<TQ> left, QPredicate<TQ> right)
         {
             return left.And(right);
         }
 
-        public static QPredicate<T> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<T, QVariable<T>>
+        public static QPredicate<TQ> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<TQ, QVariable<TQ>>
         {
-            return new QPredicate<T>(variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>()));
+            return new QPredicate<TQ>(variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>()));
         }
     }
 }

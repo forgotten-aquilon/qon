@@ -6,10 +6,10 @@ using qon.Variables;
 
 namespace qon.Functions.Anchors
 {
-    public interface IAnchor<T>
+    public interface IAnchor<TQ> where TQ : notnull
     {
-        public QPredicate<T> GetPredicate();
+        public QPredicate<TQ> GetPredicate();
 
-        public QVariable<T>[] GetAnchoredVariables(QVariable<T>[] field, QVariable<T> anchor);
+        public QVariable<TQ>[] GetAnchoredVariables(QVariable<TQ>[] field, QVariable<TQ> anchor);
     }
 }

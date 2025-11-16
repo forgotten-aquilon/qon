@@ -8,11 +8,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace qon.Layers.VariableLayers
 {
-    public class DomainLayer<T> : BaseLayer<T, DomainLayer<T>, QVariable<T>>, ILayer<T, QVariable<T>>
+    public class DomainLayer<TQ> : BaseLayer<TQ, DomainLayer<TQ>, QVariable<TQ>>, ILayer<TQ, QVariable<TQ>> where TQ : notnull
     {
-        private IDomain<T> _domain;
+        private IDomain<TQ> _domain;
 
-        public IDomain<T> Domain
+        public IDomain<TQ> Domain
         {
             get => _domain;
 
@@ -28,7 +28,7 @@ namespace qon.Layers.VariableLayers
             return Domain.IsEmpty();
         }
 
-        public bool ContainsValue(T value)
+        public bool ContainsValue(TQ value)
         {
             return Domain.ContainsValue(value);
         }
@@ -38,45 +38,45 @@ namespace qon.Layers.VariableLayers
             return Domain.Size();
         }
 
-        public int RemoveValue(T value)
+        public int RemoveValue(TQ value)
         {
             return Domain.Remove(value);
         }
 
-        public int RemoveValues(IEnumerable<T> values)
+        public int RemoveValues(IEnumerable<TQ> values)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(values, nameof(values));
             return Domain.Remove(values);
         }
 
-        public void AssignDomain(IDomain<T> domain)
+        public void AssignDomain(IDomain<TQ> domain)
         {
             Domain = domain;
         }
 
         public void AssignEmptyDomain()
         {
-            Domain = EmptyDomain<T>.Instance;
+            Domain = EmptyDomain<TQ>.Instance;
         }
 
-        public T GetRandomValue(Random random)
+        public TQ GetRandomValue(Random random)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(random, nameof(random));
             return Domain.GetRandomValue(random);
         }
 
-        public Optional<T> SingleOrEmptyValue()
+        public Optional<TQ> SingleOrEmptyValue()
         {
             return Domain.SingleOrEmptyValue();
         }
 
-        public void Collapse(T value, bool isConstant = false)
+        public void Collapse(TQ value, bool isConstant = false)
         {
             Holder.WithValue(value, isConstant ? ValueState.Constant : ValueState.Defined);
             AssignEmptyDomain();
         }
 
-        public bool MatchesDomain(Func<IDomain<T>, bool> predicate)
+        public bool MatchesDomain(Func<IDomain<TQ>, bool> predicate)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
             return predicate(Domain);
@@ -88,7 +88,7 @@ namespace qon.Layers.VariableLayers
             return predicate(Size());
         }
 
-        public TResult WithDomain<TResult>(Func<IDomain<T>, TResult> selector)
+        public TResult WithDomain<TResult>(Func<IDomain<TQ>, TResult> selector)
         {
             ExceptionHelper.ThrowIfArgumentIsNull(selector, nameof(selector));
             return selector(Domain);
@@ -99,12 +99,12 @@ namespace qon.Layers.VariableLayers
             return Domain.ToString() ?? string.Empty;
         }
 
-        public IDomain<T> GetDomain()
+        public IDomain<TQ> GetDomain()
         {
             return Domain;
         }
 
-        public bool TryGetDomain<TDomain>(out TDomain? domain) where TDomain : class, IDomain<T>
+        public bool TryGetDomain<TDomain>(out TDomain? domain) where TDomain : class, IDomain<TQ>
         {
             if (Domain is TDomain typed)
             {
@@ -117,20 +117,20 @@ namespace qon.Layers.VariableLayers
         }
 
         public DomainLayer()
-            : this(EmptyDomain<T>.Instance)
+            : this(EmptyDomain<TQ>.Instance)
         {
         }
 
-        public DomainLayer(IDomain<T> domain)
+        public DomainLayer(IDomain<TQ> domain)
         {
             Domain = domain;
         }
 
         #region Overrides of BaseLayer<T,DomainLayer<T>,QVariable<T>>
 
-        public override ILayer<T, QVariable<T>> Copy()
+        public override ILayer<TQ, QVariable<TQ>> Copy()
         {
-            return new DomainLayer<T>(Domain.Copy());
+            return new DomainLayer<TQ>(Domain.Copy());
         }
 
         #endregion

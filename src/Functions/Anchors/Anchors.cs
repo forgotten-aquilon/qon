@@ -11,11 +11,11 @@ namespace qon.Functions.Anchors
 {
     public static class Anchors
     {
-        public static Anchor<T> VNA<T>(QPredicate<T> predicate)
+        public static Anchor<TQ> VNA<TQ>(QPredicate<TQ> predicate) where TQ : notnull
         {
-            return new Anchor<T>(predicate, (f, a) =>
+            return new Anchor<TQ>(predicate, (f, a) =>
             {
-                IChain<QVariable<T>, QVariable<T>[]> filter = new VonNeumannFilter<T>() as IChain<QVariable<T>, QVariable<T>[]>;
+                IChain<QVariable<TQ>, QVariable<TQ>[]> filter = new VonNeumannFilter<TQ>() as IChain<QVariable<TQ>, QVariable<TQ>[]>;
                 return filter.ApplyTo(a);
             });
         }

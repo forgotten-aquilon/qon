@@ -6,10 +6,10 @@ using qon.Variables;
 
 namespace qon.Machines
 {
-    public class QMachineParameter<T>
+    public class QMachineParameter<TQ> where TQ : notnull
     {
-        public IEnumerable<QVariable<T>>? Field { get; set; }
-        public Func<QMachine<T>, ISolver<T>> SolverInjection { get; set; } = DefaultSolver<T>.Injection;
+        public IEnumerable<QVariable<TQ>>? Field { get; set; }
+        public Func<QMachine<TQ>, ISolver<TQ>> SolverInjection { get; set; } = DefaultSolver<TQ>.Injection;
         public Random Random { get; set; } = new Random();
     }
 }

@@ -8,23 +8,23 @@ using qon.Variables;
 
 namespace qon.Functions.Anchors
 {
-    public class Anchor<T> : IAnchor<T>
+    public class Anchor<TQ> : IAnchor<TQ> where TQ : notnull
     {
-        public QPredicate<T> Predicate { get; set; }
-        public Func<QVariable<T>[], QVariable<T>, QVariable<T>[]> Func { get; set; }
+        public QPredicate<TQ> Predicate { get; set; }
+        public Func<QVariable<TQ>[], QVariable<TQ>, QVariable<TQ>[]> Func { get; set; }
 
-        public Anchor(QPredicate<T> predicate, Func<QVariable<T>[], QVariable<T>, QVariable<T>[]> func)
+        public Anchor(QPredicate<TQ> predicate, Func<QVariable<TQ>[], QVariable<TQ>, QVariable<TQ>[]> func)
         {
             Predicate = predicate;
             Func = func;
         }
 
-        public QPredicate<T> GetPredicate()
+        public QPredicate<TQ> GetPredicate()
         {
             return Predicate;
         }
 
-        public QVariable<T>[] GetAnchoredVariables(QVariable<T>[] field, QVariable<T> anchor)
+        public QVariable<TQ>[] GetAnchoredVariables(QVariable<TQ>[] field, QVariable<TQ> anchor)
         {
             return Func(field, anchor);
         }

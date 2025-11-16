@@ -2,8 +2,8 @@
 
 namespace qon.Variables.Domains
 {
-    public interface IWeightedDomain<T> : IDomain<T>
+    public interface IWeightedDomain<TQ> : IDomain<TQ> where TQ : notnull
     {
-        IEnumerable<KeyValuePair<T, int>> GetValuesWithWeights();
+        IEnumerable<KeyValuePair<TQ, int>> GetValuesWithWeights();
     }
 }

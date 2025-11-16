@@ -7,8 +7,8 @@ using qon.Variables;
 
 namespace qon.Functions.Replacers
 {
-    public interface IReplacer<T>
+    public interface IReplacer<TQ> where TQ : notnull
     {
-        public List<Field<T>> All(Field<T> field);
+        public List<Field<TQ>> All(Field<TQ> field);
     }
 }

@@ -7,27 +7,26 @@ using qon.Helpers;
 
 namespace qon.Variables.Domains
 {
-    public class DiscreteDomain<T> : IWeightedDomain<T>
+    public class DiscreteDomain<TQ> : IWeightedDomain<TQ> where TQ : notnull
     {
-#pragma warning disable CS8714
-        public Dictionary<T, int> Domain { get; protected set; }
+        public Dictionary<TQ, int> Domain { get; protected set; }
 
         public DiscreteDomain()
         {
-            Domain = new Dictionary<T, int>();
+            Domain = new Dictionary<TQ, int>();
         }
 
-        public DiscreteDomain(Dictionary<T, int> d)
+        public DiscreteDomain(Dictionary<TQ, int> d)
         {
             Domain = d;
         }
 
-        public DiscreteDomain(IEnumerable<T> d)
+        public DiscreteDomain(IEnumerable<TQ> d)
         {
             Domain = d.ToDictionary(x => x, _ => 1);
         }
 
-        public DiscreteDomain(params T[] values)
+        public DiscreteDomain(params TQ[] values)
         {
             Domain = values.ToDictionary(x => x, _ => 1);
         }
@@ -45,19 +44,19 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ContainsValue(T value)
+        public bool ContainsValue(TQ value)
         {
             return Domain.ContainsKey(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Remove(T item)
+        public int Remove(TQ item)
         {
             return Domain.Remove(item) ? 1 : 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Remove(IEnumerable<T> items)
+        public int Remove(IEnumerable<TQ> items)
         {
             var changeCount = 0;
 
@@ -93,13 +92,13 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryGetWeight(T value, out int weight)
+        public bool TryGetWeight(TQ value, out int weight)
         {
             return Domain.TryGetValue(value, out weight);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool UpdateWeight(T value, int weight)
+        public bool UpdateWeight(TQ value, int weight)
         {
             if (!Domain.ContainsKey(value)) return false;
 
@@ -108,7 +107,7 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetRandomValue(Random random)
+        public TQ GetRandomValue(Random random)
         {
             var topProbabilityLimit = Domain.Sum(x => x.Value);
 
@@ -134,27 +133,27 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Optional<T> SingleOrEmptyValue()
+        public Optional<TQ> SingleOrEmptyValue()
         {
-            if (Domain.Count == 1) return new Optional<T>(Domain.First().Key);
+            if (Domain.Count == 1) return new Optional<TQ>(Domain.First().Key);
 
-            return Optional<T>.Empty;
+            return Optional<TQ>.Empty;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDomain<T> Copy()
+        public IDomain<TQ> Copy()
         {
-            return new DiscreteDomain<T>(new Dictionary<T, int>(Domain));
+            return new DiscreteDomain<TQ>(new Dictionary<TQ, int>(Domain));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<T> GetValues()
+        public IEnumerable<TQ> GetValues()
         {
             return Domain.Select(x => x.Key);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<KeyValuePair<T, int>> GetValuesWithWeights()
+        public IEnumerable<KeyValuePair<TQ, int>> GetValuesWithWeights()
         {
             return Domain;
         }
