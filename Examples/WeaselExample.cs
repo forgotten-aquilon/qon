@@ -4,6 +4,7 @@ using qon;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
 using qon.Functions.QSL;
+using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
@@ -21,22 +22,9 @@ namespace Examples
                     .WithAlphabet('A', 'Z')
                     .WithOtherSymbols(' '));
 
-            var field = "FGUQJPIPMOFUSPW MRHJQMNLF GZP"
-                .Select(c => QVariable<char>.New(c, ValueState.Defined))
-                .ToArray();
+            QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            foreach (var variable in field)
-            {
-                DomainLayer<char>.GetOrCreate(variable).Domain = domain;
-            }
-
-            QMachineParameter<char> parameter = new QMachineParameter<char>
-            {
-                Field = field,
-                Random = new Random(),
-            };
-
-            QMachine<char> machine = new QMachine<char>(parameter);
+            machine.GenerateField(domain, (29,1,1), Optional<char>.Of('A'));
 
             var target = "ME THINKS IT IS LIKE A WEASEL";
 
