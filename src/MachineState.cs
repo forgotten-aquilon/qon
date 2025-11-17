@@ -1,126 +1,115 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using qon.Rules;
-using qon.Rules.Filters;
+using qon.Exceptions;
+using qon.Layers;
+using qon.Layers.StateLayers;
+using qon.Layers.VariableLayers;
+using qon.Machines;
 using qon.Variables;
 
 namespace qon
 {
-    public enum SolutionState
-    {
-        NotSolved,
-        MaybeSolved,
-        Unsolvable
-    }
-
     /// <summary>
     /// "Hack" for searching for variables in the field by properties. Working without collection-expressions is not possible in Unity for now.
     /// I don't like recursive allocation, but by design solution machine is not supposed to run too often.
     /// TODO: Remove this as soon Unity supports recent .NET versions
     /// Or maybe keep, because public API looks much better this way.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class SearchResult<T>
+    /// <typeparam name="TQ"></typeparam>
+    public class SearchResult<TQ> where TQ : notnull
     {
-        public IEnumerable<SuperpositionVariable<T>> Result { get; set; }
+        public IEnumerable<QVariable<TQ>> Result { get; set; }
 
-        public SearchResult(IEnumerable<SuperpositionVariable<T>> field)
+        public SearchResult(IEnumerable<QVariable<TQ>> field)
         {
             Result = field;
         }
 
-        public void Collapse(T value, bool isConstant = false)
-        {
-            foreach (var variable in Result)
-            {
-                variable.Collapse(value, isConstant);
-            }
-        }
-
-        public SearchResult<T> this[string name, object value]
+        public SearchResult<TQ> this[string name, object value]
         {
             get
             {
-                return Search(Result, name, value);
+                ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
+                return AsQuery().WithProperty(name, value).ToSearchResult();
             }
         }
 
-        public static SearchResult<T> Search(IEnumerable<SuperpositionVariable<T>> variables, string name, object value)
+        public SearchResult<TQ> this[Func<QVariable<TQ>, bool> predicate]
+        {
+            get
+            {
+                ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
+                return AsQuery().Where(predicate).ToSearchResult();
+            }
+        }
+
+        public static SearchResult<TQ> Search(IEnumerable<QVariable<TQ>> variables, string name, object value)
         {
             var result = variables.Where(x => object.Equals(x.GetNullOrValueProperty(name), value));
-            return new SearchResult<T>(result);
+            return new SearchResult<TQ>(result);
+        }
+
+        public MachineStateQuery<TQ> AsQuery()
+        {
+            return new MachineStateQuery<TQ>(Result);
+        }
+
+        public static SearchResult<TQ> Search(IEnumerable<QVariable<TQ>> variables, Func<QVariable<TQ>, bool> predicate)
+        {
+            var result = variables.Where(predicate);
+
+            return new SearchResult<TQ>(result);
         }
     }
 
-    public class MachineState<T> : ICloneable
+    public class MachineState<TQ> : ILayerHolder<TQ, MachineState<TQ>> where TQ : notnull
     {
-        public SuperpositionVariable<T>[] Field { get; protected set; }
+        public QMachine<TQ> Machine { get; protected set; }
+        public LayersManager<TQ, MachineState<TQ>> Layers { get; set; }
+        public Field<TQ> Field { get; protected set; }
 
-        public SolutionState CurrentState
+        public MachineState(QMachine<TQ> machine)
+        {
+            Machine = machine;
+            Layers = new LayersManager<TQ, MachineState<TQ>>(this);
+            Field = new Field<TQ>(machine);
+        }
+
+        public MachineState(QMachine<TQ> machine, QVariable<TQ>[] field)
+        {
+            Machine = machine;
+            Layers = new LayersManager<TQ, MachineState<TQ>>(this);
+            Field = new Field<TQ>(machine, field);
+        }
+
+        public void SetField(QVariable<TQ>[] field)
+        {
+            Field.Update(field);
+        }
+
+        public SearchResult<TQ> this[string name, object value]
         {
             get
             {
-                foreach (var variable in Field)
-                {
-                    if (variable.Domain.IsEmpty() && variable.State == SuperpositionState.Uncertain)
-                        return SolutionState.Unsolvable;
-
-                    if (variable.State == SuperpositionState.Uncertain)
-                        return SolutionState.NotSolved;
-                }
-
-                return SolutionState.MaybeSolved;
+                ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
+                return Query().WithProperty(name, value).ToSearchResult();
             }
         }
 
-        public MachineState()
-        {
-            Field = Array.Empty<SuperpositionVariable<T>>();
-        }
-
-        public MachineState(SuperpositionVariable<T>[] field)
-        {
-            Field = field;
-        }
-
-        public void SetField(SuperpositionVariable<T>[] field)
-        {
-            Field = field;
-        }
-
-        public int AutoCollapse()
-        {
-            int changes = 0;
-
-            foreach (var v in Field)
-            {
-                if (v.State != SuperpositionState.Uncertain) 
-                    continue;
-
-                if (v.AutoCollapse().HasValue)
-                {
-                    changes++;
-                }
-            }
-
-            return changes;
-        }
-
-        public object Clone()
-        {
-            var clone = new MachineState<T>(Field.Select(x => x.Copy()).ToArray());
-            return clone;
-        }
-
-        public SearchResult<T> this[string name, object value]
+        public SearchResult<TQ> this[Func<QVariable<TQ>, bool> predicate]
         {
             get
             {
-                return SearchResult<T>.Search(Field, name, value);
+                ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
+                return Query().Where(predicate).ToSearchResult();
             }
+        }
+
+        public MachineStateQuery<TQ> Query()
+        {
+            return new MachineStateQuery<TQ>(Field.Variables);
         }
 
         public override string ToString()
@@ -128,7 +117,7 @@ namespace qon
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Field.Select(v =>
-                v.State != SuperpositionState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{v.Domain}]");
+                v.State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{DomainLayer<TQ>.With(v).DescribeDomain()}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

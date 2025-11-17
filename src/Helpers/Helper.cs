@@ -1,11 +1,12 @@
 ﻿using qon.Exceptions;
-using qon.Rules;
-using qon.Rules.Aggregators;
 using qon.Variables;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using qon.Functions.Filters;
+using qon.Layers;
 
 namespace qon.Helpers
 {
@@ -57,6 +58,36 @@ namespace qon.Helpers
             throw new UnreachableException();
         }
 
+        public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this ICollection<T>? collection)
+        {
+            if (collection is null)
+            {
+                return true;
+            }
+
+            if (collection.Count == 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool IsNullOrEmpty<TQ>([NotNullWhen(false)] this Field<TQ>? field) where TQ : notnull
+        {
+            if (field is null)
+            {
+                return true;
+            }
+
+            if (field.Count == 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue TryGetOrCreate<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) where TKey : notnull where TValue : new()
         {
@@ -74,35 +105,16 @@ namespace qon.Helpers
 
         #region Functional Extensions
 
-        public static class PredicateBuilder
+        public static QPredicate<TQ> Or<TQ>(this QPredicate<TQ> left, QPredicate<TQ> right) where TQ : notnull
         {
-            public static Func<SuperpositionVariable<T>, bool> For<T, TVariable>(Func<TVariable, bool> predicate) where TVariable : SuperpositionVariable<T>
-            {
-                return variable => variable is TVariable typed && predicate(typed);
-            }
-
-            public static Func<SuperpositionVariable<T>, SelectingAggregator<T>> For<T, TVariable>(Func<TVariable, SelectingAggregator<T>> predicate) where TVariable : SuperpositionVariable<T>
-            {
-                return variable => variable is TVariable typed ? predicate(typed) : SelectingAggregator<T>.Empty;
-            }
-
-            private static readonly object _singleton = new object();
-            public static Func<SuperpositionVariable<T>, object> For<T, TVariable>(Func<TVariable, object> predicate) where TVariable : SuperpositionVariable<T>
-            {
-                return variable => variable is TVariable typed ? predicate(typed) : _singleton;
-            }
+            var tempFunc = left.PredicateFunction;
+            return new QPredicate<TQ>(v => tempFunc(v) || right.PredicateFunction(v));
         }
 
-        public static SelectingAggregator<T> Or<T>(this SelectingAggregator<T> left, SelectingAggregator<T> right)
+        public static QPredicate<TQ> And<TQ>(this QPredicate<TQ> left, QPredicate<TQ> right) where TQ : notnull
         {
-            var tempFunc = left.AggregationFunction;
-            return new SelectingAggregator<T>(v => tempFunc(v) || right.AggregationFunction(v));
-        }
-
-        public static SelectingAggregator<T> And<T>(this SelectingAggregator<T> left, SelectingAggregator<T> right)
-        {
-            var tempFunc = left.AggregationFunction;
-            return new SelectingAggregator<T>(v => tempFunc(v) && right.AggregationFunction(v));
+            var tempFunc = left.PredicateFunction;
+            return new QPredicate<TQ>(v => tempFunc(v) && right.PredicateFunction(v));
         }
 
         public struct WeakHashSet<T> : IEquatable<WeakHashSet<T>>
@@ -125,28 +137,24 @@ namespace qon.Helpers
 
             public override bool Equals(object? obj)
             {
-                return obj is WeakHashSet<T> && Equals((WeakHashSet<T>)obj);
+                return obj is WeakHashSet<T> set && Equals(set);
             }
         }
 
         public static Func<TIn, WeakHashSet<object>> Or<TIn>(this Func<TIn, object> leftFunc, Func<TIn, object> rightFunc)
         {
-            Func<TIn, WeakHashSet<object>> func = o =>
+            WeakHashSet<object> Func(TIn o)
             {
-                HashSet<object> set = new HashSet<object>
-                {
-                    leftFunc(o),
-                    rightFunc(o)
-                };
+                HashSet<object> set = new HashSet<object> { leftFunc(o), rightFunc(o) };
                 return new WeakHashSet<object>(set);
-            };
+            }
 
-            return func;
+            return Func;
         }
 
         public static Func<TIn, HashSet<object>> And<TIn>(this Func<TIn, object> leftFunc, Func<TIn, object> rightFunc)
         {
-            Func<TIn, HashSet<object>> func = o =>
+            HashSet<object> Func(TIn o)
             {
                 HashSet<object> set = new HashSet<object>
                 {
@@ -154,9 +162,9 @@ namespace qon.Helpers
                     rightFunc(o)
                 };
                 return set;
-            };
+            }
 
-            return func;
+            return Func;
         }
 
         #endregion
@@ -167,6 +175,28 @@ namespace qon.Helpers
         {
             return Enum.GetValues(typeof(T)).OfType<T>().ToList();
         }
+        #endregion
+
+        #region Random Extensions
+
+        public static bool GetRandomBool(this Random random, double probability = 0.5)
+        {
+            return random.NextDouble() < probability;
+        }
+
+        #endregion
+
+        #region String Extension
+
+        public static string ToShortString(this string str, int limit) 
+        {
+            if (str.Length <= limit)
+            {
+                return str;
+            }
+            return str.Substring(0, limit) + "...";
+        }
+
         #endregion
     }
 }

@@ -8,116 +8,110 @@ namespace qon.Tests.Exceptions
     public class ExceptionHelperTests
     {
         [Fact]
-        public void ThrowIfArgumentIsNull_ValueProvided_DoesNotThrow()
+        public void ThrowIfArgumentIsNull_WhenNull_ThrowsArgumentNullException()
         {
-            var exception = Record.Exception(() => ExceptionHelper.ThrowIfArgumentIsNull(string.Empty));
+            static void CallHelper(object? candidate)
+            {
+                ExceptionHelper.ThrowIfArgumentIsNull(candidate, nameof(candidate));
+            }
 
-            Assert.Null(exception);
+            Assert.Throws<ArgumentNullException>(() => CallHelper(null));
         }
 
         [Fact]
-        public void ThrowIfArgumentIsNull_Null_UsesDefaultParameterName()
+        public void ThrowIfArgumentIsNull_WhenNotNull_ReturnsValue()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => ExceptionHelper.ThrowIfArgumentIsNull(null));
+            var instance = new object();
 
-            Assert.Equal("obj", exception.ParamName);
+            var result = ExceptionHelper.ThrowIfArgumentIsNull<object>(instance, nameof(instance));
+
+            Assert.Same(instance, result);
         }
 
         [Fact]
-        public void ThrowIfArgumentIsNull_Null_UsesProvidedParameterName()
+        public void ThrowIfInternalValueIsNull_WhenNull_ThrowsInternalNullException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => ExceptionHelper.ThrowIfArgumentIsNull(null, "value"));
-
-            Assert.Equal("value", exception.ParamName);
+            Assert.Throws<InternalNullException>(() => ExceptionHelper.ThrowIfInternalValueIsNull(null));
         }
 
         [Fact]
-        public void ThrowIfInternalValueIsNull_WithValue_DoesNotThrow()
+        public void ThrowIfInternalValueIsNull_WhenNotNull_ReturnsValue()
         {
-            var exception = Record.Exception(() => ExceptionHelper.ThrowIfInternalValueIsNull(new object()));
+            var instance = new object();
 
-            Assert.Null(exception);
+            var result = ExceptionHelper.ThrowIfInternalValueIsNull<object>(instance, nameof(instance));
+
+            Assert.Same(instance, result);
         }
 
         [Fact]
-        public void ThrowIfInternalValueIsNull_Null_UsesDefaultNameInMessage()
+        public void ThrowIfFieldIsNull_WhenNull_ThrowsFieldNullException()
         {
-            var exception = Assert.Throws<InternalNullException>(() => ExceptionHelper.ThrowIfInternalValueIsNull(null));
+            var holder = new ExceptiontestsData.Holder();
 
-            Assert.Equal("obj should not be null", exception.Message);
+            Assert.Throws<FieldNullException>(() => ExceptionHelper.ThrowIfFieldIsNull(holder.Value, nameof(holder.Value)));
         }
 
         [Fact]
-        public void ThrowIfInternalValueIsNull_Null_UsesProvidedNameInMessage()
+        public void ThrowIfFieldIsNull_WhenNotNull_ReturnsValue()
         {
-            var exception = Assert.Throws<InternalNullException>(() => ExceptionHelper.ThrowIfInternalValueIsNull(null, "configuration"));
+            var instance = new object();
 
-            Assert.Equal("configuration should not be null", exception.Message);
+            var result = ExceptionHelper.ThrowIfFieldIsNull<object>(instance, "field");
+
+            Assert.Same(instance, result);
         }
 
         [Fact]
-        public void ThrowIfFieldIsNull_WithValue_DoesNotThrow()
+        public void ThrowIfPredicateFalse_WhenPredicateFails_ThrowsValidationException()
         {
-            var exception = Record.Exception(() => ExceptionHelper.ThrowIfFieldIsNull(Guid.Empty));
-
-            Assert.Null(exception);
+            Assert.Throws<ValidationException>(() => ExceptionHelper.ThrowIfPredicateFalse(5, value => value < 0));
         }
 
         [Fact]
-        public void ThrowIfFieldIsNull_Null_UsesDefaultNameInMessage()
+        public void ThrowIfPredicateFalse_WhenPredicatePasses_ReturnsOriginalValue()
         {
-            var exception = Assert.Throws<FieldNullException>(() => ExceptionHelper.ThrowIfFieldIsNull(null));
+            int value = 42;
 
-            Assert.Equal("obj should not be null", exception.Message);
+            var result = ExceptionHelper.ThrowIfPredicateFalse(value, v => v == 42);
+
+            Assert.Equal(value, result);
         }
 
         [Fact]
-        public void ThrowIfFieldIsNull_Null_UsesProvidedNameInMessage()
+        public void ThrowIfTypesMismatch_WhenTypeDiffers_ThrowsTypesMismatchException()
         {
-            var exception = Assert.Throws<FieldNullException>(() => ExceptionHelper.ThrowIfFieldIsNull(null, "field"));
-
-            Assert.Equal("field should not be null", exception.Message);
+            Assert.Throws<TypesMismatchException>(() => ExceptionHelper.ThrowIfTypesMismatch<string>(123));
         }
 
         [Fact]
-        public void ThrowIfTypesMismatch_NullVariable_ThrowsArgumentNullException()
+        public void ThrowIfTypesMismatch_WhenTypeMatches_ReturnsValue()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => ExceptionHelper.ThrowIfTypesMismatch<int>(null));
+            const string text = "value";
 
-            Assert.Equal("variable", exception.ParamName);
+            var result = ExceptionHelper.ThrowIfTypesMismatch<string>(text);
+
+            Assert.Equal(text, result);
         }
 
         [Fact]
-        public void ThrowIfTypesMismatch_TypeMismatch_ThrowsTypesMismatchException()
+        public void CheckIfTypesMismatch_WhenTypeDiffers_ReturnsEmptyOptional()
         {
-            var exception = Assert.Throws<TypesMismatchException>(() => ExceptionHelper.ThrowIfTypesMismatch<int>("sample"));
+            Optional<string> result = ExceptionHelper.CheckIfTypesMismatch<string>(123);
 
-            Assert.Equal("Was expected variable of type Int32, instead was received variable of type String", exception.Message);
+            Assert.False(result.HasValue);
         }
 
         [Fact]
-        public void ThrowIfTypesMismatch_TypeMatches_ReturnsCastValue()
+        public void CheckIfTypesMismatch_WhenTypeMatches_ReturnsOptionalWithValue()
         {
-            var result = ExceptionHelper.ThrowIfTypesMismatch<int>(12);
+            const string text = "value";
 
-            Assert.Equal(12, result);
+            Optional<string> result = ExceptionHelper.CheckIfTypesMismatch<string>(text);
+
+            Assert.True(result.HasValue);
+            Assert.Equal(text, result.Value);
         }
 
-        [Fact]
-        public void CheckIfTypesMismatch_TypeMismatch_ReturnsEmptyOptional()
-        {
-            Optional<int> optional = ExceptionHelper.CheckIfTypesMismatch<int>("value");
-
-            Assert.False(optional.HasValue);
-        }
-
-        [Fact]
-        public void CheckIfTypesMismatch_TypeMatches_ReturnsOptionalWithValue()
-        {
-            Optional<int> optional = ExceptionHelper.CheckIfTypesMismatch<int>(42);
-
-            Assert.True(optional.HasValue);
-            Assert.Equal(42, optional.Value);
-        }
     }
 }

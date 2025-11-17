@@ -9,7 +9,7 @@ namespace qon.Helpers
 
     }
 
-    public struct Optional<T> : ICloneable
+    public struct Optional<T> : ICloneable, ICopy<Optional<T>>
     {
         //TODO: Update to C# 10 when available (default)
         private T? _value;
@@ -122,6 +122,11 @@ namespace qon.Helpers
 #pragma warning disable CS8602, CS8603
             return HasValue ? Value.ToString() : nameof(Optional<T>);
 #pragma warning restore CS8602, CS8603
+        }
+
+        public static Optional<T> Of(T value)
+        {
+            return new Optional<T>(value);
         }
     }
 }

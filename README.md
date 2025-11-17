@@ -10,7 +10,7 @@ Because Unity3D still does not support the latest .NET versions (therefore the l
 
 ## Terminology
 
-* **Variables** — objects of the `SuperpositionVariable<T>` class. Variables can be defined and undefined. A defined variable has a value of `T` type, and an undefined variable has a **domain** of `T` type values.
+* **Variables** — objects of the `QVariable<T>` class equipped with a `SuperpositionLayer<T>`. Variables can be defined and undefined. A defined variable has a value of `T` type, and an undefined variable tracks a **domain** of `T` type values via the layer.
 
 * **Field of variables** — all **variables** of a specific **solution machine**.
 
@@ -176,109 +176,145 @@ We get specific variables by their coordinates, collapse them with values we wan
 ```C#
 List<string> domain = new() { "╬", "║", "═", "╔", "╗", "╚", "╝", "╠", "╣", "╩", "╦", " " };
 
-List<string> leftConn = new() { "╬", "═", "╔", "╚", "╠", "╩", "╦" };
-List<string> leftWall = new() { "║", "╗", "╝", "╣", " " };
+HashSet<string> leftConn = new() { "╬", "═", "╔", "╚", "╠", "╩", "╦" };
+HashSet<string> leftWall = new() { "║", "╗", "╝", "╣", " " };
 
-List<string> rightConn = new() { "╬", "═", "╗", "╝", "╣", "╩", "╦" };
-List<string> rightWall = new() { "║", "╚", "╔", "╠", " " };
+HashSet<string> rightConn = new() { "╬", "═", "╗", "╝", "╣", "╩", "╦" };
+HashSet<string> rightWall = new() { "║", "╚", "╔", "╠", " " };
 
-List<string> topConn = new() { "╬", "║", "╗", "╔", "╣", "╠", "╦" };
-List<string> topWall = new() { "═", "╚", "╝", "╩", " " };
+HashSet<string> topConn = new() { "╬", "║", "╗", "╔", "╣", "╠", "╦" };
+HashSet<string> topWall = new() { "═", "╚", "╝", "╩", " " };
 
-List<string> bottomConn = new() { "╬", "║", "╚", "╝", "╣", "╠", "╩" };
-List<string> bottomWall = new() { "╔", "╗", "═", "╦", " " };
+HashSet<string> bottomConn = new() { "╬", "║", "╚", "╝", "╣", "╠", "╩" };
+HashSet<string> bottomWall = new() { "╔", "╗", "═", "╦", " " };
+
+List<IGlobalRule<string>> mazeRules = new();
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╬") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftConn,
+        Right = rightConn,
+        Front = topConn,
+        Back = bottomConn,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("║") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftWall,
+        Right = rightWall,
+        Front = topConn,
+        Back = bottomConn,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("═") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftConn,
+        Right = rightConn,
+        Front = topWall,
+        Back = bottomWall,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╔") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftWall,
+        Right = rightConn,
+        Front = topWall,
+        Back = bottomConn,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╗") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftConn,
+        Right = rightWall,
+        Front = topWall,
+        Back = bottomConn,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╚") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftWall,
+        Right = rightConn,
+        Front = topConn,
+        Back = bottomWall,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╝") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftConn,
+        Right = rightWall,
+        Front = topConn,
+        Back = bottomWall,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╠") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftWall,
+        Right = rightConn,
+        Front = topConn,
+        Back = bottomConn,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╣") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftConn,
+        Right = rightWall,
+        Front = topConn,
+        Back = bottomConn,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╦") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftConn,
+        Right = rightConn,
+        Front = topWall,
+        Back = bottomConn,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals("╩") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftConn,
+        Right = rightConn,
+        Front = topConn,
+        Back = bottomWall,
+    }));
+
+mazeRules.AddRange(EuclideanRule<string>.Create(
+    new() { Guards.Equals(" ") },
+    new EuclideanRuleParameter<string>()
+    {
+        Left = leftWall,
+        Right = rightWall,
+        Front = topWall,
+        Back = bottomWall,
+    }));
 
 var p = new QMachineParameter<string>()
 {
     GeneralRules = new()
     {
-        LocalRules = new()
-        {
-            new EuclideanRule<string>(new(){Guards.Equals("╬")},
-                new EuclideanRuleParameter<string>(){
-                    Left = leftConn,
-                    Right = rightConn,
-                    Front = topConn,
-                    Back = bottomConn,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("║") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftWall,
-                    Right = rightWall,
-                    Front = topConn,
-                    Back = bottomConn,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("═") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftConn,
-                    Right = rightConn,
-                    Front = topWall,
-                    Back = bottomWall,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╔") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftWall,
-                    Right = rightConn,
-                    Front = topWall,
-                    Back = bottomConn,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╗") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftConn,
-                    Right = rightWall,
-                    Front = topWall,
-                    Back = bottomConn,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╚") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftWall,
-                    Right = rightConn,
-                    Front = topConn,
-                    Back = bottomWall,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╝") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftConn,
-                    Right = rightWall,
-                    Front = topConn,
-                    Back = bottomWall,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╠") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftWall,
-                    Right = rightConn,
-                    Front = topConn,
-                    Back = bottomConn,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╣") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftConn,
-                    Right = rightWall,
-                    Front = topConn,
-                    Back = bottomConn,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╦") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftConn,
-                    Right = rightConn,
-                    Front = topWall,
-                    Back = bottomConn,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals("╩") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftConn,
-                    Right = rightConn,
-                    Front = topConn,
-                    Back = bottomWall,
-                }),
-            new EuclideanRule<string>(new() { Guards.Equals(" ") },
-                new EuclideanRuleParameter<string>(){
-                    Left = leftWall,
-                    Right = rightWall,
-                    Front = topWall,
-                    Back = bottomWall,
-                }),
-        }
+        GlobalRules = mazeRules
     }
 };
 
@@ -306,8 +342,8 @@ List<string> domain = ...
 First we define the domain for all variables.
 
 ```C#
-List<string> leftConn = new(){ "╬", "═", "╔", "╚", "╠", "╩", "╦" };
-List<string> leftWall = new(){ "║", "╗", "╝", "╣", " " };
+HashSet<string> leftConn = new(){ "╬", "═", "╔", "╚", "╠", "╩", "╦" };
+HashSet<string> leftWall = new(){ "║", "╗", "╝", "╣", " " };
 ...
 ```
 
@@ -315,16 +351,18 @@ Then we separately define subsets of a domain, which will be used in Rule defeni
 
 ```C#
 
-new EuclideanRule<string>(new(){Guards.Equals("╬")},
-    new EuclideanRuleParameter<string>(){
+EuclideanRule<string>.Create(
+    new() { Guards.Equals("╬") },
+    new EuclideanRuleParameter<string>()
+    {
         Left = leftConn,
         Right = rightConn,
         Front = topConn,
         Back = bottomConn,
-    }),
+    });
 ```
 
-We define Local Rules for each possible value. In other words, the solution machine will check already collapsed variables and, based on spatial proximity, reduce domains of closest undefined variables based on the assigned Local Rule.
+We define Global Rules for each possible value. In other words, the solution machine will check already collapsed variables and, based on spatial proximity, reduce domains of closest undefined variables based on the assigned Euclidean rules.
 
 `EuclideanRule` are special rules that define possible values of variables on left, on front, on right, on back, on top and on bottom of a specific defined variable.
 
