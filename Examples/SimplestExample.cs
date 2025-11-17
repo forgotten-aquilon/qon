@@ -27,11 +27,10 @@ namespace Examples
                 }
             };
 
-            List<char> letters = new() { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
-            //var domain = DomainHelper.SymbolicalDomain(
-            //    new DomainHelper.CharDomainOptions()
-            //        .WithAlphabet('a', 'e'));
-            var domain = new PrimitiveDomain<char>(new HashSet<char>(letters));
+            var domain = DomainHelper.SymbolicalDomain(
+                new DomainHelper.CharDomainOptions()
+                    .WithAlphabet('a', 'e'));
+
             machine.GenerateField(domain, new[] { "V1", "V2", "V3", "V4" });
 
             foreach (var state in machine.States)

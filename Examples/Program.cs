@@ -11,6 +11,6 @@ using qon.Variables.Domains;
 //EverestSudokuExample.Run();
 //EightQueensExample.Run();
 //RotationExample.Run(22);
-MazeExample.Run();
-//WeaselExample.Run();
+//MazeExample.Run();
+WeaselExample.Run();
 //AnchorExpansionExample.Run();
