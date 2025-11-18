@@ -1,6 +1,6 @@
 # qon
 
-qon is a C# library for iterative problem solving. By default it provides functionality for constraint and genetic programming. Originally it was created as a base for implementation of the [Wave-Function Collapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm. Main idea for its usage is a procedural generation, but of course it can be applied for anything else.
+qon is a C# library for iterative backtracking-based problem solving. By default it provides functionality for constraint and genetic programming. Originally it was created as a base for implementation of the [Wave-Function Collapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm. Main idea for its usage is a procedural generation, but of course it can be applied for anything else.
 
 While developing I was additionally inspired by [MarkovJunior](github.com/mxgmn/MarkovJunior), another project of [Maxim Gumin](https://github.com/mxgmn/)(author of WFC), so I utilized some ideas from it. Besides my appreciation to both these projects and their author, I want to highlight that my goal is not to somehow compete or even replace them, but to create its own things. My library is very modular and tries to encompass several different approaches, which unfortunately leads to not-so-good performance — tools created for specific situations always will be better than jack-of-all-trades multitools.
 
@@ -125,6 +125,7 @@ How different Ai instruments were used while developing this library:
      2.2. Another example, when I was playing with [Rotation support](https://github.com/forgotten-aquilon/qon/blob/master/src/Functions/Constraints/EuclideanRotationHelper.cs) I was not sure about how to implement it, so I described the algorithm and asked Codex to produce the code. This code worked as a proof-of-concept for me, so I rewrote it on my own.
 
 - Examples
+  
   - Some examples were initially AI-generated, because I wondered how LLM can play with my own code to produce something new. Basically I just asked AI to write whatever it can using my library and I picked couple of good examples, which were later rewritten due to all API changes. The best example is the [Eight Queens](https://github.com/forgotten-aquilon/qon/blob/master/Examples/EightQueensExample.cs)([Wiki](https://en.wikipedia.org/wiki/Eight_queens_puzzle)), it wasn't working properly, because at that moment Validation was not implemented yet, which forced me to do it.
 
 - Tests

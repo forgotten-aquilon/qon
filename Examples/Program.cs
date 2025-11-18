@@ -12,5 +12,5 @@ using qon.Variables.Domains;
 //EightQueensExample.Run();
 //RotationExample.Run(22);
 //MazeExample.Run();
-WeaselExample.Run();
-//AnchorExpansionExample.Run();
+//WeaselExample.Run();
+AnchorExpansionExample.Run();

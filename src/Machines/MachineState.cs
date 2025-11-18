@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using qon.Exceptions;
 using qon.Layers;
-using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
-using qon.Machines;
 using qon.Variables;
 
-namespace qon
+namespace qon.Machines
 {
     /// <summary>
     /// "Hack" for searching for variables in the field by properties. Working without collection-expressions is not possible in Unity for now.

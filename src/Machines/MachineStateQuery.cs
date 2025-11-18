@@ -2,13 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Exceptions;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
 using qon.Variables.Domains;
 
-namespace qon
+namespace qon.Machines
 {
     //TODO: integrate into the QSL
     public class MachineStateQuery<TQ> : IEnumerable<QVariable<TQ>> where TQ : notnull
