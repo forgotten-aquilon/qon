@@ -21,7 +21,7 @@ namespace qon.Functions.Constraints
             Constraint = constraint;
         }
 
-        public Result Execute(Field<TQ> field, QMachine<TQ>? machine)
+        public Result Execute(Field<TQ> field)
         {
             List<QVariable<TQ>>? relativeVariables = field.Where(Guard.ApplyTo).ToList();
 

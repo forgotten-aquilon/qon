@@ -45,7 +45,7 @@ namespace qon.Layers.StateLayers
             {
                 changes = 0;
 
-                var generalResult = ExecuteConstraints(Constraints.GeneralConstraints, field, Machine);
+                var generalResult = ExecuteConstraints(Constraints.GeneralConstraints, field);
 
                 if (generalResult.Failed)
                 {
@@ -82,7 +82,7 @@ namespace qon.Layers.StateLayers
                 return true;
             }
 
-            return !ExecuteConstraints(Constraints.ValidationConstraints, field, null).Failed;
+            return !ExecuteConstraints(Constraints.ValidationConstraints, field).Failed;
         }
 
         public void Execute(Field<TQ>? previousField, Field<TQ> currentField, Random random)
@@ -97,6 +97,7 @@ namespace qon.Layers.StateLayers
                     continue;
                 }
 
+                //TODO: add caching for domain entropy
                 DomainLayer<TQ> domain = DomainLayer<TQ>.With(variable);
                 double potentialEntropy = domain.Entropy;
 
@@ -116,9 +117,7 @@ namespace qon.Layers.StateLayers
 
             if (!previousField.IsNullOrEmpty())
             {
-                QVariable<TQ>? previousCandidate = previousField.FirstOrDefault(v => v.Name == candidate.Name);
-
-                ExceptionHelper.ThrowIfInternalValueIsNull(previousCandidate, nameof(previousCandidate));
+                QVariable<TQ> previousCandidate = previousField[candidate.Name];
 
                 DomainLayer<TQ>.With(previousCandidate).RemoveValue(value);
             }
@@ -128,10 +127,10 @@ namespace qon.Layers.StateLayers
 
         public static ConstraintLayer<TQ> TryCreate(MachineState<TQ> state, ConstraintLayerParameter<TQ> constraints)
         {
-            if (!state.Layers.TryGetLayer<ConstraintLayer<TQ>>(out var layer))
+            if (!state.LayerManager.TryGetLayer<ConstraintLayer<TQ>>(out var layer))
             {
                 layer = new ConstraintLayer<TQ>(constraints);
-                state.Layers.Add(layer);
+                state.LayerManager.Add(layer);
             }
 
             return layer;
@@ -155,12 +154,12 @@ namespace qon.Layers.StateLayers
             return value;
         }
 
-        private static Result ExecuteConstraints(List<IPreparation<TQ>> rules, Field<TQ> field, QMachine<TQ>? machine)
+        private static Result ExecuteConstraints(List<IPreparation<TQ>> rules, Field<TQ> field)
         {
             int changes = 0;
             foreach (var rule in rules)
             {
-                var result = rule.Execute(field, machine);
+                var result = rule.Execute(field);
 
                 if (result.Failed)
                 {

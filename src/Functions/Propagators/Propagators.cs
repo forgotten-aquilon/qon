@@ -17,20 +17,18 @@ namespace qon.Functions.Propagators
         public static Result AllDistinctPropagator<TQ>(IEnumerable<QVariable<TQ>> variables) where TQ : notnull
         {
             int changes = 0;
+            var allVariables = variables.ToArray();
+            var decided = allVariables.Where(x => x.State != ValueState.Uncertain).Select(y => y.Value.Value).ToList();
 
-            var decided = variables.Where(x => x.State != ValueState.Uncertain).Select(y => y.Value.Value);
-
-            var certainVariablesCount = decided.Count();
+            var certainVariablesCount = decided.Count;
             var distinctVariables = decided.ToHashSet();
 
             if (certainVariablesCount != distinctVariables.Count)
-            {
+            {   
                 return Result.HasErrors();
             }
 
-            var openVariables = variables.Where(x => x.State == ValueState.Uncertain);
-
-            foreach (var variable in openVariables)
+            foreach (var variable in allVariables) if (variable.State == ValueState.Uncertain)
             {
                 changes += DomainLayer<TQ>.With(variable).RemoveValues(distinctVariables);
                 changes += ConstraintLayer<TQ>.TryCollapseVariable(variable).HasValue ? 1 : 0;

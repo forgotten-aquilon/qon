@@ -26,24 +26,37 @@ namespace qon.Functions.Mutations
             _mutationFunction = implementation;
         }
 
-        public List<Field<TQ>> Execute(Field<TQ> field, QMachine<TQ>? machine = null)
+        public List<Field<TQ>> Execute(Field<TQ> field)
         {
             List<Field<TQ>> samples = new List<Field<TQ>>();
 
             for (int i = 0; i < _sampling; i++)
             {
-                Field<TQ> sample = field.Copy();
-
-                foreach (var variable in sample)
-                {
-                    if (_filter.ApplyTo(variable) && field.Machine.Random.GetRandomBool(_frequency))
-                    {
-                        _mutationFunction.Execute(variable);
-                    }
-                }
+                QVariable<TQ>[] fieldCopy = new QVariable<TQ>[field.Count];
+                Array.Copy(field.Variables, fieldCopy, field.Count);
+                Field<TQ> sample = new Field<TQ>(field.Machine, fieldCopy);
 
                 samples.Add(sample);
-            } 
+            }
+
+            for (int i = 0; i < field.Count; i++)
+            {
+                var variable = field[i];
+
+                if (_filter.ApplyTo(variable))
+                {
+                    foreach (var sample in samples)
+                    {
+                        if (field.Machine.Random.GetRandomBool(_frequency))
+                        {
+                            var mutatedVariable = variable.Copy();
+                            _mutationFunction.Execute(mutatedVariable);
+
+                            sample[i] = mutatedVariable;
+                        }
+                    }
+                }
+            }
 
             return samples;
         }

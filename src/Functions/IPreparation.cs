@@ -6,6 +6,6 @@ namespace qon.Functions
 {
     public interface IPreparation<TQ> where TQ : notnull
     {
-        public Result Execute(Field<TQ> field, QMachine<TQ>? machine = null);
+        public Result Execute(Field<TQ> field);
     }
 }

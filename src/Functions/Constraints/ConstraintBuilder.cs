@@ -18,7 +18,7 @@ namespace qon.Functions.Constraints
             Constraint = constraint;
         }
 
-        public Result Execute(Field<TQ> field, QMachine<TQ>? machine)
+        public Result Execute(Field<TQ> field)
         {
             return Constraint(field.Variables);
         }

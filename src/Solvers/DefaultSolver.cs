@@ -127,7 +127,7 @@ namespace qon.Solvers
         {
             int totalChanges = 0;
 
-            foreach (var layer in Current.Layers.SortedByPriority())
+            foreach (var layer in Current.LayerManager.Layers)
             {
                 if (layer is not IStateLayer<TQ> stateLayer) 
                     continue;
@@ -147,7 +147,7 @@ namespace qon.Solvers
 
         public bool Validate()
         {
-            foreach (var layer in Current.Layers.SortedByPriority())
+            foreach (var layer in Current.LayerManager.Layers)
             {
                 if (layer is not IStateLayer<TQ> stateLayer) 
                     continue;
@@ -165,7 +165,7 @@ namespace qon.Solvers
         {
             PreValidationResult result = PreValidationResult.PreValidated;
 
-            foreach (var layer in Current.Layers.SortedByPriority())
+            foreach (var layer in Current.LayerManager.Layers)
             {
                 if (layer is not IStateLayer<TQ> stateLayer)
                     continue;
@@ -188,7 +188,7 @@ namespace qon.Solvers
 
         public void Execute()
         {
-            foreach (var layer in Current.Layers.SortedByPriority())
+            foreach (var layer in Current.LayerManager.Layers)
             {
                 if (layer is not IStateLayer<TQ> stateLayer)
                     continue;

@@ -19,7 +19,7 @@ namespace Examples
                 for (int x = 0; x < size; x++)
                 {
                     var variable = state[v =>
-                        v.Layers.With<EuclideanLayer<T>>() is var layer
+                        v.LayerManager.With<EuclideanLayer<T>>() is var layer
                         && layer.X == x
                         && layer.Y == y].Result.FirstOrDefault();
 

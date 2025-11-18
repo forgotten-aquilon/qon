@@ -65,20 +65,20 @@ namespace qon.Machines
     public class MachineState<TQ> : ILayerHolder<TQ, MachineState<TQ>> where TQ : notnull
     {
         public QMachine<TQ> Machine { get; protected set; }
-        public LayersManager<TQ, MachineState<TQ>> Layers { get; set; }
+        public LayersManager<TQ, MachineState<TQ>> LayerManager { get; set; }
         public Field<TQ> Field { get; protected set; }
 
         public MachineState(QMachine<TQ> machine)
         {
             Machine = machine;
-            Layers = new LayersManager<TQ, MachineState<TQ>>(this);
+            LayerManager = new LayersManager<TQ, MachineState<TQ>>(this);
             Field = new Field<TQ>(machine);
         }
 
         public MachineState(QMachine<TQ> machine, QVariable<TQ>[] field)
         {
             Machine = machine;
-            Layers = new LayersManager<TQ, MachineState<TQ>>(this);
+            LayerManager = new LayersManager<TQ, MachineState<TQ>>(this);
             Field = new Field<TQ>(machine, field);
         }
 

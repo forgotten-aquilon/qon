@@ -12,7 +12,7 @@ namespace qon.Machines
     public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
     {
         public QVariable<TQ>[] Variables { get; protected set; }
-        public readonly QMachine<TQ> Machine;    
+        public QMachine<TQ> Machine { get; private set; }    
         public int Count => Variables.Length;
 
         public Field(QMachine<TQ> machine)

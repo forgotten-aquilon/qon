@@ -21,7 +21,7 @@ namespace qon.Variables
         public string Name { get; protected set; }
         //TODO: Still not sure about general properties, when there are layers
         public Dictionary<string, ValueType> Properties { get; set; } = new Dictionary<string, ValueType>();
-        public LayersManager<TQ, QVariable<TQ>> Layers { get; protected set; }
+        public LayersManager<TQ, QVariable<TQ>> LayerManager { get; protected set; }
         public Optional<TQ> Value { get; set; } = Optional<TQ>.Empty;
         public ValueState State { get; set; } = ValueState.Uncertain;
 
@@ -33,7 +33,7 @@ namespace qon.Variables
 
         protected QVariable()
         {
-            Layers = new LayersManager<TQ, QVariable<TQ>>(this);
+            LayerManager = new LayersManager<TQ, QVariable<TQ>>(this);
 
             Name = "";
         }
@@ -41,7 +41,7 @@ namespace qon.Variables
         //TODO Rework with New/Empty
         public QVariable(string name)
         {
-            Layers = new LayersManager<TQ, QVariable<TQ>>(this);
+            LayerManager = new LayersManager<TQ, QVariable<TQ>>(this);
 
             if (string.IsNullOrEmpty(name))
             {
@@ -96,7 +96,7 @@ namespace qon.Variables
                 Value = Value,
                 State = State,
                 Machine = Machine,
-                Layers = { Layers }
+                LayerManager = { LayerManager }
             };
         }
 

@@ -12,7 +12,7 @@ namespace qon.Functions.Constraints
         protected Filter<TQ>? GroupingAggregator { get; set; }
         protected QPredicate<TQ>? SelectingAggregator { get; set; }
 
-        public abstract Result Execute(Field<TQ> field, QMachine<TQ>? machine);
+        public abstract Result Execute(Field<TQ> field);
 
         protected ConstraintBase(Filter<TQ> grouping)
         {

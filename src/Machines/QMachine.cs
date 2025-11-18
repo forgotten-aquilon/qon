@@ -132,7 +132,7 @@ namespace qon.Machines
             }
 
             var layer = EuclideanStateLayer<TQ>.GetOrCreate(State);
-            layer.FieldGrid = new string[dimensions.x, dimensions.y, dimensions.z];
+            layer.FieldGrid = new Guid[dimensions.x, dimensions.y, dimensions.z];
 
             for (int x = 0; x < dimensions.x; x++)
             {
@@ -149,7 +149,7 @@ namespace qon.Machines
                         DomainLayer<TQ>.GetOrCreate(newVariable).AssignDomain(domain);
                         EuclideanLayer<TQ>.GetOrCreate(newVariable).Update(x, y, z);
 
-                        layer.FieldGrid[x, y, z] = name;
+                        layer.FieldGrid[x, y, z] = newVariable.Id;
                         variables.Add(newVariable);
                     }
                 }
