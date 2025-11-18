@@ -20,7 +20,7 @@ namespace Examples
 
         public static void Run()
         {
-            var random = new Random();
+            var random = new Random(42);
             var machine = new QMachine<char>(
                 new QMachineParameter<char> { Random = random });
 

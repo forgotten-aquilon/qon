@@ -1,15 +1,13 @@
-﻿using qon.Helpers;
-using qon.Layers.VariableLayers;
-using qon.Machines;
-using qon.Variables;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using qon.Helpers;
+using qon.Layers.VariableLayers;
+using qon.Variables;
 
-namespace qon
+namespace qon.Machines
 {
     public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
     {

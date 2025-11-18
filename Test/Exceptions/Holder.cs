@@ -1,6 +1,6 @@
 namespace qon.Tests.Exceptions
 {
-    public static class ExceptiontestsData
+    public static class ExceptionTestsData
     {
         public class Holder
         {

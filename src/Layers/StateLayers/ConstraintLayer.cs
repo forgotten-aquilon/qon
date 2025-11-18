@@ -10,19 +10,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
+using qon.Solvers;
 
 namespace qon.Layers.StateLayers
 {
+    public class ConstraintLayerParameter<TQ> where TQ : notnull
+    {
+        public List<IPreparation<TQ>> GeneralConstraints { get; set; } = new List<IPreparation<TQ>>();
+        public List<IPreparation<TQ>>? ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
+    }
+
     public class ConstraintLayer<TQ> : BaseLayer<TQ, ConstraintLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>,
         IStateLayer<TQ> where TQ : notnull
     {
-        public RuleHandler<TQ> Constraints { get; set; } = new();
+        public ConstraintLayerParameter<TQ> Constraints { get; set; } = new();
 
         public ConstraintLayer()
         {
         }
 
-        public ConstraintLayer(RuleHandler<TQ> constraints)
+        public ConstraintLayer(ConstraintLayerParameter<TQ> constraints)
         {
             Constraints = constraints;
         }
@@ -119,7 +126,7 @@ namespace qon.Layers.StateLayers
 
         #endregion
 
-        public static ConstraintLayer<TQ> TryCreate(MachineState<TQ> state, RuleHandler<TQ> constraints)
+        public static ConstraintLayer<TQ> TryCreate(MachineState<TQ> state, ConstraintLayerParameter<TQ> constraints)
         {
             if (!state.Layers.TryGetLayer<ConstraintLayer<TQ>>(out var layer))
             {

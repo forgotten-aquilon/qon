@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
 using qon.Functions.Mutations;
+using qon.Machines;
 using qon.Variables;
 
 namespace qon.Functions.Replacers

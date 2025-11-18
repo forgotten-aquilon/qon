@@ -1,4 +1,4 @@
-﻿namespace qon
+﻿namespace qon.Solvers
 {
     public enum PreValidationResult
     {

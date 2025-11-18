@@ -47,7 +47,7 @@ namespace qon.Tests.Exceptions
         [Fact]
         public void ThrowIfFieldIsNull_WhenNull_ThrowsFieldNullException()
         {
-            var holder = new ExceptiontestsData.Holder();
+            var holder = new ExceptionTestsData.Holder();
 
             Assert.Throws<FieldNullException>(() => ExceptionHelper.ThrowIfFieldIsNull(holder.Value, nameof(holder.Value)));
         }

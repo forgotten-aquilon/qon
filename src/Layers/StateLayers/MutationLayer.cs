@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Machines;
+using qon.Solvers;
 
 namespace qon.Layers.StateLayers
 {
