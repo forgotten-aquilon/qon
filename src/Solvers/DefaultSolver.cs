@@ -195,7 +195,7 @@ namespace qon.Solvers
 
                 _solutionStack.TryPeek(out var previousField);
 
-                stateLayer.Execute(previousField, Current.Field, Machine.Random);
+                stateLayer.Execute(previousField, Current.Field);
             }
         }
 

@@ -14,9 +14,14 @@ namespace qon.Functions.QSL
             return new QSLConstraintBuilder<TQ>();
         }
 
-        public static QSLMutationBuilder<TQ> Mutation<TQ>() where TQ : notnull
+        public static QSLMutationBuilder<TQ> CreateMutation<TQ>() where TQ : notnull
         {
             return new QSLMutationBuilder<TQ>();
+        }
+
+        public static QSLMutationParameterBuilder<TQ> Mutation<TQ>() where TQ : notnull
+        {
+            return new QSLMutationParameterBuilder<TQ>();
         }
 
         public static Func<QVariable<TQ>, Result> VonNeumann<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull

@@ -11,19 +11,30 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
+    public class GeneralMutationParameter<TQ> where TQ : notnull
+    {
+        public QPredicate<TQ> Filter { get; set; }
+        public double Frequency { get; set; }
+        public VariableMutation<TQ> MutationFunction { get; set; }
+
+        public GeneralMutationParameter(QPredicate<TQ> filter, double frequency, VariableMutation<TQ> mutationFunction)
+        {
+            Filter = filter;
+            Frequency = frequency;
+            MutationFunction = mutationFunction;
+        }
+    }
+
     public class GeneralMutation<TQ> where TQ : notnull
     {
-        private readonly QPredicate<TQ> _filter;
         private readonly int _sampling = 1;
-        private readonly double _frequency = 1.0;
-        private readonly VariableMutation<TQ> _mutationFunction;
 
-        public GeneralMutation(QPredicate<TQ> filter, int sampling, double frequency, VariableMutation<TQ> implementation)
+        private readonly List<GeneralMutationParameter<TQ>> _mutations;
+
+        public GeneralMutation(List<GeneralMutationParameter<TQ>> mutation, int sampling)
         {
-            _filter = filter;
             _sampling = sampling;
-            _frequency = frequency;
-            _mutationFunction = implementation;
+            _mutations = mutation;
         }
 
         public List<Field<TQ>> Execute(Field<TQ> field)
@@ -43,16 +54,19 @@ namespace qon.Functions.Mutations
             {
                 var variable = field[i];
 
-                if (_filter.ApplyTo(variable))
+                foreach (var mutation in _mutations)
                 {
-                    foreach (var sample in samples)
+                    if (mutation.Filter.ApplyTo(variable))
                     {
-                        if (field.Machine.Random.GetRandomBool(_frequency))
+                        foreach (var sample in samples)
                         {
-                            var mutatedVariable = variable.Copy();
-                            _mutationFunction.Execute(mutatedVariable);
+                            if (field.Machine.Random.GetRandomBool(mutation.Frequency))
+                            {
+                                var mutatedVariable = variable.Copy();
+                                mutation.MutationFunction.Execute(mutatedVariable);
 
-                            sample[i] = mutatedVariable;
+                                sample[i] = mutatedVariable;
+                            }
                         }
                     }
                 }

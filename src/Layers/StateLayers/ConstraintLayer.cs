@@ -14,27 +14,33 @@ using qon.Solvers;
 
 namespace qon.Layers.StateLayers
 {
-    public class ConstraintLayerParameter<TQ> where TQ : notnull
+    public class ConstraintLayerParameter<TQ> : BaseStateFunctionalParameter<TQ>
+        where TQ : notnull
     {
         public List<IPreparation<TQ>> GeneralConstraints { get; set; } = new List<IPreparation<TQ>>();
         public List<IPreparation<TQ>>? ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
     }
 
-    public class ConstraintLayer<TQ> : BaseLayer<TQ, ConstraintLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>,
+    public class ConstraintLayer<TQ> : BaseLayer<TQ, ConstraintLayer<TQ>, MachineState<TQ>>, 
+        ILayer<TQ, MachineState<TQ>>,
         IStateLayer<TQ> where TQ : notnull
     {
         public ConstraintLayerParameter<TQ> Constraints { get; set; } = new();
 
         public ConstraintLayer()
         {
+            BaseParameter = new ConstraintLayerParameter<TQ>();
         }
 
         public ConstraintLayer(ConstraintLayerParameter<TQ> constraints)
         {
             Constraints = constraints;
+            BaseParameter = constraints;
         }
 
         #region Solving lifecycle
+
+        public BaseStateFunctionalParameter<TQ> BaseParameter { get; set; }
 
         public Result Prepare(Field<TQ> field)
         {
@@ -85,7 +91,7 @@ namespace qon.Layers.StateLayers
             return !ExecuteConstraints(Constraints.ValidationConstraints, field).Failed;
         }
 
-        public void Execute(Field<TQ>? previousField, Field<TQ> currentField, Random random)
+        public void Execute(Field<TQ>? previousField, Field<TQ> currentField)
         {
             double entropy = double.MaxValue;
             QVariable<TQ>? candidate = null;
@@ -111,7 +117,7 @@ namespace qon.Layers.StateLayers
             ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
 
             DomainLayer<TQ> domainLayer = DomainLayer<TQ>.With(candidate);
-            TQ value = domainLayer.GetRandomValue(random);
+            TQ value = domainLayer.GetRandomValue(currentField.Machine.Random);
 
             Collapse(candidate, value);
 

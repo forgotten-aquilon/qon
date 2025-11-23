@@ -30,11 +30,13 @@ namespace Examples
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
-                MutationFunction = QSL.Mutation<char>()
-                    .When(Filters.All<char>())
-                    .Sampling(100)
-                    .Frequency(0.1)
-                    .Into(Mutations<char>.RandomFromDomain)
+                MutationFunction = QSL.CreateMutation<char>()
+                    .Sampling(50)
+                    .AddMutation(QSL.Mutation<char>()
+                        .Frequency(0.1)
+                        .When(Filters.All<char>())
+                        .Into(Mutations<char>.RandomFromDomain)
+                        .Build())
                     .Build(),
                 Fitness = BuildFitness(target)
             };

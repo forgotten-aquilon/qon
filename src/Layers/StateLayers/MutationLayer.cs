@@ -30,13 +30,16 @@ namespace qon.Layers.StateLayers
         public MutationLayer()
         {
             _parameter = new MutationLayerParameter<TQ>();
+            BaseParameter = new BaseStateFunctionalParameter<TQ>();
         }
 
         #region Solving lifecycle
 
+        public BaseStateFunctionalParameter<TQ> BaseParameter { get; set; }
+
         public Result Prepare(Field<TQ> field)
         {
-            var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter?.MutationFunction, nameof(_parameter.MutationFunction));
+            var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter.MutationFunction, nameof(_parameter.MutationFunction));
 
             Samples = mutationFunction(field);
 
@@ -85,7 +88,7 @@ namespace qon.Layers.StateLayers
             return true;
         }
 
-        public void Execute(Field<TQ>? previousField, Field<TQ> currentField, Random random)
+        public void Execute(Field<TQ>? previousField, Field<TQ> currentField)
         {
             ExceptionHelper.ThrowIfInternalValueIsNull(_bestSample);
             currentField.Update(_bestSample.Variables);
