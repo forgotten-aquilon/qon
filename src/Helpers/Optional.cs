@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace qon.Helpers
@@ -9,15 +10,20 @@ namespace qon.Helpers
 
     }
 
-    public struct Optional<T> : ICloneable, ICopy<Optional<T>>
+    /// <summary>
+    /// Internal implementation of Either/Optional monad
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public struct Optional<T> : ICloneable, ICopy<Optional<T>>, IEquatable<Optional<T>>
     {
-        //TODO: Update to C# 10 when available (default)
-        private T? _value;
+        private static readonly EqualityComparer<T> Comparer = EqualityComparer<T>.Default;
 
         //TODO: Update to C# 10 when available (default)
-        public bool HasValue { get; }
+        private readonly T? _value;
 
-        public T Value
+        public bool HasValue => _value is not null;
+
+        public readonly T Value
         {
             get
             {
@@ -37,20 +43,21 @@ namespace qon.Helpers
             if (value is null)
             {
                 this = Empty;
-                HasValue = false;
                 return;
             }
 
             _value = value;
-            HasValue = true;
         }
 
+        /// <summary>
+        /// asd
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckValue(in T value)
         {
-#pragma warning disable CS8602
-            return HasValue && EqualityComparer<T>.Default.Equals(Value, value);
-#pragma warning restore CS8602 
+            return HasValue && Comparer.Equals(Value, value);
         }
 
         public bool TryGetValue(out T? value)
@@ -74,54 +81,64 @@ namespace qon.Helpers
         /// Use Optional&lt;T&gt; a = b.Copy() instead of Optional&lt;T&gt; a = b;
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Optional<T> Copy()
         {
             return (Optional<T>)Clone();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
-#pragma warning disable CS8602
-            return !HasValue ? 0 : Value.GetHashCode();
-#pragma warning restore CS8602
+            return !HasValue ? 0 : Value!.GetHashCode();
         }
 
-        public static bool operator ==(Optional<T> left, Optional<T> right)
+        #region Equality
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(Optional<T> other)
         {
-            if (!left.HasValue && !right.HasValue)
+            if (!HasValue && !other.HasValue)
             {
                 return true;
             }
 
-            if (left.HasValue != right.HasValue)
+            if (HasValue == !other.HasValue)
             {
                 return false;
             }
 
-#pragma warning disable CS8602
-            return left.Value.Equals(right.Value);
-#pragma warning restore CS8602
+            return Comparer.Equals(Value, other.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object? obj)
+        {
+            if (obj is Optional<T> right)
+            {
+                return this.Equals(right);
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(Optional<T> left, Optional<T> right)
+        {
+            return left.Equals(right);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Optional<T> left, Optional<T> right)
         {
             return !(left == right);
         }
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is Optional<T> right)
-            {
-                return this == right;
-            }
-            return false;
-        }
+        #endregion
 
         public override string ToString()
         {
-#pragma warning disable CS8602, CS8603
-            return HasValue ? Value.ToString() : nameof(Optional<T>);
-#pragma warning restore CS8602, CS8603
+            return HasValue ? Value!.ToString()! : nameof(Optional<T>);
         }
 
         public static Optional<T> Of(T value)

@@ -62,10 +62,25 @@ namespace qon.Machines
         }
     }
 
+    /// <summary>
+    /// Wrapper class for working with current <see cref="Field{TQ}"/>
+    /// </summary>
+    /// <typeparam name="TQ"></typeparam>
     public class MachineState<TQ> : ILayerHolder<TQ, MachineState<TQ>> where TQ : notnull
     {
+        /// <summary>
+        /// Instance of the current Machine
+        /// </summary>
         public QMachine<TQ> Machine { get; protected set; }
+
+        /// <summary>
+        /// Layers' manager, attached to <see cref="MachineState{TQ}"/>
+        /// </summary>
         public LayersManager<TQ, MachineState<TQ>> LayerManager { get; set; }
+
+        /// <summary>
+        /// Current field of variables
+        /// </summary>
         public Field<TQ> Field { get; protected set; }
 
         public MachineState(QMachine<TQ> machine)
@@ -75,17 +90,16 @@ namespace qon.Machines
             Field = new Field<TQ>(machine);
         }
 
-        public MachineState(QMachine<TQ> machine, QVariable<TQ>[] field)
-        {
-            Machine = machine;
-            LayerManager = new LayersManager<TQ, MachineState<TQ>>(this);
-            Field = new Field<TQ>(machine, field);
-        }
-
+        /// <summary>
+        /// Updates variables of the current <see cref="Field"/>
+        /// </summary>
+        /// <param name="field"></param>
         public void SetField(QVariable<TQ>[] field)
         {
             Field.Update(field);
         }
+
+        #region Queries
 
         public SearchResult<TQ> this[string name, object value]
         {
@@ -109,6 +123,8 @@ namespace qon.Machines
         {
             return new MachineStateQuery<TQ>(Field.Variables);
         }
+
+        #endregion
 
         public override string ToString()
         {

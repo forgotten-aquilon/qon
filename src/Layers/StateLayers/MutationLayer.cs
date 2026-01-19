@@ -16,7 +16,7 @@ namespace qon.Layers.StateLayers
     {
         public Func<Field<TQ>, List<Field<TQ>>>? MutationFunction { get; set; }
 
-        public Func<Field<TQ>, int>? Fitness;
+        public Func<Field<TQ>, int>? Fitness { get; set; }
     }
 
     public class MutationLayer<TQ> : BaseLayer<TQ, MutationLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>, IStateLayer<TQ> where TQ : notnull
