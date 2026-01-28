@@ -9,10 +9,25 @@ using qon.Variables;
 
 namespace qon.Machines
 {
+    /// <summary>
+    /// Collection of <see cref="QVariable{TQ}"/>
+    /// </summary>
+    /// <typeparam name="TQ"></typeparam>
     public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
     {
+        /// <summary>
+        /// All variables of the current Field
+        /// </summary>
         public QVariable<TQ>[] Variables { get; protected set; }
-        public readonly QMachine<TQ> Machine;    
+
+        /// <summary>
+        /// Instance of the current Machine
+        /// </summary>
+        public QMachine<TQ> Machine { get; private set; }    
+
+        /// <summary>
+        /// Amount of <see cref="Variables"/>
+        /// </summary>
         public int Count => Variables.Length;
 
         public Field(QMachine<TQ> machine)
@@ -27,6 +42,10 @@ namespace qon.Machines
             Variables = variables;
         }
 
+        /// <summary>
+        /// Overwrites variables of Field with new ones
+        /// </summary>
+        /// <param name="variables"></param>
         public void Update(QVariable<TQ>[] variables)
         {
             Variables = variables;
@@ -42,18 +61,33 @@ namespace qon.Machines
             return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray());
         }
 
+        /// <summary>
+        /// Return <see cref="QVariable{TQ}"/> from the Field based on its numerical position in the array
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public QVariable<TQ> this[int index]
         {
             get => Variables[index];
             set => Variables[index] = value;
         }
 
+        /// <summary>
+        /// Return <see cref="QVariable{TQ}"/> from the Field based on its name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public QVariable<TQ> this[string name]
         {
             get => Variables[Machine.NamedIndexer[name]];
             set => Variables[Machine.NamedIndexer[name]] = value;
         }
 
+        /// <summary>
+        /// Returns <see cref="QVariable{TQ}"/> from the Field based on its <see cref="Guid"/>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public QVariable<TQ> this[Guid id]
         {
             get => Variables[Machine.GuidIndexer[id]];

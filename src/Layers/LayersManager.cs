@@ -13,8 +13,27 @@ namespace qon.Layers
         where TQ : notnull
         where THolder : ILayerHolder<TQ, THolder>
     {
+        private ILayer<TQ, THolder>[] _sortedLayers = Array.Empty<ILayer<TQ, THolder>>();
+
         public THolder Holder { get; private set; }
         public QMachine<TQ> Machine => Holder.Machine;
+
+
+        //Basically initialized only once and never updated
+        public IReadOnlyList<ILayer<TQ, THolder>> Layers
+        {
+            get
+            {
+                if (_sortedLayers.Length == 0)
+                {
+                    _sortedLayers = Items
+                        .OrderBy(layer => (layer as BaseLayer)?.PriorityIndex ?? int.MaxValue)
+                        .ToArray();
+                }
+
+                return _sortedLayers;
+            }
+        }
 
         public LayersManager(THolder holder)
         {
@@ -64,13 +83,6 @@ namespace qon.Layers
             }
 
             return default;
-        }
-
-        public IEnumerable<ILayer<TQ, THolder>> SortedByPriority()
-        {
-            return Items
-                .OrderBy(layer => (layer as BaseLayer)?.PriorityIndex ?? int.MaxValue)
-                .ToArray();
         }
 
         public void Add(LayersManager<TQ, THolder> layers)

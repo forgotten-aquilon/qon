@@ -11,39 +11,66 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
+    public class GeneralMutationParameter<TQ> where TQ : notnull
+    {
+        public QPredicate<TQ> Filter { get; set; }
+        public double Frequency { get; set; }
+        public VariableMutation<TQ> MutationFunction { get; set; }
+
+        public GeneralMutationParameter(QPredicate<TQ> filter, double frequency, VariableMutation<TQ> mutationFunction)
+        {
+            Filter = filter;
+            Frequency = frequency;
+            MutationFunction = mutationFunction;
+        }
+    }
+
     public class GeneralMutation<TQ> where TQ : notnull
     {
-        private readonly QPredicate<TQ> _filter;
         private readonly int _sampling = 1;
-        private readonly double _frequency = 1.0;
-        private readonly VariableMutation<TQ> _mutationFunction;
 
-        public GeneralMutation(QPredicate<TQ> filter, int sampling, double frequency, VariableMutation<TQ> implementation)
+        private readonly List<GeneralMutationParameter<TQ>> _mutations;
+
+        public GeneralMutation(List<GeneralMutationParameter<TQ>> mutation, int sampling)
         {
-            _filter = filter;
             _sampling = sampling;
-            _frequency = frequency;
-            _mutationFunction = implementation;
+            _mutations = mutation;
         }
 
-        public List<Field<TQ>> Execute(Field<TQ> field, QMachine<TQ>? machine = null)
+        public List<Field<TQ>> Execute(Field<TQ> field)
         {
             List<Field<TQ>> samples = new List<Field<TQ>>();
 
             for (int i = 0; i < _sampling; i++)
             {
-                Field<TQ> sample = field.Copy();
-
-                foreach (var variable in sample)
-                {
-                    if (_filter.ApplyTo(variable) && field.Machine.Random.GetRandomBool(_frequency))
-                    {
-                        _mutationFunction.Execute(variable);
-                    }
-                }
+                QVariable<TQ>[] fieldCopy = new QVariable<TQ>[field.Count];
+                Array.Copy(field.Variables, fieldCopy, field.Count);
+                Field<TQ> sample = new Field<TQ>(field.Machine, fieldCopy);
 
                 samples.Add(sample);
-            } 
+            }
+
+            for (int i = 0; i < field.Count; i++)
+            {
+                var variable = field[i];
+
+                foreach (var mutation in _mutations)
+                {
+                    if (mutation.Filter.ApplyTo(variable))
+                    {
+                        foreach (var sample in samples)
+                        {
+                            if (field.Machine.Random.GetRandomBool(mutation.Frequency))
+                            {
+                                var mutatedVariable = variable.Copy();
+                                mutation.MutationFunction.Execute(mutatedVariable);
+
+                                sample[i] = mutatedVariable;
+                            }
+                        }
+                    }
+                }
+            }
 
             return samples;
         }

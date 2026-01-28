@@ -30,7 +30,7 @@ namespace qon.Layers
 
         public static TSelf With(THolder holder)
         {
-            holder.Layers.TryGetLayer<TSelf>(out var layer);
+            holder.LayerManager.TryGetLayer<TSelf>(out var layer);
 
             ExceptionHelper.ThrowIfInternalValueIsNull(layer, nameof(layer));
 
@@ -39,17 +39,17 @@ namespace qon.Layers
 
         public static TSelf? From(THolder holder)
         {
-            holder.Layers.TryGetLayer<TSelf>(out TSelf? layer);
+            holder.LayerManager.TryGetLayer<TSelf>(out TSelf? layer);
             return layer;
         }
 
         public static TSelf GetOrCreate(THolder holder)
         {
-            if (!holder.Layers.TryGetLayer<TSelf>(out var layer))
+            if (!holder.LayerManager.TryGetLayer<TSelf>(out var layer))
             {
                 layer = new TSelf();
-                holder.Layers.Add(layer);
-                layer._manager = holder.Layers;
+                holder.LayerManager.Add(layer);
+                layer._manager = holder.LayerManager;
             }
 
             return layer;

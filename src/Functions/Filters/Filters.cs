@@ -20,7 +20,7 @@ namespace qon.Functions.Filters
         {
             return new Filter<TQ>(v =>
             {
-                if (v.Layers.GetLayerOrNull<TIn>() is TIn layer)
+                if (v.LayerManager.GetLayerOrNull<TIn>() is TIn layer)
                 {
                     return func(layer);
                 }

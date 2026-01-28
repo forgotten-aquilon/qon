@@ -40,7 +40,7 @@ namespace qon.Functions.Filters
 
         public static QPredicate<TQ> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<TQ, QVariable<TQ>>
         {
-            return new QPredicate<TQ>(variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>()));
+            return new QPredicate<TQ>(variable => predicate((TLayer)variable.LayerManager.GetLayer<TLayer>()));
         }
     }
 }

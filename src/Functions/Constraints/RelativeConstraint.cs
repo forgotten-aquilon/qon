@@ -25,7 +25,7 @@ namespace qon.Functions.Constraints
             AggregationFactory = aggregationFactory;
         }
 
-        public virtual Result Execute(Field<TQ> field, QMachine<TQ>? machine)
+        public virtual Result Execute(Field<TQ> field)
         {
             IEnumerable<QVariable<TQ>>? relativeVariables = field.Where(Guard.ApplyTo);
 
@@ -41,7 +41,7 @@ namespace qon.Functions.Constraints
 
         public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TLayer : ILayer<TQ, QVariable<TQ>>
         {
-            return variable => predicate((TLayer)variable.Layers.GetLayer<TLayer>());
+            return variable => predicate((TLayer)variable.LayerManager.GetLayer<TLayer>());
         }
     }
 }

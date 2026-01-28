@@ -10,28 +10,55 @@ using qon.Machines;
 
 namespace qon.Solvers
 {
+    /// <summary>
+    /// Default implementation of <see cref="ISolver{TQ}"/>
+    /// </summary>
+    /// <typeparam name="TQ"></typeparam>
     public class DefaultSolver<TQ> : ISolver<TQ> where TQ : notnull
     {
+        /// <summary>
+        /// Function used for initialization of Solver with the instance of <see cref="QMachine{TQ}"/>
+        /// </summary>
         public static Func<QMachine<TQ>, ISolver<TQ>> Injection => (machine) => new DefaultSolver<TQ>(machine);
 
+        /// <summary>
+        /// Current amount of all steps performed by Solver
+        /// </summary>
         public int StepCounter { get; protected set; } = -1;
+
+        /// <summary>
+        /// Current amount of all steps performed by Solver while backtracking
+        /// </summary>
         public int BackStepCounter { get; protected set; } = -1;
 
+        /// <summary>
+        /// Instance of the current Machine
+        /// </summary>
         public QMachine<TQ> Machine { get; }
 
+        /// <summary>
+        /// Instance of the current <see cref="MachineState{TQ}"/>
+        /// </summary>
         public MachineState<TQ> Current => Machine.State;
 
         object IEnumerator.Current => Current;
     
+        /// <summary>
+        /// Stack discrete steps made by Solver, representing the state of the Field
+        /// </summary>
         private readonly Stack<Field<TQ>> _solutionStack;
 
-        public DefaultSolver(QMachine<TQ> machine)
+        private DefaultSolver(QMachine<TQ> machine)
         {
             _solutionStack = new Stack<Field<TQ>>();
 
             Machine = machine;
         }
 
+        /// <summary>
+        /// Adds <see cref="Current"/> Field to the <see cref="_solutionStack"/>
+        /// </summary>
+        /// <returns></returns>
         private int GoForth()
         {
             _solutionStack.Push(Current.Field.Copy());
@@ -39,6 +66,10 @@ namespace qon.Solvers
             return 1;
         }
 
+        /// <summary>
+        /// Removes the top element of <see cref="_solutionStack"/>, updates field of <see cref="Current"/> with the new top element from the stack, or sets status to Error
+        /// </summary>
+        /// <returns></returns>
         private int GoBack()
         {
             _solutionStack.Pop();
@@ -56,6 +87,11 @@ namespace qon.Solvers
             return 1;
         }
 
+        /// <summary>
+        /// Main loop for step-by-step calculation of the Solution, based on specified rules.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InternalLogicException"></exception>
         public bool MoveNext()
         {
             ExceptionHelper.ThrowIfFieldIsNull(Machine, nameof(Machine));
@@ -123,11 +159,16 @@ namespace qon.Solvers
             return changes != 0;
         }
 
+        /// <summary>
+        /// Preparation stage in a calculation step.
+        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to perform initial step in solving.
+        /// </summary>
+        /// <returns></returns>
         public Result Prepare()
         {
             int totalChanges = 0;
 
-            foreach (var layer in Current.Layers.SortedByPriority())
+            foreach (var layer in Current.LayerManager.Layers)
             {
                 if (layer is not IStateLayer<TQ> stateLayer) 
                     continue;
@@ -145,27 +186,17 @@ namespace qon.Solvers
             return Result.Success(totalChanges);
         }
 
-        public bool Validate()
-        {
-            foreach (var layer in Current.Layers.SortedByPriority())
-            {
-                if (layer is not IStateLayer<TQ> stateLayer) 
-                    continue;
-
-                if (stateLayer.Validate(Current.Field)) 
-                    continue;
-                    
-                return false;
-            }
-
-            return true;
-        }
-
+        /// <summary>
+        /// Prevalidation stage in a calculation step.
+        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to perform main step in solving.
+        /// On this step it's possible to determine, should the calculation be continued or returned to a previous step.
+        /// </summary>
+        /// <returns></returns>
         public PreValidationResult PreValidate()
         {
             PreValidationResult result = PreValidationResult.PreValidated;
 
-            foreach (var layer in Current.Layers.SortedByPriority())
+            foreach (var layer in Current.LayerManager.Layers)
             {
                 if (layer is not IStateLayer<TQ> stateLayer)
                     continue;
@@ -186,16 +217,41 @@ namespace qon.Solvers
             return result;
         }
 
+        /// <summary>
+        /// Validation stage in a calculation step.
+        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to check compliance of current solution with all rules.
+        /// </summary>
+        /// <returns></returns>
+        public bool Validate()
+        {
+            foreach (var layer in Current.LayerManager.Layers)
+            {
+                if (layer is not IStateLayer<TQ> stateLayer) 
+                    continue;
+
+                if (stateLayer.Validate(Current.Field)) 
+                    continue;
+                    
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Execution stage in a calculation step
+        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to update current field according to performed calculations.
+        /// </summary>
         public void Execute()
         {
-            foreach (var layer in Current.Layers.SortedByPriority())
+            foreach (var layer in Current.LayerManager.Layers)
             {
                 if (layer is not IStateLayer<TQ> stateLayer)
                     continue;
 
                 _solutionStack.TryPeek(out var previousField);
 
-                stateLayer.Execute(previousField, Current.Field, Machine.Random);
+                stateLayer.Execute(previousField, Current.Field);
             }
         }
 

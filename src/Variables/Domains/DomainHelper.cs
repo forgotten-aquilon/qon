@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace qon.Variables.Domains
 {
@@ -12,19 +13,11 @@ namespace qon.Variables.Domains
     {
         #region Pre-built Domains
 
-        private const int EnglishAlphabetLength = 26;
-
-        public enum Case
-        {
-            Lower,
-            Upper,
-            Both
-        }
-
         public class CharDomainOptions
         {
             public HashSet<char> Symbols { get; } = new();
 
+            //TODO: add check for same script symbols
             public CharDomainOptions WithAlphabet(char leftSymbol, char rightSymbol)
             {
                 var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsLetter(leftSymbol));

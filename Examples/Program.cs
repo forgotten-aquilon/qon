@@ -1,6 +1,8 @@
 #pragma warning disable
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Examples;
 using qon.Variables.Domains;
 

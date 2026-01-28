@@ -10,8 +10,20 @@ namespace qon.Solvers
     public interface ISolver<TQ> : IEnumerator<MachineState<TQ>> where TQ : notnull
     {
         //TODO: Update with abstract static members when Unity supports it
+
+        /// <summary>
+        /// Function used for initialization of Solver with the instance of <see cref="QMachine{TQ}"/>
+        /// </summary>
         public static Func<QMachine<TQ>, ISolver<TQ>> Injection => throw new NotImplementedException();
+
+        /// <summary>
+        /// Current amount of all steps performed by Solver
+        /// </summary>
         public int StepCounter { get; }
+
+        /// <summary>
+        /// Current amount of all steps performed by Solver while backtracking
+        /// </summary>
         public int BackStepCounter { get; }
     }
 }

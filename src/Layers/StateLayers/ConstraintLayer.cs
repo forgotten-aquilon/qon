@@ -14,27 +14,33 @@ using qon.Solvers;
 
 namespace qon.Layers.StateLayers
 {
-    public class ConstraintLayerParameter<TQ> where TQ : notnull
+    public class ConstraintLayerParameter<TQ> : BaseStateFunctionalParameter<TQ>
+        where TQ : notnull
     {
         public List<IPreparation<TQ>> GeneralConstraints { get; set; } = new List<IPreparation<TQ>>();
         public List<IPreparation<TQ>>? ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
     }
 
-    public class ConstraintLayer<TQ> : BaseLayer<TQ, ConstraintLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>,
+    public class ConstraintLayer<TQ> : BaseLayer<TQ, ConstraintLayer<TQ>, MachineState<TQ>>, 
+        ILayer<TQ, MachineState<TQ>>,
         IStateLayer<TQ> where TQ : notnull
     {
         public ConstraintLayerParameter<TQ> Constraints { get; set; } = new();
 
         public ConstraintLayer()
         {
+            BaseParameter = new ConstraintLayerParameter<TQ>();
         }
 
         public ConstraintLayer(ConstraintLayerParameter<TQ> constraints)
         {
             Constraints = constraints;
+            BaseParameter = constraints;
         }
 
         #region Solving lifecycle
+
+        public BaseStateFunctionalParameter<TQ> BaseParameter { get; set; }
 
         public Result Prepare(Field<TQ> field)
         {
@@ -45,7 +51,7 @@ namespace qon.Layers.StateLayers
             {
                 changes = 0;
 
-                var generalResult = ExecuteConstraints(Constraints.GeneralConstraints, field, Machine);
+                var generalResult = ExecuteConstraints(Constraints.GeneralConstraints, field);
 
                 if (generalResult.Failed)
                 {
@@ -82,10 +88,10 @@ namespace qon.Layers.StateLayers
                 return true;
             }
 
-            return !ExecuteConstraints(Constraints.ValidationConstraints, field, null).Failed;
+            return !ExecuteConstraints(Constraints.ValidationConstraints, field).Failed;
         }
 
-        public void Execute(Field<TQ>? previousField, Field<TQ> currentField, Random random)
+        public void Execute(Field<TQ>? previousField, Field<TQ> currentField)
         {
             double entropy = double.MaxValue;
             QVariable<TQ>? candidate = null;
@@ -97,6 +103,7 @@ namespace qon.Layers.StateLayers
                     continue;
                 }
 
+                //TODO: add caching for domain entropy
                 DomainLayer<TQ> domain = DomainLayer<TQ>.With(variable);
                 double potentialEntropy = domain.Entropy;
 
@@ -110,15 +117,13 @@ namespace qon.Layers.StateLayers
             ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
 
             DomainLayer<TQ> domainLayer = DomainLayer<TQ>.With(candidate);
-            TQ value = domainLayer.GetRandomValue(random);
+            TQ value = domainLayer.GetRandomValue(currentField.Machine.Random);
 
             Collapse(candidate, value);
 
             if (!previousField.IsNullOrEmpty())
             {
-                QVariable<TQ>? previousCandidate = previousField.FirstOrDefault(v => v.Name == candidate.Name);
-
-                ExceptionHelper.ThrowIfInternalValueIsNull(previousCandidate, nameof(previousCandidate));
+                QVariable<TQ> previousCandidate = previousField[candidate.Name];
 
                 DomainLayer<TQ>.With(previousCandidate).RemoveValue(value);
             }
@@ -128,10 +133,10 @@ namespace qon.Layers.StateLayers
 
         public static ConstraintLayer<TQ> TryCreate(MachineState<TQ> state, ConstraintLayerParameter<TQ> constraints)
         {
-            if (!state.Layers.TryGetLayer<ConstraintLayer<TQ>>(out var layer))
+            if (!state.LayerManager.TryGetLayer<ConstraintLayer<TQ>>(out var layer))
             {
                 layer = new ConstraintLayer<TQ>(constraints);
-                state.Layers.Add(layer);
+                state.LayerManager.Add(layer);
             }
 
             return layer;
@@ -155,12 +160,12 @@ namespace qon.Layers.StateLayers
             return value;
         }
 
-        private static Result ExecuteConstraints(List<IPreparation<TQ>> rules, Field<TQ> field, QMachine<TQ>? machine)
+        private static Result ExecuteConstraints(List<IPreparation<TQ>> rules, Field<TQ> field)
         {
             int changes = 0;
             foreach (var rule in rules)
             {
-                var result = rule.Execute(field, machine);
+                var result = rule.Execute(field);
 
                 if (result.Failed)
                 {

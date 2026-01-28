@@ -42,14 +42,14 @@ namespace qon.Machines
         public MachineStateQuery<TQ> WithLayer<TLayer>(Func<TLayer, bool> predicate)
         {
             return new MachineStateQuery<TQ>(_query.Where(variable =>
-                variable.Layers.TryGetLayer<TLayer>(out var layer) && predicate(layer)));
+                variable.LayerManager.TryGetLayer<TLayer>(out var layer) && predicate(layer)));
         }
 
         public MachineStateQuery<TQ> WhereLayer<TLayer, TResult>(Func<TLayer, TResult> selector, Func<TResult, bool> predicate)
         {
             return new MachineStateQuery<TQ>(_query.Where(variable =>
             {
-                if (!variable.Layers.TryGetLayer<TLayer>(out var layer))
+                if (!variable.LayerManager.TryGetLayer<TLayer>(out var layer))
                 {
                     return false;
                 }
