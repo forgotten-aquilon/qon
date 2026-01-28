@@ -23,7 +23,7 @@ const char WhitePixel = ' ';
 var random = new Random(42);
 var machine = CreateMachine(random);
 
-using var solver = machine.States.GetEnumerator();
+using var solver = machine.Solver;
 bool simulationFinished = !solver.MoveNext();
 int iteration = 0;
 
@@ -39,7 +39,7 @@ try
         DrawField(machine.State);
 
         var statusText = simulationFinished ? "Finished" : "Running";
-        Raylib.DrawText($"{statusText} · Iteration {iteration}", 10, CanvasSize + 8, 20, Color.Black);
+        Raylib.DrawText($"{statusText} · Iteration {solver.StepCounter}", 10, CanvasSize + 8, 20, Color.Black);
 
         Raylib.EndDrawing();
 
@@ -49,11 +49,8 @@ try
         }
 
         var moved = solver.MoveNext();
-        if (moved)
-        {
-            iteration++;
-        }
-        else
+
+        if (!moved)
         {
             simulationFinished = true;
         }

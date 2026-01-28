@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "qon.Tests", "Test\qon.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{8195DD44-3159-4719-94F6-AA94D4815918}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualExamples", "VisualExamples\VisualExamples.csproj", "{634EFF70-A1C7-4536-8CCB-ACF7B50A6DA7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples.Visual", "VisualExamples\Examples.Visual.csproj", "{634EFF70-A1C7-4536-8CCB-ACF7B50A6DA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
