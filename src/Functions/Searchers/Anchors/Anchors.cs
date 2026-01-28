@@ -1,13 +1,7 @@
 ﻿using qon.Functions.Filters;
 using qon.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using qon.Functions.Mutations;
 
-namespace qon.Functions.Anchors
+namespace qon.Functions.Searchers.Anchors
 {
     public static class Anchors
     {

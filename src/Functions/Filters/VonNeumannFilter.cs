@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
-using qon.Functions.Anchors;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;

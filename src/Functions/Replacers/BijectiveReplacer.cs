@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
 using qon.Functions.Mutations;
+using qon.Functions.Searchers;
 using qon.Machines;
 using qon.Variables;
 
@@ -36,9 +37,7 @@ namespace qon.Functions.Replacers
 
             foreach (List<QVariable<TQ>> sequence in sequences)
             {
-                QVariable<TQ>[] fieldCopy = new QVariable<TQ>[field.Count];
-                Array.Copy(field.Variables, fieldCopy, field.Count);
-                Field<TQ> newField = new Field<TQ>(field.Machine, fieldCopy);
+                Field<TQ> newField = field.ShallowCopy();
 
                 List<QVariable<TQ>> localSequence = new();
 

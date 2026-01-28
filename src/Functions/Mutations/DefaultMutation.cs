@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace qon.Functions.Mutations
 {
-    public class DefaultMutation<TQ> where TQ : notnull
+    public class DefaultMutation<TQ> : IMutationFunction<TQ> where TQ : notnull
     {
         private readonly IReplacer<TQ> _replacer;
 
@@ -19,11 +19,9 @@ namespace qon.Functions.Mutations
             _replacer = replacer;
         }
 
-        public List<Field<TQ>> Execute(Field<TQ> field)
+        public List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
-            var samples = _replacer.All(field);
-
-            return samples;
+            return _replacer.All(input);
         }
     }
 }

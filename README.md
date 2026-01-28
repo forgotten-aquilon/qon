@@ -16,7 +16,7 @@ I suggest to check the [Wiki](https://github.com/forgotten-aquilon/qon/wiki) to 
 
 ### Usage examples
 
-#### Simplest Example. Generates 4 variables with different char values based
+#### Simplest Example. Generates 4 variables with different `char` values
 
 ```csharp
 var machine = new QMachine<char>(new QMachineParameter<char>());
@@ -121,8 +121,8 @@ How different Ai instruments were used while developing this library:
   0. All code which is pushed to GitHub repository was manually written by me.
   1. In most cases I used Codex to review my code and to find bugs. It did a pretty good job. It was not asked to produce fixes, only to find particular issues and maybe suggest what can be done. At the end it was me, who wrote fixes.
   2. In some cases I asked it to write some dummy code, which allowed me to focus on other parts. Later all AI-generated code was manually rewritten. 
-     2.1. For example, when I was rewriting [V1](https://github.com/forgotten-aquilon/qon/tree/V1) version I started 3 times from the scratch, because supposed changes were too big to implement at once, so I used Codex to do some fixes all across the project to let it be able to be compiled at least, then I focused on some particular things and rewrote everything.
-     2.2. Another example, when I was playing with [Rotation support](https://github.com/forgotten-aquilon/qon/blob/master/src/Functions/Constraints/EuclideanRotationHelper.cs) I was not sure about how to implement it, so I described the algorithm and asked Codex to produce the code. This code worked as a proof-of-concept for me, so I rewrote it on my own.
+     1. For example, when I was rewriting [V1](https://github.com/forgotten-aquilon/qon/tree/V1) version I started 3 times from the scratch, because supposed changes were too big to implement at once, so I used Codex to do some fixes all across the project to let it be able to be compiled at least, then I focused on some particular things and rewrote everything.
+     2. Another example, when I was playing with [Rotation support](https://github.com/forgotten-aquilon/qon/blob/master/src/Functions/Constraints/EuclideanRotationHelper.cs) I was not sure about how to implement it, so I described the algorithm and asked Codex to produce the code. This code worked as a proof-of-concept for me, so I rewrote it on my own.
 
 - Examples
   

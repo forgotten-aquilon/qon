@@ -25,7 +25,7 @@ namespace qon.Functions.Mutations
         }
     }
 
-    public class GeneralMutation<TQ> where TQ : notnull
+    public class GeneralMutation<TQ> : IMutationFunction<TQ> where TQ : notnull
     {
         private readonly int _sampling = 1;
 
@@ -37,15 +37,13 @@ namespace qon.Functions.Mutations
             _mutations = mutation;
         }
 
-        public List<Field<TQ>> Execute(Field<TQ> field)
+        public List<Field<TQ>> ApplyTo(Field<TQ> field)
         {
             List<Field<TQ>> samples = new List<Field<TQ>>();
 
             for (int i = 0; i < _sampling; i++)
             {
-                QVariable<TQ>[] fieldCopy = new QVariable<TQ>[field.Count];
-                Array.Copy(field.Variables, fieldCopy, field.Count);
-                Field<TQ> sample = new Field<TQ>(field.Machine, fieldCopy);
+                Field<TQ> sample = field.ShallowCopy();
 
                 samples.Add(sample);
             }

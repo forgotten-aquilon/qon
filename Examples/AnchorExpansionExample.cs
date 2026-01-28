@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using qon;
-using qon.Functions.Anchors;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
 using qon.Functions.Replacers;
+using qon.Functions.Searchers.Anchors;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
@@ -46,7 +46,7 @@ namespace Examples
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
-                MutationFunction = mutation.Execute,
+                MutationFunction = mutation,
                 Fitness = _ => random.Next()
             };
 

@@ -67,5 +67,11 @@ namespace qon.Functions.Filters
         {
             return new QPredicate<TQ>(v => v.State != ValueState.Uncertain && v.Value.CheckValue(value));
         }
+
+        public static QPredicate<TQ> MooreFilter<TQ>(Func<QVariable<TQ>[], bool> func) where TQ : notnull
+        {
+            var moore = new MooreFilter<TQ>() as IChain<QVariable<TQ>, QVariable<TQ>[]>;
+            return new QPredicate<TQ>(v => func(moore.ApplyTo(v)));
+        }
     }
 }
