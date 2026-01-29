@@ -84,10 +84,9 @@ namespace Examples.Visual
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
-                MutationFunction = new DefaultMutation<char>(
-                    new BijectiveReplacer<char>(
-                        new AnchorManager<char>(anchors),
-                        new Mutators.ValueMutator<char>(BlackPixel, BlackPixel))),
+                MutationFunction = new BijectiveReplacer<char>(
+                    new AnchorManager<char>(anchors),
+                    new Mutators.ValueMutator<char>(BlackPixel, BlackPixel)),
                 Fitness = _ => random.Next()
             };
 

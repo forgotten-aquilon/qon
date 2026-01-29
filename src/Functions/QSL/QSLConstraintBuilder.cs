@@ -52,6 +52,7 @@ namespace qon.Functions.QSL
             return this;
         }
 
+        //TODO: Rename
         public QSLConstraintBuilder<TQ> Execute(Func<QVariable<TQ>[], Result> executor)   
         {
             _customExecutor = executor;

@@ -11,7 +11,7 @@ using qon.Variables;
 
 namespace qon.Functions.Replacers
 {
-    public class BijectiveReplacer<TQ> : IReplacer<TQ> where TQ : notnull
+    public class BijectiveReplacer<TQ> : IMutationFunction<TQ> where TQ : notnull
     {
         private readonly ISearcher<TQ> _searcher;
         private readonly IMutator<TQ> _mutator;
@@ -30,14 +30,14 @@ namespace qon.Functions.Replacers
             _size = searcher.SearchDepth;
         }
 
-        public List<Field<TQ>> All(Field<TQ> field)
+        public List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
-            List<List<QVariable<TQ>>> sequences = _searcher.Search(field);
+            List<List<QVariable<TQ>>> sequences = _searcher.Search(input);
             List<Field<TQ>> samples = new();
 
             foreach (List<QVariable<TQ>> sequence in sequences)
             {
-                Field<TQ> newField = field.ShallowCopy();
+                Field<TQ> newField = input.ShallowCopy();
 
                 List<QVariable<TQ>> localSequence = new();
 

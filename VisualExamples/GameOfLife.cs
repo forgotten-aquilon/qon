@@ -48,7 +48,7 @@ namespace Examples.Visual
 
                     Task.Run(async () =>
                     {
-                        await Task.Delay(10);
+                        await Task.Delay(50);
                     }).GetAwaiter().GetResult();
 
                     if (simulationFinished)
@@ -115,6 +115,21 @@ namespace Examples.Visual
                     .AddMutation(QSL.Mutation<char>()
                         .Frequency(0.99)
                         .When(Filters.EqualsToValue(BlackPixel) & Filters.MooreFilter<char>(neighbors => neighbors.Count(Filters.EqualsToValue(BlackPixel).ApplyTo) < 2))
+                        .Into(Mutations<char>.ToValue(WhitePixel))
+                        .Build())
+                    .AddMutation(QSL.Mutation<char>()
+                        .Frequency(0.1)
+                        .When(Filters.EqualsToValue(WhitePixel) & Filters.FieldFilter<char>(f => f.Count(Filters.EqualsToValue(BlackPixel).ApplyTo) < 10))
+                        .Into(Mutations<char>.ToValue(BlackPixel))
+                        .Build())
+                    .AddMutation(QSL.Mutation<char>()
+                        .Frequency(0.001)
+                        .When(Filters.EqualsToValue(WhitePixel))
+                        .Into(Mutations<char>.ToValue(BlackPixel))
+                        .Build())
+                    .AddMutation(QSL.Mutation<char>()
+                        .Frequency(0.001)
+                        .When(Filters.EqualsToValue(BlackPixel))
                         .Into(Mutations<char>.ToValue(WhitePixel))
                         .Build())
                     .Build()

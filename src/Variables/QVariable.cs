@@ -38,20 +38,6 @@ namespace qon.Variables
             Name = "";
         }
 
-        //TODO Rework with New/Empty
-        public QVariable(string name)
-        {
-            LayerManager = new LayersManager<TQ, QVariable<TQ>>(this);
-
-            if (string.IsNullOrEmpty(name))
-            {
-                Name = Id.ToString();
-
-                return;
-            }
-            Name = name;
-        }
-
         #region Methods
 
         public QVariable<TQ> AddProperty(string name, ValueType value)

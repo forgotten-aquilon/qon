@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using qon.Functions;
 using qon.Functions.Filters;
 using qon.Layers;
 using qon.Machines;
@@ -18,13 +19,13 @@ namespace qon.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] FromNullableToArray<T>(this T? value) where T : class
         {
-            return value is T result ? new T[] { result } : Array.Empty<T>();
+            return value is { } result ? new[] { result } : Array.Empty<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] FromNullableToArray<T>(this T? value) where T : struct
         {
-            return value.HasValue ? new T[] { value.Value } : Array.Empty<T>();
+            return value.HasValue ? new[] { value.Value } : Array.Empty<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -166,6 +167,16 @@ namespace qon.Helpers
             }
 
             return Func;
+        }
+
+        public static TOut Then<TIn, TOut>(this TIn input, Func<TIn, TOut> func)
+        {
+            return func(input);
+        }
+
+        public static TOut Then<TIn, TOut>(this TIn input, IChain<TIn, TOut> chain)
+        {
+            return chain.ApplyTo(input);
         }
 
         #endregion

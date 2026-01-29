@@ -18,10 +18,5 @@ namespace qon.Functions.Propagators
         {
             return PropagationFunction(input);
         }
-
-        public static IChain<TIn, Result> operator ~(DefaultPropagator<TIn> obj)
-        {
-            return obj;
-        }
     }
 }

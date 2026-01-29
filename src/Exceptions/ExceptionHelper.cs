@@ -75,7 +75,7 @@ namespace qon.Exceptions
                 return Optional<TOut>.Empty;
             }
 
-            return new Optional<TOut>((TOut)variable);
+            return Optional<TOut>.Of((TOut)variable);
         }
     }
 }

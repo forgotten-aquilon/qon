@@ -9,7 +9,7 @@ namespace qon.Functions.Searchers.Anchors
         {
             return new Anchor<TQ>(predicate, (f, a) =>
             {
-                IChain<QVariable<TQ>, QVariable<TQ>[]> filter = new VonNeumannFilter<TQ>() as IChain<QVariable<TQ>, QVariable<TQ>[]>;
+                IChain<QVariable<TQ>, QVariable<TQ>[]> filter = VonNeumannFilter<TQ>.Filter;
                 return filter.ApplyTo(a);
             });
         }

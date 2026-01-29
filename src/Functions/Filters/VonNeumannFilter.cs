@@ -34,6 +34,10 @@ namespace qon.Functions.Filters
 
     public class VonNeumannFilter<TQ> : IChain<QVariable<TQ>, VonNeumannParameter<TQ>>, IChain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
     {
+        public static VonNeumannFilter<TQ> Filter { get; } = new();
+
+        private VonNeumannFilter(){}
+
         public VonNeumannParameter<TQ> ApplyTo(QVariable<TQ> input)
         {
             var layer = EuclideanLayer<TQ>.With(input);

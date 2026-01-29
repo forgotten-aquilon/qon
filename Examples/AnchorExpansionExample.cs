@@ -39,10 +39,9 @@ namespace Examples
                 Anchors.VNA(Filters.EqualsToValue('.'))
             };
 
-            var mutation = new DefaultMutation<char>(
-                new BijectiveReplacer<char>(
+            var mutation = new BijectiveReplacer<char>(
                     new AnchorManager<char>(anchors),
-                    new Mutators.ValueMutator<char>('@', '@')));
+                    new Mutators.ValueMutator<char>('@', '@'));
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {

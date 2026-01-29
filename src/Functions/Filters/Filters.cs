@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using qon.Exceptions;
 using qon.Layers;
 using qon.Layers.VariableLayers;
+using qon.Machines;
 using qon.Variables;
 
 namespace qon.Functions.Filters
@@ -72,6 +73,15 @@ namespace qon.Functions.Filters
         {
             var moore = new MooreFilter<TQ>() as IChain<QVariable<TQ>, QVariable<TQ>[]>;
             return new QPredicate<TQ>(v => func(moore.ApplyTo(v)));
+        }
+
+        public static QPredicate<TQ> FieldFilter<TQ>(Func<Field<TQ>, bool> func) where TQ : notnull
+        {
+            return new QPredicate<TQ>(v =>
+            {
+                var field = v.Machine.Solver.Current.Field;
+                return func(field);
+            });
         }
     }
 }
