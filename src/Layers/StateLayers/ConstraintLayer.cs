@@ -21,7 +21,9 @@ namespace qon.Layers.StateLayers
         public List<IPreparation<TQ>>? ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
     }
 
-    public class ConstraintLayer<TQ> : BaseLayer<TQ, ConstraintLayer<TQ>, MachineState<TQ>>, 
+
+    public class ConstraintLayer<TQ> : 
+        BaseLayer<TQ, ConstraintLayer<TQ>, MachineState<TQ>>, 
         ILayer<TQ, MachineState<TQ>>,
         IStateLayer<TQ> where TQ : notnull
     {

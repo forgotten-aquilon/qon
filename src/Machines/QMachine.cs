@@ -48,7 +48,7 @@ namespace qon.Machines
     /// <summary>
     /// Represents a machine that utilizes a solver to find solutions for a set of variables.
     /// </summary>
-    /// <typeparam name="TQ"></typeparam>
+    /// <typeparam name="TQ">Key generic parameter</typeparam>
     public class QMachine<TQ> where TQ : notnull
     {
         protected Dictionary<string, int> _namedIndexer { get; set; } = new Dictionary<string, int>();

@@ -27,6 +27,14 @@ namespace qon.Exceptions
             _ = obj ?? throw new InternalNullException(name ?? nameof(obj));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="InternalNullException"></exception>
         public static T ThrowIfInternalValueIsNull<T>([NotNull] T? obj, string? name = null)
         {
             return obj ?? throw new InternalNullException(name ?? nameof(obj));

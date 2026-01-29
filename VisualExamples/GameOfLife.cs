@@ -100,6 +100,7 @@ namespace Examples.Visual
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
+                //TODO: When() for field state
                 MutationFunction = QSL.CreateMutation<char>()
                     .Sampling(1)
                     .AddMutation(QSL.Mutation<char>()
