@@ -7,6 +7,7 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
+    //TODO: turn into single-value mutator
     public interface IMutator<TQ> where TQ : notnull
     {
         public int MutationCount { get; }

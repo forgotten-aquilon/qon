@@ -15,9 +15,8 @@ namespace qon.Layers.VariableLayers
         public IDomain<TQ> Domain
         {
             get => _domain;
-
             //Can't wait to use 'field' keyword when Unity finally switches to CoreCLR
-            [MemberNotNull(nameof(_domain))]
+            //[MemberNotNull(nameof(_domain))]
             set => _domain = value.Copy();
         }
 
@@ -123,7 +122,7 @@ namespace qon.Layers.VariableLayers
 
         public DomainLayer(IDomain<TQ> domain)
         {
-            Domain = domain;
+            _domain = domain;
         }
 
         #region Overrides of BaseLayer<TQ,DomainLayer<TQ>,QVariable<TQ>>

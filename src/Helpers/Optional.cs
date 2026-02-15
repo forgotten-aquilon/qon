@@ -52,7 +52,7 @@ namespace qon.Helpers
         }
 
         /// <summary>
-        /// asd
+        /// TODO: write
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

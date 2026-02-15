@@ -33,13 +33,13 @@ namespace qon.Functions.Replacers
         public List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
             List<List<QVariable<TQ>>> sequences = _searcher.Search(input);
-            List<Field<TQ>> samples = new();
+            List<Field<TQ>> samples = new List<Field<TQ>>();
 
             foreach (List<QVariable<TQ>> sequence in sequences)
             {
                 Field<TQ> newField = input.ShallowCopy();
 
-                List<QVariable<TQ>> localSequence = new();
+                List<QVariable<TQ>> localSequence = new List<QVariable<TQ>>();
 
                 foreach (var mutationCandidate in sequence)
                 {

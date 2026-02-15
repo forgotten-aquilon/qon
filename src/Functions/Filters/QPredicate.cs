@@ -42,5 +42,15 @@ namespace qon.Functions.Filters
         {
             return new QPredicate<TQ>(variable => predicate((TLayer)variable.LayerManager.GetLayer<TLayer>()));
         }
+
+        public static implicit operator QPredicate<TQ>(TQ value)
+        {
+            return new QPredicate<TQ>(variable => variable.Value.CheckValue(value));
+        }
+
+        public static implicit operator QPredicate<TQ>(Optional<TQ> value)
+        {
+            return new QPredicate<TQ>(variable => variable.Value == value);
+        }
     }
 }

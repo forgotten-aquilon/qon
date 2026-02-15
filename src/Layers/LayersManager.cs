@@ -59,20 +59,21 @@ namespace qon.Layers
         /// <summary>
         /// Create the new manager, attached to the Holder object
         /// </summary>
-        /// <param name="holder"></param>
+        /// <param name="holder">Holder instance that owns this manager.</param>
         public LayersManager(THolder holder)
         {
             Holder = holder;
         }
 
 
-        /// <summary>Tries to get an item from the collection using the specified key.</summary>
-        /// <param name="key">The key of the item to search in the collection.</param>
-        /// <param name="item">When this method returns <see langword="true" />, the item from the collection that matches the provided key; when this method returns <see langword="false" />, the <see langword="default" /> value for the type of the collection.</param>
-        /// <exception cref="T:System.ArgumentNullException">
-        /// <paramref name="key" /> is <see langword="null" />.</exception>
-        /// <returns>
-        /// <see langword="true" /> if an item for the specified key was found in the collection; otherwise, <see langword="false" />.</returns>
+        /// <summary>
+        /// Try to resolve a layer by type.
+        /// </summary>
+        /// <typeparam name="TLayer">Layer type to resolve.</typeparam>
+        /// <param name="layer">
+        /// When this method returns <see langword="true"/>, the resolved layer; otherwise <see langword="default"/>.
+        /// </param>
+        /// <returns><see langword="true"/> if the layer type was found; otherwise <see langword="false"/>.</returns>
         public bool TryGetLayer<TLayer>([NotNullWhen(true)]out TLayer? layer)  
         {
             if (TryGetValue(typeof(TLayer), out var l))
@@ -85,6 +86,11 @@ namespace qon.Layers
             return false;
         }
 
+        /// <summary>
+        /// Get a layer by type or <see langword="null"/> if it is not registered.
+        /// </summary>
+        /// <typeparam name="TLayer">Layer type to resolve.</typeparam>
+        /// <returns>The registered layer instance or <see langword="null"/>.</returns>
         public ILayer<TQ, THolder>? GetLayerOrNull<TLayer>() where TLayer : ILayer<TQ, THolder>
         {
             TryGetValue(typeof(TLayer), out ILayer<TQ, THolder>? result);
@@ -92,6 +98,12 @@ namespace qon.Layers
             return result;
         }
 
+        /// <summary>
+        /// Get a layer by type or throw if it is not registered.
+        /// </summary>
+        /// <typeparam name="TLayer">Layer type to resolve.</typeparam>
+        /// <returns>The registered layer instance.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown when the layer type is not registered.</exception>
         public ILayer<TQ, THolder> GetLayer<TLayer>() where TLayer : ILayer<TQ, THolder>
         {
             if (TryGetLayer<TLayer>(out var l))
@@ -102,11 +114,21 @@ namespace qon.Layers
             throw new KeyNotFoundException($"Layer of Type {typeof(TLayer)} is not registered in LayersManager of {typeof(THolder)}:{Holder}");
         }
 
+        /// <summary>
+        /// Get the collection key for a layer.
+        /// </summary>
+        /// <param name="item">Layer instance.</param>
+        /// <returns>Concrete layer type used as the key.</returns>
         protected override Type GetKeyForItem(ILayer<TQ, THolder> item)
         {
             return item.GetType();
         }
 
+        /// <summary>
+        /// Return a layer if present, otherwise <see langword="default"/>.
+        /// </summary>
+        /// <typeparam name="TLayer">Layer type to resolve.</typeparam>
+        /// <returns>The resolved layer or <see langword="default"/>.</returns>
         public TLayer? With<TLayer>() where TLayer : ILayer<TQ, THolder>
         {
             if (TryGetLayer<TLayer>(out var layer))
@@ -117,6 +139,10 @@ namespace qon.Layers
             return default;
         }
 
+        /// <summary>
+        /// Copy layers from another manager into this manager and rebind them to this instance.
+        /// </summary>
+        /// <param name="layers">Source manager to copy from.</param>
         public void Add(LayersManager<TQ, THolder> layers)
         {
             foreach (var layer in layers)

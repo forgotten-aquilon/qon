@@ -70,7 +70,7 @@ namespace Examples.Visual
             machine.GenerateField(new DiscreteDomain<char>(BlackPixel, WhitePixel), (GridSize, GridSize, 1), Optional<char>.Of(WhitePixel));
 
             var center = GridSize / 2;
-            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(center, center, 0)];
+            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(10, 20, 0)];
             if (centerVariable is not null)
             {
                 centerVariable.Value = Optional<char>.Of(BlackPixel);
@@ -82,11 +82,17 @@ namespace Examples.Visual
                 Anchors.VNA(Filters.EqualsToValue(WhitePixel))
             };
 
+            var mutations = new List<VariableMutation<char>>
+            {
+                new(v => v.Value = Optional<char>.Of(BlackPixel)),
+                new(v => v.Value = Optional<char>.Of(BlackPixel)),
+            };
+
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
-                MutationFunction = new BijectiveReplacer<char>(
-                    new AnchorManager<char>(anchors),
-                    new Mutators.ValueMutator<char>(BlackPixel, BlackPixel)),
+                MutationFunction = new EuclideanReplacer<char>(
+                    EuclideanReplacer<char>.CreatePatternFrom(BlackPixel, WhitePixel), 
+                    EuclideanReplacer<char>.CreateMutationFrom(BlackPixel, BlackPixel)),
                 Fitness = _ => random.Next()
             };
 

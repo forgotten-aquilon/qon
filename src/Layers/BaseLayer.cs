@@ -34,7 +34,7 @@ namespace qon.Layers
     public abstract class BaseLayer<TQ, TSelf, THolder> : BaseLayer, ILayer<TQ, THolder>
         where TQ : notnull
         where TSelf : BaseLayer<TQ, TSelf, THolder>, ILayer<TQ, THolder>, new()
-        where THolder : ILayerHolder<TQ, THolder>
+        where THolder : class, ILayerHolder<TQ, THolder>
     {
 
         /// <summary>
