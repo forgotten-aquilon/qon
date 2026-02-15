@@ -30,6 +30,24 @@ namespace qon.Layers.StateLayers
             }
         }
 
+        public QVariable<TQ>? this[int x, int y, int z]
+        {
+            get
+            {
+                if (x < 0 || y < 0 || z < 0)
+                {
+                    return null;
+                }
+
+                if (x >= FieldGrid.GetLength(0) || y >= FieldGrid.GetLength(1) || z >= FieldGrid.GetLength(2))
+                {
+                    return null;
+                }
+
+                return Machine[FieldGrid[x, y, z]];
+            }
+        }
+
         public override ILayer<TQ, MachineState<TQ>> Copy()
         {
             throw new NotImplementedException();

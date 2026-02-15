@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using qon.Functions.Filters;
 using qon.Variables;
 
-namespace qon.Functions.Anchors
+namespace qon.Functions.Searchers.Anchors
 {
     public class Anchor<TQ> : IAnchor<TQ> where TQ : notnull
     {

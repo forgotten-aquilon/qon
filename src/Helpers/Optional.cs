@@ -21,7 +21,7 @@ namespace qon.Helpers
         //TODO: Update to C# 10 when available (default)
         private readonly T? _value;
 
-        public bool HasValue => _value is not null;
+        public bool HasValue { get; }
 
         public readonly T Value
         {
@@ -38,19 +38,21 @@ namespace qon.Helpers
 
         public static Optional<T> Empty => new();
 
-        public Optional(T? value)
+        private Optional(T? value)
         {
             if (value is null)
             {
                 this = Empty;
+                HasValue = false;
                 return;
             }
 
+            HasValue = true;
             _value = value;
         }
 
         /// <summary>
-        /// asd
+        /// TODO: write
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

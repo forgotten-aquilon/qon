@@ -10,24 +10,64 @@ using qon.Machines;
 
 namespace qon.Layers
 {
+    /// <summary>
+    /// Base class for layers
+    /// </summary>
     public abstract class BaseLayer
     {
+        /// <summary>
+        /// Is used in sorting layers, while performing relevant operations
+        /// </summary>
         public int PriorityIndex { get; set; } = 0;
     }
 
+    /// <summary>
+    /// Generic base class for layers, is used for Curiously Recurring Template Pattern implementation
+    /// </summary>
+    /// <typeparam name="TQ">Key generic parameter</typeparam>
+    /// <typeparam name="TSelf">
+    /// Generic parameter used for Curiously Recurring Template Pattern implementation
+    /// </typeparam>
+    /// <typeparam name="THolder">
+    /// Type, which can hold this layer, e.g. <see cref="QVariable{TQ}"/> or <see cref="MachineState{TQ}"/>
+    /// </typeparam>
     public abstract class BaseLayer<TQ, TSelf, THolder> : BaseLayer, ILayer<TQ, THolder>
         where TQ : notnull
         where TSelf : BaseLayer<TQ, TSelf, THolder>, ILayer<TQ, THolder>, new()
-        where THolder : ILayerHolder<TQ, THolder>
+        where THolder : class, ILayerHolder<TQ, THolder>
     {
-        protected LayersManager<TQ, THolder>? _manager;
 
+        /// <summary>
+        /// Nullable reference to <see cref="LayersManager{TQ,THolder}"/> . Allows late binding to actual instance of
+        /// manager.
+        /// </summary>
+        private LayersManager<TQ, THolder>? _manager;
+
+
+        /// <summary>
+        /// Non-nullable reference to <see cref="LayersManager{TQ,THolder}"/>, which is checked in runtime. Allows late binding to actual
+        /// instance of manager.
+        /// </summary>
         public LayersManager<TQ, THolder> Manager => ExceptionHelper.ThrowIfFieldIsNull(_manager, nameof(_manager));
 
+        /// <summary>
+        /// Reference to an instance of type, which can hold this layer. 
+        /// </summary>
         public THolder Holder => ExceptionHelper.ThrowIfFieldIsNull(Manager.Holder, nameof(Manager.Holder));
 
+        /// <summary>
+        /// Non-nullable reference to Solution Machine, which is checked in runtime. Allows late binding to actual
+        /// instance of machine.
+        /// </summary>
         public QMachine<TQ> Machine => ExceptionHelper.ThrowIfFieldIsNull(Holder.Machine, nameof(Holder.Machine));
 
+        /// <summary>
+        /// Returns existing instance of this layer. If Holder object doesn't have layer of this type, exception is
+        /// thrown
+        /// </summary>
+        /// <param name="holder"></param>
+        /// <returns></returns>
+        /// <exception cref="InternalNullException"></exception>
         public static TSelf With(THolder holder)
         {
             holder.LayerManager.TryGetLayer<TSelf>(out var layer);
@@ -37,12 +77,22 @@ namespace qon.Layers
             return layer;
         }
 
+        /// <summary>
+        /// Returns nullable reference of this layer from Holder object
+        /// </summary>
+        /// <param name="holder"></param>
+        /// <returns></returns>
         public static TSelf? From(THolder holder)
         {
             holder.LayerManager.TryGetLayer<TSelf>(out TSelf? layer);
             return layer;
         }
 
+        /// <summary>
+        /// Creates and/or returns instance of this layer. 
+        /// </summary>
+        /// <param name="holder"></param>
+        /// <returns></returns>
         public static TSelf GetOrCreate(THolder holder)
         {
             if (!holder.LayerManager.TryGetLayer<TSelf>(out var layer))
@@ -63,6 +113,10 @@ namespace qon.Layers
 
         #region Implementation of ILayer<T,THolder>
 
+        /// <summary>
+        /// Changes instance of <see cref="LayersManager{TQ,THolder}"/>.
+        /// </summary>
+        /// <param name="manager"></param>
         public void UpdateManager(LayersManager<TQ, THolder> manager)
         {
             _manager = manager;

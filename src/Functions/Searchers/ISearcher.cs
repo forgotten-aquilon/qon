@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using qon.Machines;
 using qon.Variables;
 
-namespace qon.Functions
+namespace qon.Functions.Searchers
 {
     public interface ISearcher<TQ> where TQ : notnull
     {

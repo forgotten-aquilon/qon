@@ -2,6 +2,7 @@
 using qon.Exceptions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
+using qon.Helpers;
 using qon.Layers;
 using qon.Variables;
 
@@ -28,9 +29,9 @@ namespace qon.Functions.QSL
         {
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
-            return variable =>
-                new VonNeumannFilter<TQ>().ApplyTo(variable)
-                + ~Propagators.Propagators.FromVonNeumann(parameter);
+            return variable => VonNeumannFilter<TQ>.Filter.ApplyTo(variable)
+                .Then(Propagators.Propagators.FromVonNeumann(parameter));
+            // ~Propagators.Propagators.FromVonNeumann(parameter);
         }
 
         public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull

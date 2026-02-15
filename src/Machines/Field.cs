@@ -1,11 +1,12 @@
-﻿using System;
+﻿using qon.Helpers;
+using qon.Layers.VariableLayers;
+using qon.Variables;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
-using qon.Helpers;
-using qon.Layers.VariableLayers;
-using qon.Variables;
 
 namespace qon.Machines
 {
@@ -30,12 +31,21 @@ namespace qon.Machines
         /// </summary>
         public int Count => Variables.Length;
 
+        /// <summary>
+        /// Creates new Field and binds it to Solution Machine
+        /// </summary>
+        /// <param name="machine"></param>
         public Field(QMachine<TQ> machine)
         {
             Machine = machine;
             Variables = Array.Empty<QVariable<TQ>>();
         }
 
+        /// <summary>
+        /// Initialize new Field with provided Variables, binds it to Solution Machine 
+        /// </summary>
+        /// <param name="machine"></param>
+        /// <param name="variables"></param>
         public Field(QMachine<TQ> machine, QVariable<TQ>[] variables)
         {
             Machine = machine;
@@ -56,9 +66,24 @@ namespace qon.Machines
             Variables = anotherField.Variables;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Field<TQ> Copy()
         {
             return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray());
+        }
+
+        /// <summary>
+        /// Creates new instance of Field, which contains references to existing variables of the current Field
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Field<TQ> ShallowCopy()
+        {
+            QVariable<TQ>[] fieldCopy = new QVariable<TQ>[Count];
+            Array.Copy(Variables, fieldCopy, Count);
+            Field<TQ> newField = new Field<TQ>(Machine, fieldCopy);
+
+            return newField;
         }
 
         /// <summary>

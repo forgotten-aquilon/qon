@@ -6,6 +6,7 @@ using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Operations;
 using qon.Functions.Propagators;
+using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
@@ -40,9 +41,7 @@ namespace Examples
                 ValidationConstraints = new()
                 {
                     QSL.Constraint<char>()
-                        .Execute(field =>
-                            (field.Count(Filters.EqualsToValue('Q').ApplyTo) == 8)
-                            + ~Propagators.FromBool(true))
+                        .Execute(field => (field.Count(Filters.EqualsToValue('Q').ApplyTo) == 8).Then(Propagators.FromBool(true)))
                         .Build(),
                 }
             };

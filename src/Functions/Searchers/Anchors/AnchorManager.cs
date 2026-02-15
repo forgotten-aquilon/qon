@@ -1,14 +1,9 @@
-﻿using qon.Functions.Filters;
-using qon.Variables;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using qon.Machines;
+using qon.Variables;
 
-namespace qon.Functions.Anchors
+namespace qon.Functions.Searchers.Anchors
 {
     public class AnchorManager<TQ> : ISearcher<TQ> where TQ : notnull
     {

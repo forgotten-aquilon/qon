@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using qon.Functions.Filters;
+﻿using qon.Functions.Filters;
 using qon.Variables;
 
-namespace qon.Functions.Anchors
+namespace qon.Functions.Searchers.Anchors
 {
     public interface IAnchor<TQ> where TQ : notnull
     {

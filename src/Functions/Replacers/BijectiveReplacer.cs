@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
 using qon.Functions.Mutations;
+using qon.Functions.Searchers;
 using qon.Machines;
 using qon.Variables;
 
 namespace qon.Functions.Replacers
 {
-    public class BijectiveReplacer<TQ> : IReplacer<TQ> where TQ : notnull
+    public class BijectiveReplacer<TQ> : IMutationFunction<TQ> where TQ : notnull
     {
         private readonly ISearcher<TQ> _searcher;
         private readonly IMutator<TQ> _mutator;
@@ -29,18 +30,16 @@ namespace qon.Functions.Replacers
             _size = searcher.SearchDepth;
         }
 
-        public List<Field<TQ>> All(Field<TQ> field)
+        public List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
-            List<List<QVariable<TQ>>> sequences = _searcher.Search(field);
-            List<Field<TQ>> samples = new();
+            List<List<QVariable<TQ>>> sequences = _searcher.Search(input);
+            List<Field<TQ>> samples = new List<Field<TQ>>();
 
             foreach (List<QVariable<TQ>> sequence in sequences)
             {
-                QVariable<TQ>[] fieldCopy = new QVariable<TQ>[field.Count];
-                Array.Copy(field.Variables, fieldCopy, field.Count);
-                Field<TQ> newField = new Field<TQ>(field.Machine, fieldCopy);
+                Field<TQ> newField = input.ShallowCopy();
 
-                List<QVariable<TQ>> localSequence = new();
+                List<QVariable<TQ>> localSequence = new List<QVariable<TQ>>();
 
                 foreach (var mutationCandidate in sequence)
                 {

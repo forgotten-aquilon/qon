@@ -1,13 +1,7 @@
 ﻿using qon.Functions.Filters;
 using qon.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using qon.Functions.Mutations;
 
-namespace qon.Functions.Anchors
+namespace qon.Functions.Searchers.Anchors
 {
     public static class Anchors
     {
@@ -15,7 +9,7 @@ namespace qon.Functions.Anchors
         {
             return new Anchor<TQ>(predicate, (f, a) =>
             {
-                IChain<QVariable<TQ>, QVariable<TQ>[]> filter = new VonNeumannFilter<TQ>() as IChain<QVariable<TQ>, QVariable<TQ>[]>;
+                IChain<QVariable<TQ>, QVariable<TQ>[]> filter = VonNeumannFilter<TQ>.Filter;
                 return filter.ApplyTo(a);
             });
         }

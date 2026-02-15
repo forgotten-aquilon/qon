@@ -1,20 +1,20 @@
 ﻿using qon.Exceptions;
 using qon.Functions;
+using qon.Functions.Mutations;
+using qon.Machines;
+using qon.Solvers;
 using qon.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
-using qon.Machines;
-using qon.Solvers;
 
 namespace qon.Layers.StateLayers
 {
     public class MutationLayerParameter<TQ> where TQ : notnull
     {
-        public Func<Field<TQ>, List<Field<TQ>>>? MutationFunction { get; set; }
+        public IMutationFunction<TQ>? MutationFunction { get; set; }
 
         public Func<Field<TQ>, int>? Fitness { get; set; }
     }
@@ -41,7 +41,7 @@ namespace qon.Layers.StateLayers
         {
             var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter.MutationFunction, nameof(_parameter.MutationFunction));
 
-            Samples = mutationFunction(field);
+            Samples = mutationFunction.ApplyTo(field);
 
             return Result.Success(0);
         }

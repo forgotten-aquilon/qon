@@ -63,11 +63,9 @@ namespace qon.Functions.QSL
             return this;
         }
 
-        public Func<Field<TQ>, List<Field<TQ>>> Build()
+        public IMutationFunction<TQ> Build()
         {
-            var mutation = new GeneralMutation<TQ>(_mutations, _sampling);
-
-            return field => mutation.Execute(field);
+            return new GeneralMutation<TQ>(_mutations, _sampling);
         }
     }
 }

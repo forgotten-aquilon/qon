@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
-using qon.Functions.Anchors;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
@@ -35,6 +34,10 @@ namespace qon.Functions.Filters
 
     public class VonNeumannFilter<TQ> : IChain<QVariable<TQ>, VonNeumannParameter<TQ>>, IChain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
     {
+        public static VonNeumannFilter<TQ> Filter { get; } = new();
+
+        private VonNeumannFilter(){}
+
         public VonNeumannParameter<TQ> ApplyTo(QVariable<TQ> input)
         {
             var layer = EuclideanLayer<TQ>.With(input);

@@ -52,11 +52,11 @@ namespace qon.Machines
             var layer = EuclideanStateLayer<TQ>.GetOrCreate(machine.State);
             layer.FieldGrid = new Guid[dimensions.x, dimensions.y, dimensions.z];
 
-            for (int x = 0; x < dimensions.x; x++)
+            for (int z = 0; z < dimensions.z; z++)
             {
                 for (int y = 0; y < dimensions.y; y++)
                 {
-                    for (int z = 0; z < dimensions.z; z++)
+                    for (int x = 0; x < dimensions.x; x++)
                     {
                         string name = $"{x}x{y}x{z}";
 

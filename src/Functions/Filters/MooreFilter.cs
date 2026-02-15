@@ -1,5 +1,4 @@
 ﻿using qon.Exceptions;
-using qon.Functions.Anchors;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
@@ -98,7 +97,7 @@ namespace qon.Functions.Filters
         }
     }
 
-    public class MooreFilter<TQ> : IChain<QVariable<TQ>, MooreParameter<TQ>>, IChain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
+    public class MooreFilter<TQ> : IChain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
     {
         public MooreParameter<TQ> ApplyTo(QVariable<TQ> input)
         {
