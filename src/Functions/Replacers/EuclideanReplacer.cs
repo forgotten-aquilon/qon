@@ -129,7 +129,6 @@ namespace qon.Functions.Replacers
 
                         if (MutateField(input, anchor, permutation, reverse) is {} field)
                         {
-                            Console.WriteLine("\tAdd");
                             result.Add(field);
                         }
                     }

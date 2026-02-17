@@ -16,6 +16,7 @@ namespace qon.Machines
     /// <typeparam name="TQ"></typeparam>
     public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
     {
+        public Guid IterationId { get; protected set; }
         /// <summary>
         /// All variables of the current Field
         /// </summary>
@@ -39,10 +40,11 @@ namespace qon.Machines
         {
             Machine = machine;
             Variables = Array.Empty<QVariable<TQ>>();
+            IterationId = Machine.Solver.UniqueIteration;
         }
 
         /// <summary>
-        /// Initialize new Field with provided Variables, binds it to Solution Machine 
+        /// Initialize new Field with provided Variables, binds it to Solution Machine
         /// </summary>
         /// <param name="machine"></param>
         /// <param name="variables"></param>
@@ -50,6 +52,7 @@ namespace qon.Machines
         {
             Machine = machine;
             Variables = variables;
+            IterationId = Machine.Solver.UniqueIteration;
         }
 
         /// <summary>

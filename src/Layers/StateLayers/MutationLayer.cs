@@ -17,11 +17,15 @@ namespace qon.Layers.StateLayers
         public IMutationFunction<TQ>? MutationFunction { get; set; }
 
         public Func<Field<TQ>, int>? Fitness { get; set; }
+
+        public Func<Field<TQ>, bool>? Validation { get; set; }
     }
 
     public class MutationLayer<TQ> : BaseLayer<TQ, MutationLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>, IStateLayer<TQ> where TQ : notnull
     {
         private Field<TQ>? _bestSample;
+
+        private Dictionary<Guid, List<Field<TQ>>> _sampleHistory = new Dictionary<Guid, List<Field<TQ>>>();
 
         public MutationLayerParameter<TQ> _parameter;
 
@@ -40,8 +44,9 @@ namespace qon.Layers.StateLayers
         public Result Prepare(Field<TQ> field)
         {
             var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter.MutationFunction, nameof(_parameter.MutationFunction));
+            ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
 
-            Samples = mutationFunction.ApplyTo(field);
+            Samples = _sampleHistory.TryGetValue(Machine.Solver.UniqueIteration, out var samples) ? samples : mutationFunction.ApplyTo(field);
 
             return Result.Success(0);
         }
@@ -53,10 +58,14 @@ namespace qon.Layers.StateLayers
                 return PreValidationResult.PreValidated;
             }
 
-            int fitness = int.MaxValue;
-            Field<TQ> bestSample = new Field<TQ>(Machine);
-            ExceptionHelper.ThrowIfInternalValueIsNull(_parameter?.Fitness);
+            ExceptionHelper.ThrowIfInternalValueIsNull(_parameter.Fitness);
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
+
+            int fitness = int.MaxValue;
+            int pos = 0;
+            int index = 0;
+            Field<TQ> bestSample = new Field<TQ>(Machine);
+
             foreach (var sample in Samples)
             {
                 var localFitness = _parameter.Fitness(sample);
@@ -64,7 +73,10 @@ namespace qon.Layers.StateLayers
                 {
                     fitness = localFitness;
                     bestSample = sample;
+                    pos = index;
                 }
+
+                index++;
             }
 
             for (int i = 0; i < bestSample.Count; i++)
@@ -75,6 +87,8 @@ namespace qon.Layers.StateLayers
 
             _bestSample = bestSample;
 
+            Samples.RemoveAt(pos);
+
             if (fitness == 0)
             {
                 return PreValidationResult.PreValidated;
@@ -83,15 +97,29 @@ namespace qon.Layers.StateLayers
             return PreValidationResult.NotValidated;
         }
 
-        public bool Validate(Field<TQ> field)
-        {
-            return true;
-        }
-
         public void Execute(Field<TQ>? previousField, Field<TQ> currentField)
         {
             ExceptionHelper.ThrowIfInternalValueIsNull(_bestSample);
+            ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
+
             currentField.Update(_bestSample.Variables);
+
+            _sampleHistory[Machine.Solver.UniqueIteration] = Samples;
+        }
+
+        public bool Validate(Field<TQ> field)
+        {
+            if (_parameter.Validation is { } validationFunc)
+            {
+                if (validationFunc(field))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

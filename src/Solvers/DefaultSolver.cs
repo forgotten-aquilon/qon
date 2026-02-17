@@ -42,7 +42,9 @@ namespace qon.Solvers
         public MachineState<TQ> Current => Machine.State;
 
         object IEnumerator.Current => Current;
-    
+
+        public Guid UniqueIteration { get; protected set; } = Guid.NewGuid();
+
         /// <summary>
         /// Stack discrete steps made by Solver, representing the state of the Field
         /// </summary>
@@ -61,13 +63,15 @@ namespace qon.Solvers
         /// <returns></returns>
         private int GoForth()
         {
+            UniqueIteration = Guid.NewGuid();
             _solutionStack.Push(Current.Field.Copy());
             StepCounter++;
             return 1;
         }
 
         /// <summary>
-        /// Removes the top element of <see cref="_solutionStack"/>, updates field of <see cref="Current"/> with the new top element from the stack, or sets status to Error
+        /// Removes the top element of <see cref="_solutionStack"/> , updates field of <see cref="Current"/> with the
+        /// new top element from the stack, or sets status to Error
         /// </summary>
         /// <returns></returns>
         private int GoBack()
@@ -80,7 +84,11 @@ namespace qon.Solvers
                 return 1;
             }
 
-            Current.SetField(_solutionStack.Peek().Copy().Variables);
+            var field = _solutionStack.Peek();
+
+            Current.SetField(field.Copy().Variables);
+
+            UniqueIteration = field.IterationId;
 
             BackStepCounter++;
 
@@ -160,8 +168,8 @@ namespace qon.Solvers
         }
 
         /// <summary>
-        /// Preparation stage in a calculation step.
-        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to perform initial step in solving.
+        /// Preparation stage in a calculation step. Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to
+        /// perform initial step in solving.
         /// </summary>
         /// <returns></returns>
         public Result Prepare()
@@ -187,9 +195,9 @@ namespace qon.Solvers
         }
 
         /// <summary>
-        /// Prevalidation stage in a calculation step.
-        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to perform main step in solving.
-        /// On this step it's possible to determine, should the calculation be continued or returned to a previous step.
+        /// Prevalidation stage in a calculation step. Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to
+        /// perform main step in solving. On this step it's possible to determine, should the calculation be continued
+        /// or returned to a previous step.
         /// </summary>
         /// <returns></returns>
         public PreValidationResult PreValidate()
@@ -218,8 +226,8 @@ namespace qon.Solvers
         }
 
         /// <summary>
-        /// Validation stage in a calculation step.
-        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to check compliance of current solution with all rules.
+        /// Validation stage in a calculation step. Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to check
+        /// compliance of current solution with all rules.
         /// </summary>
         /// <returns></returns>
         public bool Validate()
@@ -239,8 +247,8 @@ namespace qon.Solvers
         }
 
         /// <summary>
-        /// Execution stage in a calculation step
-        /// Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to update current field according to performed calculations.
+        /// Execution stage in a calculation step Sequentially calls all <see cref="IStateLayer{TQ}"/> layers to update
+        /// current field according to performed calculations.
         /// </summary>
         public void Execute()
         {

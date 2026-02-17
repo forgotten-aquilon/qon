@@ -7,28 +7,23 @@ using qon.Layers.StateLayers;
 using qon.Machines;
 using qon.Variables.Domains;
 using Raylib_cs;
+using static Examples.Visual.VisualHelper;
 using Color = Raylib_cs.Color;
 
 namespace Examples.Visual
 {
     internal static class VoidFill
     {
-        private const int GridSize = 30;
-        private const int PixelSize = 5;
-        private const int CanvasSize = GridSize * PixelSize;
-        private const int InfoPanelHeight = 40;
-        private const char BlackPixel = '@';
-        private const char WhitePixel = ' ';
 
         public static void Run()
         {
-            var random = new Random(42);
+            var random = new Random();
             var machine = CreateMachine(random);
 
             using var solver = machine.Solver;
             bool simulationFinished = !solver.MoveNext();
 
-            Raylib.InitWindow(CanvasSize, CanvasSize + InfoPanelHeight, "Anchor Expansion Visual");
+            Raylib.InitWindow(Settings.CanvasSize, Settings.CanvasSize + Settings.InfoPanelHeight, "Anchor Expansion Visual");
 
             try
             {
@@ -37,10 +32,10 @@ namespace Examples.Visual
                     Raylib.BeginDrawing();
                     Raylib.ClearBackground(Color.White);
 
-                    DrawField(machine.State);
+                    DrawField(machine.State, Settings.GridSize, Settings.GridSize);
 
                     var statusText = simulationFinished ? "Finished" : "Running";
-                    Raylib.DrawText($"{statusText} · Iteration {solver.StepCounter}", 10, CanvasSize + 8, 20, Color.Black);
+                    Raylib.DrawText($"{statusText} · Iteration {solver.StepCounter}", 10, Settings.CanvasSize + 8, 20, Color.Black);
 
                     Raylib.EndDrawing();
 
@@ -67,63 +62,44 @@ namespace Examples.Visual
         {
             var machine = new QMachine<char>(new ());
 
-            machine.GenerateField(new DiscreteDomain<char>(BlackPixel, WhitePixel), (GridSize, GridSize, 1), Optional<char>.Of(WhitePixel));
+            machine.GenerateField(new DiscreteDomain<char>(Pixel.BlackPixel, Pixel.WhitePixel, Pixel.RedPixel, Pixel.GreenPixel), (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
 
-            var center = GridSize / 2;
-            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(10, 20, 0)];
+            var center = Settings.GridSize / 2;
+            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(center, center, 0)];
+
             if (centerVariable is not null)
             {
-                centerVariable.Value = Optional<char>.Of(BlackPixel);
+                centerVariable.Value = Optional<char>.Of(Pixel.RedPixel);
             }
 
-            var anchors = new List<IAnchor<char>>
-            {
-                Anchors.VNA(Filters.EqualsToValue(BlackPixel)),
-                Anchors.VNA(Filters.EqualsToValue(WhitePixel))
-            };
+            var endVariable = EuclideanStateLayer<char>.With(machine.State)[(0, 0, 0)];
 
-            var mutations = new List<VariableMutation<char>>
+            if (endVariable is not null)
             {
-                new(v => v.Value = Optional<char>.Of(BlackPixel)),
-                new(v => v.Value = Optional<char>.Of(BlackPixel)),
-            };
+                endVariable.Value = Optional<char>.Of(Pixel.GreenPixel);
+            }
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
                 MutationFunction = new EuclideanReplacer<char>(
-                    EuclideanReplacer<char>.CreatePatternFrom(BlackPixel, WhitePixel), 
-                    EuclideanReplacer<char>.CreateMutationFrom(BlackPixel, BlackPixel)),
-                Fitness = _ => random.Next()
+                    EuclideanReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.BlackPixel), 
+                    EuclideanReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel)),
+                Fitness = _ => random.Next(1, 100),
+                Validation = field =>
+                {
+                    var v = field.FirstOrDefault(x => x.Value.CheckValue(Pixel.GreenPixel));
+
+                    if (v is {} greenVariable)
+                    {
+                        return Filters.MooreFilter<char>(n => n.Count(x => x.Value.CheckValue(Pixel.RedPixel)) > 0)
+                            .ApplyTo(greenVariable);
+                    }
+
+                    return true;
+                }
             };
 
             return machine;
-        }
-
-        private static void DrawField(MachineState<char> state)
-        {
-            var layer = EuclideanStateLayer<char>.With(state);
-
-            for (int y = 0; y < GridSize; y++)
-            {
-                for (int x = 0; x < GridSize; x++)
-                {
-                    var cell = layer[(x, y, 0)];
-                    var pixelValue = WhitePixel;
-                    if (cell?.Value.TryGetValue(out var resolvedValue) == true)
-                    {
-                        pixelValue = resolvedValue;
-                    }
-
-                    var color = ResolveColor(pixelValue);
-
-                    Raylib.DrawRectangle(x * PixelSize, y * PixelSize, PixelSize, PixelSize, color);
-                }
-            }
-        }
-
-        private static Color ResolveColor(char value)
-        {
-            return value == BlackPixel ? Color.Black : Color.White;
         }
     }
 }

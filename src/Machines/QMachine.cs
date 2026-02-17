@@ -97,9 +97,9 @@ namespace qon.Machines
 
         public QMachine(QMachineParameter<TQ> parameter)
         {
-            State = new MachineState<TQ>(this);
             StateType = MachineStateType.Created;
             Solver = parameter.SolverInjection(this);
+            State = new MachineState<TQ>(this);
             States = new States<TQ>(this);
             Random = parameter.Random;
 
