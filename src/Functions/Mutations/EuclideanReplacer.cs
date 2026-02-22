@@ -1,17 +1,13 @@
-﻿using qon.Exceptions;
-using qon.Functions.Filters;
-using qon.Functions.Mutations;
-using qon.Functions.Searchers.Anchors;
-using qon.Layers.StateLayers;
-using qon.Machines;
-using qon.Variables;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using qon.Exceptions;
+using qon.Functions.Filters;
 using qon.Helpers;
+using qon.Layers.StateLayers;
+using qon.Machines;
 
-namespace qon.Functions.Replacers
+namespace qon.Functions.Mutations
 {
     public class EuclideanReplacer<TQ> : IMutationFunction<TQ> where TQ : notnull
     {
@@ -100,6 +96,13 @@ namespace qon.Functions.Replacers
             {
                 foreach (var permutation in _axisPermutations)
                 {
+                    //TODO: skip iterations for permutations with equal dimensions
+
+                    if (_dimension.Y == _dimension.Z && permutation is ('X', 'Z', 'Y') or ('Z', 'X', 'Y') or ('Z', 'Y', 'X'))
+                    {
+                        continue;
+                    }
+
                     for (byte i = 0; i <= 7; i++)
                     {
                         bool bx = (i & 0b00000_001) != 0;

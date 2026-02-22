@@ -13,7 +13,7 @@ namespace Examples.Visual
     {
         public static class Settings
         {
-            public const int GridSize = 10;
+            public const int GridSize = 41;
             public const int PixelSize = 30;
             public const int CanvasSize = GridSize * PixelSize;
             public const int InfoPanelHeight = 40;
@@ -22,7 +22,7 @@ namespace Examples.Visual
         public static class Pixel
         {
             public const char BlackPixel = '@';
-            public const char WhitePixel = ' ';
+            public const char WhitePixel = 'W';
             public const char GreyPixel = '_';
             public const char RedPixel = '*';
             public const char GreenPixel = 'G';

@@ -1,9 +1,9 @@
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
-using qon.Functions.Replacers;
 using qon.Functions.Searchers.Anchors;
 using qon.Helpers;
 using qon.Layers.StateLayers;
+using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.Variables.Domains;
 using Raylib_cs;
@@ -18,6 +18,7 @@ namespace Examples.Visual
         public static void Run()
         {
             var random = new Random();
+
             var machine = CreateMachine(random);
 
             using var solver = machine.Solver;
@@ -60,12 +61,15 @@ namespace Examples.Visual
 
         private static QMachine<char> CreateMachine(Random random)
         {
-            var machine = new QMachine<char>(new ());
+            var machine = new QMachine<char>(new QMachineParameter<char>
+            {
+                Random = random,
+            });
 
             machine.GenerateField(new DiscreteDomain<char>(Pixel.BlackPixel, Pixel.WhitePixel, Pixel.RedPixel, Pixel.GreenPixel), (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
 
             var center = Settings.GridSize / 2;
-            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(center, center, 0)];
+            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
 
             if (centerVariable is not null)
             {
@@ -81,22 +85,36 @@ namespace Examples.Visual
 
             MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
             {
-                MutationFunction = new EuclideanReplacer<char>(
-                    EuclideanReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.BlackPixel), 
-                    EuclideanReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel)),
-                Fitness = _ => random.Next(1, 100),
+                MutationFunction = new FallbackMutation<char>(
+                    new EuclideanReplacer<char>(
+                        EuclideanReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.GreenPixel),
+                        EuclideanReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel)),
+                    new EuclideanReplacer<char>(
+                        EuclideanReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.BlackPixel),
+                        EuclideanReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel))),
+                Fitness = field =>
+                {
+                    var v = field.FirstOrDefault(x => x.Value.CheckValue(Pixel.GreenPixel));
+
+                    if (v is { } greenVariable)
+                    {
+                        return random.Next(1, 100);
+                    }
+
+                    return 0;
+                },
                 Validation = field =>
                 {
                     var v = field.FirstOrDefault(x => x.Value.CheckValue(Pixel.GreenPixel));
 
                     if (v is {} greenVariable)
                     {
-                        return Filters.MooreFilter<char>(n => n.Count(x => x.Value.CheckValue(Pixel.RedPixel)) > 0)
-                            .ApplyTo(greenVariable);
+                        return false;
                     }
 
                     return true;
-                }
+                },
+                BacktrackingEnabled = true
             };
 
             return machine;

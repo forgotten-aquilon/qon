@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using qon.Functions;
+using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
 
@@ -43,7 +44,7 @@ namespace qon.Solvers
 
         object IEnumerator.Current => Current;
 
-        public Guid UniqueIteration { get; protected set; } = Guid.NewGuid();
+        public Guid UniqueIteration { get; protected set; }
 
         /// <summary>
         /// Stack discrete steps made by Solver, representing the state of the Field
@@ -55,6 +56,8 @@ namespace qon.Solvers
             _solutionStack = new Stack<Field<TQ>>();
 
             Machine = machine;
+
+            UniqueIteration = Machine.Random.GetRandomGuid();
         }
 
         /// <summary>
@@ -63,7 +66,7 @@ namespace qon.Solvers
         /// <returns></returns>
         private int GoForth()
         {
-            UniqueIteration = Guid.NewGuid();
+            UniqueIteration = Machine.Random.GetRandomGuid();
             _solutionStack.Push(Current.Field.Copy());
             StepCounter++;
             return 1;
@@ -76,6 +79,29 @@ namespace qon.Solvers
         /// <returns></returns>
         private int GoBack()
         {
+            if (_solutionStack.Count > 10)
+            {
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+            }
+
+            if (_solutionStack.Count > 100)
+            {
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+                _solutionStack.Pop();
+            }
+
             _solutionStack.Pop();
 
             if (_solutionStack.Count == 0)
@@ -92,6 +118,7 @@ namespace qon.Solvers
 
             BackStepCounter++;
 
+            Machine.StateType = MachineStateType.IsSolving;
             return 1;
         }
 
@@ -152,7 +179,6 @@ namespace qon.Solvers
                     else
                     {
                         changes += GoBack();
-                        Machine.StateType = MachineStateType.IsSolving;
                     }
 
                     break;

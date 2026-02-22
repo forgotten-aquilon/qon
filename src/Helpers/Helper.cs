@@ -196,6 +196,13 @@ namespace qon.Helpers
             return random.NextDouble() < probability;
         }
 
+        public static Guid GetRandomGuid(this Random random)
+        {
+            byte[] guidBytes = new byte[16];
+            random.NextBytes(guidBytes);
+            return new Guid(guidBytes);
+        }
+
         #endregion
 
         #region String Extension
