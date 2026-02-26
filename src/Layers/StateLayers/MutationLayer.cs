@@ -17,11 +17,18 @@ namespace qon.Layers.StateLayers
         public IMutationFunction<TQ>? MutationFunction { get; set; }
 
         public Func<Field<TQ>, int>? Fitness { get; set; }
+
+        public Func<Field<TQ>, bool>? Validation { get; set; }
+
+        public bool BacktrackingEnabled { get; set; } = false;
     }
 
     public class MutationLayer<TQ> : BaseLayer<TQ, MutationLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>, IStateLayer<TQ> where TQ : notnull
     {
         private Field<TQ>? _bestSample;
+
+        //TODO: Add collision protection
+        private static Dictionary<Field<TQ>, HashSet<Field<TQ>>> _sampleHistory = new Dictionary<Field<TQ>, HashSet<Field<TQ>>>();
 
         public MutationLayerParameter<TQ> _parameter;
 
@@ -40,8 +47,19 @@ namespace qon.Layers.StateLayers
         public Result Prepare(Field<TQ> field)
         {
             var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter.MutationFunction, nameof(_parameter.MutationFunction));
+            ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
 
-            Samples = mutationFunction.ApplyTo(field);
+            Samples = mutationFunction.ApplyTo(field).Select(f => f.Copy()).ToList();
+
+            if (_parameter.BacktrackingEnabled && _sampleHistory.TryGetValue(field, out var usedSamples))
+            {
+                Samples.RemoveAll(f => usedSamples.Contains(f));
+
+                if (Samples.Count == 0)
+                {
+                    return Result.HasErrors();
+                }
+            }
 
             return Result.Success(0);
         }
@@ -53,10 +71,14 @@ namespace qon.Layers.StateLayers
                 return PreValidationResult.PreValidated;
             }
 
-            int fitness = int.MaxValue;
-            Field<TQ> bestSample = new Field<TQ>(Machine);
-            ExceptionHelper.ThrowIfInternalValueIsNull(_parameter?.Fitness);
+            ExceptionHelper.ThrowIfInternalValueIsNull(_parameter.Fitness);
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
+
+            int fitness = int.MaxValue;
+            int pos = 0;
+            int index = 0;
+            Field<TQ> bestSample = new Field<TQ>(Machine);
+
             foreach (var sample in Samples)
             {
                 var localFitness = _parameter.Fitness(sample);
@@ -64,34 +86,58 @@ namespace qon.Layers.StateLayers
                 {
                     fitness = localFitness;
                     bestSample = sample;
+                    pos = index;
                 }
-            }
 
-            for (int i = 0; i < bestSample.Count; i++)
-            {
-                field[i].Value = bestSample[i].Value;
-                field[i].Properties = new Dictionary<string, ValueType>(bestSample[i].Properties);
+                index++;
             }
 
             _bestSample = bestSample;
 
+            Samples.RemoveAt(pos);
+
+            if (_parameter.BacktrackingEnabled)
+            {
+                if (_sampleHistory.TryGetValue(field, out var set))
+                {
+                    set.Add(_bestSample);
+                }
+                else
+                {
+                    _sampleHistory[field] = new HashSet<Field<TQ>>{_bestSample};
+                }
+            }
+
             if (fitness == 0)
             {
+                field.Update(_bestSample.Variables);
                 return PreValidationResult.PreValidated;
             }
 
             return PreValidationResult.NotValidated;
         }
 
-        public bool Validate(Field<TQ> field)
-        {
-            return true;
-        }
-
         public void Execute(Field<TQ>? previousField, Field<TQ> currentField)
         {
             ExceptionHelper.ThrowIfInternalValueIsNull(_bestSample);
+            ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
+
             currentField.Update(_bestSample.Variables);
+        }
+
+        public bool Validate(Field<TQ> field)
+        {
+            if (_parameter.Validation is { } validationFunc)
+            {
+                if (validationFunc(field))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

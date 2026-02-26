@@ -31,8 +31,7 @@ namespace qon.Layers
     /// <typeparam name="THolder">
     /// Type, which can hold this layer, e.g. <see cref="QVariable{TQ}"/> or <see cref="MachineState{TQ}"/>
     /// </typeparam>
-    public abstract class BaseLayer<TQ, TSelf, THolder> : BaseLayer, ILayer<TQ, THolder>
-        where TQ : notnull
+    public abstract class BaseLayer<TQ, TSelf, THolder> : BaseLayer, ILayer<TQ, THolder> where TQ : notnull
         where TSelf : BaseLayer<TQ, TSelf, THolder>, ILayer<TQ, THolder>, new()
         where THolder : class, ILayerHolder<TQ, THolder>
     {
@@ -41,14 +40,14 @@ namespace qon.Layers
         /// Nullable reference to <see cref="LayersManager{TQ,THolder}"/> . Allows late binding to actual instance of
         /// manager.
         /// </summary>
-        private LayersManager<TQ, THolder>? _manager;
+        protected LayersManager<TQ, THolder>? NullableManager { get; set; }
 
 
         /// <summary>
         /// Non-nullable reference to <see cref="LayersManager{TQ,THolder}"/>, which is checked in runtime. Allows late binding to actual
         /// instance of manager.
         /// </summary>
-        public LayersManager<TQ, THolder> Manager => ExceptionHelper.ThrowIfFieldIsNull(_manager, nameof(_manager));
+        public LayersManager<TQ, THolder> Manager => ExceptionHelper.ThrowIfFieldIsNull(NullableManager, nameof(NullableManager));
 
         /// <summary>
         /// Reference to an instance of type, which can hold this layer. 
@@ -99,7 +98,7 @@ namespace qon.Layers
             {
                 layer = new TSelf();
                 holder.LayerManager.Add(layer);
-                layer._manager = holder.LayerManager;
+                layer.NullableManager = holder.LayerManager;
             }
 
             return layer;
@@ -119,9 +118,23 @@ namespace qon.Layers
         /// <param name="manager"></param>
         public void UpdateManager(LayersManager<TQ, THolder> manager)
         {
-            _manager = manager;
+            NullableManager = manager;
         }
 
         #endregion
+
+        public override int GetHashCode()
+        {
+            return (NullableManager is not null ? NullableManager.GetHashCode() : 0);
+        }
+
+        public virtual bool Equals(ILayer<TQ, THolder> other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+
+            if (this.GetType() != other.GetType()) return false;
+
+            return true;
+        }
     }
 }

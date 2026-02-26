@@ -129,9 +129,18 @@ namespace qon.Layers.VariableLayers
 
         public override ILayer<TQ, QVariable<TQ>> Copy()
         {
-            return new DomainLayer<TQ>(Domain.Copy());
+            return new DomainLayer<TQ>(Domain.Copy())
+            {
+                NullableManager = NullableManager
+            };
         }
 
         #endregion
+
+        //TODO: Implement domain equality check
+        public override bool Equals(ILayer<TQ, QVariable<TQ>> other)
+        {
+            return base.Equals(other);
+        }
     }
 }

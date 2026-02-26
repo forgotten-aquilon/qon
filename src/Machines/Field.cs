@@ -16,6 +16,7 @@ namespace qon.Machines
     /// <typeparam name="TQ"></typeparam>
     public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
     {
+        public Guid IterationId { get; protected set; }
         /// <summary>
         /// All variables of the current Field
         /// </summary>
@@ -39,17 +40,19 @@ namespace qon.Machines
         {
             Machine = machine;
             Variables = Array.Empty<QVariable<TQ>>();
+            IterationId = Machine.Solver.UniqueIteration;
         }
 
         /// <summary>
-        /// Initialize new Field with provided Variables, binds it to Solution Machine 
+        /// Initialize new Field with provided Variables, binds it to Solution Machine
         /// </summary>
         /// <param name="machine"></param>
         /// <param name="variables"></param>
-        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables)
+        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables, Guid iteration)
         {
             Machine = machine;
             Variables = variables;
+            IterationId = iteration;
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace qon.Machines
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Field<TQ> Copy()
         {
-            return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray());
+            return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray(), IterationId);
         }
 
         /// <summary>
@@ -81,7 +84,7 @@ namespace qon.Machines
         {
             QVariable<TQ>[] fieldCopy = new QVariable<TQ>[Count];
             Array.Copy(Variables, fieldCopy, Count);
-            Field<TQ> newField = new Field<TQ>(Machine, fieldCopy);
+            Field<TQ> newField = new Field<TQ>(Machine, fieldCopy, IterationId);
 
             return newField;
         }
@@ -130,6 +133,21 @@ namespace qon.Machines
             result.Append("}");
 
             return result.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Field<TQ> other)
+            {
+                return this.SequenceEqual(other);
+            }
+
+            return base.Equals(obj);
         }
 
         public IEnumerator<QVariable<TQ>> GetEnumerator()

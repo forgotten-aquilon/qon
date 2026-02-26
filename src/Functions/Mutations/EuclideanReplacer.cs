@@ -1,19 +1,17 @@
-﻿using qon.Exceptions;
-using qon.Functions.Filters;
-using qon.Functions.Mutations;
-using qon.Functions.Searchers.Anchors;
-using qon.Layers.StateLayers;
-using qon.Machines;
-using qon.Variables;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using qon.Exceptions;
+using qon.Functions.Filters;
 using qon.Helpers;
+using qon.Layers.StateLayers;
+using qon.Machines;
+using qon.Variables;
 
-namespace qon.Functions.Replacers
+namespace qon.Functions.Mutations
 {
-    public class EuclideanReplacer<TQ> : IMutationFunction<TQ> where TQ : notnull
+    public class EuclideanReplacer<TQ> : IMutationFunction<TQ>  where TQ : notnull
     {
         private readonly struct Dimension
         {
@@ -100,6 +98,21 @@ namespace qon.Functions.Replacers
             {
                 foreach (var permutation in _axisPermutations)
                 {
+                    if (_dimension.Y == _dimension.Z && permutation is ('X', 'Z', 'Y') or ('Z', 'X', 'Y') or ('Z', 'Y', 'X'))
+                    {
+                        continue;
+                    }
+
+                    if (_dimension.X == _dimension.Z && permutation is ('Z', 'Y', 'X') or ('Z', 'X', 'Y') or ('Y', 'Z', 'X'))
+                    {
+                        continue;
+                    }
+
+                    if (_dimension.Y == _dimension.X && permutation is ('Y', 'X', 'Z') or ('Y', 'Z', 'X') or ('Z', 'Y', 'X'))
+                    {
+                        continue;
+                    }
+
                     for (byte i = 0; i <= 7; i++)
                     {
                         bool bx = (i & 0b00000_001) != 0;
@@ -129,7 +142,6 @@ namespace qon.Functions.Replacers
 
                         if (MutateField(input, anchor, permutation, reverse) is {} field)
                         {
-                            Console.WriteLine("\tAdd");
                             result.Add(field);
                         }
                     }
@@ -237,9 +249,9 @@ namespace qon.Functions.Replacers
             return result;
         }
 
-        public static QPredicate<TQ>[,,] CreatePatternFrom(params TQ[] linearPattern)
+        public static QPredicate<TQ>[,,] CreatePatternFrom(params TQ?[] linearPattern)
         {
-            var arr = linearPattern.Select(x => (QPredicate<TQ>)x).ToArray();
+            var arr = linearPattern.Select(x => x is not null ? x : new QPredicate<TQ>(v => true)).ToArray();
 
             var result = new QPredicate<TQ>[1, 1, arr.Length];
 
@@ -253,7 +265,7 @@ namespace qon.Functions.Replacers
 
         public static VariableMutation<TQ>[,,] CreateMutationFrom(IEnumerable<TQ> linearMutation)
         {
-            var arr = linearMutation.Select(x => new VariableMutation<TQ>(v => v.Value = Optional<TQ>.Of(x))).ToArray();
+            var arr = linearMutation.Select(VariableMutation<TQ>.FromValue).ToArray();
 
             var result = new VariableMutation<TQ>[1, 1, arr.Length];
 
@@ -265,9 +277,9 @@ namespace qon.Functions.Replacers
             return result;
         }
 
-        public static VariableMutation<TQ>[,,] CreateMutationFrom(params TQ[] linearMutation)
+        public static VariableMutation<TQ>[,,] CreateMutationFrom(params TQ?[] linearMutation)
         {
-            var arr = linearMutation.Select(x => new VariableMutation<TQ>(v => v.Value = Optional<TQ>.Of(x))).ToArray();
+            var arr = linearMutation.Select(x => x is not null ? VariableMutation<TQ>.FromValue(x) : VariableMutation<TQ>.Empty).ToArray();
 
             var result = new VariableMutation<TQ>[1, 1, arr.Length];
 

@@ -1,48 +1,40 @@
-﻿using qon.Helpers;
+﻿using System;
+using qon.Helpers;
 using qon.Machines;
 using qon.Variables;
+using System.Collections.Generic;
+using qon.Layers.StateLayers;
 
 namespace qon.Layers.VariableLayers
 {
     public class EuclideanLayer<TQ> : BaseLayer<TQ, EuclideanLayer<TQ>, QVariable<TQ>>, ILayer<TQ, QVariable<TQ>> where TQ : notnull
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Z { get; set; }
+        public EuclideanStateLayer<TQ> StateLayer => EuclideanStateLayer<TQ>.With(Machine.State);
 
-        public EuclideanLayer()
-        {
-            X = 0;
-            Y = 0;
-            Z = 0;
-        }
-
-        public EuclideanLayer(int x, int y, int z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-
-        public void Update(int x, int y, int z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-
-        ILayer<TQ, QVariable<TQ>> ICopy<ILayer<TQ, QVariable<TQ>>>.Copy()
-        {
-            return new EuclideanLayer<TQ>(X, Y, Z);
-        }
+        public int X => StateLayer.Coordinates[Holder.Id].X;
+        public int Y => StateLayer.Coordinates[Holder.Id].Y;
+        public int Z => StateLayer.Coordinates[Holder.Id].Z;
 
         #region Overrides of BaseLayer<TQ,EuclideanLayer<TQ>,QVariable<TQ>>
 
         public override ILayer<TQ, QVariable<TQ>> Copy()
         {
-            return new EuclideanLayer<TQ>(X, Y, Z);
+            return new EuclideanLayer<TQ>()
+            {
+                NullableManager = NullableManager
+            };
         }
 
         #endregion
+
+        public override bool Equals(ILayer<TQ, QVariable<TQ>> other)
+        {
+            if (other is EuclideanLayer<TQ> otherLayer)
+            {
+                return this.X == otherLayer.X && this.Y == otherLayer.Y && this.Z == otherLayer.Z;
+            }
+
+            return base.Equals(other);
+        }
     }
 }

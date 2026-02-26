@@ -49,7 +49,7 @@ namespace qon.Functions.Filters
 
             void Add(QVariable<TQ>? neighbor)
             {
-                if (neighbor != null)
+                if (neighbor is not null)
                 {
                     neighbors.Add(neighbor);
                 }

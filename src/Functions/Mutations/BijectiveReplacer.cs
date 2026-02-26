@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using qon.Exceptions;
-using qon.Functions.Mutations;
 using qon.Functions.Searchers;
 using qon.Machines;
 using qon.Variables;
 
-namespace qon.Functions.Replacers
+namespace qon.Functions.Mutations
 {
     public class BijectiveReplacer<TQ> : IMutationFunction<TQ> where TQ : notnull
     {

@@ -15,26 +15,12 @@ namespace qon.Layers.StateLayers
     {
         BaseStateFunctionalParameter<TQ> BaseParameter { get; set; }
 
-        public Result Prepare(Field<TQ> field)
-        {
-            return ExceptionHelper.ThrowIfFieldIsNull(BaseParameter.Preparation, nameof(BaseParameter.Preparation)).Invoke(field);
-        }
+        public Result Prepare(Field<TQ> field);
 
-        public PreValidationResult PreValidate(Field<TQ> field)
-        {
-            return ExceptionHelper.ThrowIfFieldIsNull(BaseParameter.PreValidation, nameof(BaseParameter.PreValidation)).Invoke(field);
-        }
+        public PreValidationResult PreValidate(Field<TQ> field);
 
-        public bool Validate(Field<TQ> field)
-        {
-            return ExceptionHelper.ThrowIfFieldIsNull(BaseParameter.Validation, nameof(BaseParameter.Validation)).Invoke(field);
-        }
+        public bool Validate(Field<TQ> field);
 
-        public void Execute(Field<TQ>? previousField, Field<TQ> currentField)
-        {
-            ExceptionHelper.ThrowIfFieldIsNull(BaseParameter.Execution, nameof(BaseParameter.Execution)).Invoke(
-                ExceptionHelper.ThrowIfArgumentIsNull(previousField, nameof(previousField)),
-                currentField);
-        }
+        public void Execute(Field<TQ>? previousField, Field<TQ> currentField);
     }
 }

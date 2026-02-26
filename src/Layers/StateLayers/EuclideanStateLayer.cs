@@ -10,7 +10,9 @@ namespace qon.Layers.StateLayers
 {
     public class EuclideanStateLayer<TQ> : BaseLayer<TQ, EuclideanStateLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>> where TQ : notnull
     {
-        public Guid[,,] FieldGrid { get; set; } = new Guid[0, 0, 0];
+        public Guid[,,] FieldGrid { get; private set; } = new Guid[0, 0, 0];
+
+        public Dictionary<Guid, (int X, int Y, int Z)> Coordinates { get; private set; } = new();
 
         public QVariable<TQ>? this[(int x, int y, int z) coordinate]
         {
@@ -46,6 +48,11 @@ namespace qon.Layers.StateLayers
 
                 return Machine[FieldGrid[x, y, z]];
             }
+        }
+
+        public void UpdateSize(int x, int y, int z)
+        {
+            FieldGrid = new Guid[x, y, z];
         }
 
         public override ILayer<TQ, MachineState<TQ>> Copy()
