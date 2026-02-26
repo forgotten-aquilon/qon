@@ -22,12 +22,12 @@ namespace qon.Functions.Filters
         public QVariable<TQ>[] ToArray()
         {
             List<QVariable<TQ>> neighbors = new List<QVariable<TQ>>();
-            if (Left != null) neighbors.Add(Left);
-            if (Right != null) neighbors.Add(Right);
-            if (Front != null) neighbors.Add(Front);
-            if (Back != null) neighbors.Add(Back);
-            if (Top != null) neighbors.Add(Top);
-            if (Bottom != null) neighbors.Add(Bottom);
+            if (Left is not null) neighbors.Add(Left);
+            if (Right is not null) neighbors.Add(Right);
+            if (Front is not null) neighbors.Add(Front);
+            if (Back is not null) neighbors.Add(Back);
+            if (Top is not null) neighbors.Add(Top);
+            if (Bottom is not null) neighbors.Add(Bottom);
             return neighbors.ToArray();
         }
     }

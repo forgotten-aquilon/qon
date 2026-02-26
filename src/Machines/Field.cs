@@ -48,11 +48,11 @@ namespace qon.Machines
         /// </summary>
         /// <param name="machine"></param>
         /// <param name="variables"></param>
-        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables)
+        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables, Guid iteration)
         {
             Machine = machine;
             Variables = variables;
-            IterationId = Machine.Solver.UniqueIteration;
+            IterationId = iteration;
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace qon.Machines
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Field<TQ> Copy()
         {
-            return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray());
+            return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray(), IterationId);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace qon.Machines
         {
             QVariable<TQ>[] fieldCopy = new QVariable<TQ>[Count];
             Array.Copy(Variables, fieldCopy, Count);
-            Field<TQ> newField = new Field<TQ>(Machine, fieldCopy);
+            Field<TQ> newField = new Field<TQ>(Machine, fieldCopy, IterationId);
 
             return newField;
         }
@@ -133,6 +133,21 @@ namespace qon.Machines
             result.Append("}");
 
             return result.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Field<TQ> other)
+            {
+                return this.SequenceEqual(other);
+            }
+
+            return base.Equals(obj);
         }
 
         public IEnumerator<QVariable<TQ>> GetEnumerator()

@@ -40,7 +40,7 @@ namespace qon.Machines
         }
 
 
-        public static void GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, (int x, int y, int z) dimensions, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
+        public static void GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ>? domain, (int x, int y, int z) dimensions, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
         {
             List<QVariable<TQ>> variables = new();
 
@@ -50,7 +50,7 @@ namespace qon.Machines
             }
 
             var layer = EuclideanStateLayer<TQ>.GetOrCreate(machine.State);
-            layer.FieldGrid = new Guid[dimensions.x, dimensions.y, dimensions.z];
+            layer.UpdateSize(dimensions.x, dimensions.y, dimensions.z);
 
             for (int z = 0; z < dimensions.z; z++)
             {
@@ -64,10 +64,13 @@ namespace qon.Machines
                             ? QVariable<TQ>.New(name, defaultValue.Value)
                             : QVariable<TQ>.Empty(name);
 
-                        DomainLayer<TQ>.GetOrCreate(newVariable).AssignDomain(domain);
-                        EuclideanLayer<TQ>.GetOrCreate(newVariable).Update(x, y, z);
+                        if (domain is { } d)
+                        {
+                            DomainLayer<TQ>.GetOrCreate(newVariable).AssignDomain(d);
+                        }
 
                         layer.FieldGrid[x, y, z] = newVariable.Id;
+                        layer.Coordinates[newVariable.Id] = (x, y, z);
                         variables.Add(newVariable);
                     }
                 }

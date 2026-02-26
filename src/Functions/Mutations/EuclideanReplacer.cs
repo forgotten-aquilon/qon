@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using qon.Exceptions;
@@ -6,10 +7,11 @@ using qon.Functions.Filters;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
+using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class EuclideanReplacer<TQ> : IMutationFunction<TQ> where TQ : notnull
+    public class EuclideanReplacer<TQ> : IMutationFunction<TQ>  where TQ : notnull
     {
         private readonly struct Dimension
         {
@@ -96,9 +98,17 @@ namespace qon.Functions.Mutations
             {
                 foreach (var permutation in _axisPermutations)
                 {
-                    //TODO: skip iterations for permutations with equal dimensions
-
                     if (_dimension.Y == _dimension.Z && permutation is ('X', 'Z', 'Y') or ('Z', 'X', 'Y') or ('Z', 'Y', 'X'))
+                    {
+                        continue;
+                    }
+
+                    if (_dimension.X == _dimension.Z && permutation is ('Z', 'Y', 'X') or ('Z', 'X', 'Y') or ('Y', 'Z', 'X'))
+                    {
+                        continue;
+                    }
+
+                    if (_dimension.Y == _dimension.X && permutation is ('Y', 'X', 'Z') or ('Y', 'Z', 'X') or ('Z', 'Y', 'X'))
                     {
                         continue;
                     }
@@ -239,9 +249,9 @@ namespace qon.Functions.Mutations
             return result;
         }
 
-        public static QPredicate<TQ>[,,] CreatePatternFrom(params TQ[] linearPattern)
+        public static QPredicate<TQ>[,,] CreatePatternFrom(params TQ?[] linearPattern)
         {
-            var arr = linearPattern.Select(x => (QPredicate<TQ>)x).ToArray();
+            var arr = linearPattern.Select(x => x is not null ? x : new QPredicate<TQ>(v => true)).ToArray();
 
             var result = new QPredicate<TQ>[1, 1, arr.Length];
 
@@ -255,7 +265,7 @@ namespace qon.Functions.Mutations
 
         public static VariableMutation<TQ>[,,] CreateMutationFrom(IEnumerable<TQ> linearMutation)
         {
-            var arr = linearMutation.Select(x => new VariableMutation<TQ>(v => v.Value = Optional<TQ>.Of(x))).ToArray();
+            var arr = linearMutation.Select(VariableMutation<TQ>.FromValue).ToArray();
 
             var result = new VariableMutation<TQ>[1, 1, arr.Length];
 
@@ -267,9 +277,9 @@ namespace qon.Functions.Mutations
             return result;
         }
 
-        public static VariableMutation<TQ>[,,] CreateMutationFrom(params TQ[] linearMutation)
+        public static VariableMutation<TQ>[,,] CreateMutationFrom(params TQ?[] linearMutation)
         {
-            var arr = linearMutation.Select(x => new VariableMutation<TQ>(v => v.Value = Optional<TQ>.Of(x))).ToArray();
+            var arr = linearMutation.Select(x => x is not null ? VariableMutation<TQ>.FromValue(x) : VariableMutation<TQ>.Empty).ToArray();
 
             var result = new VariableMutation<TQ>[1, 1, arr.Length];
 

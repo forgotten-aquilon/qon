@@ -17,7 +17,7 @@ namespace Examples.Visual
 
         public static void Run()
         {
-            var random = new Random();
+            var random = new Random(104);
 
             var machine = CreateMachine(random);
 
@@ -66,7 +66,7 @@ namespace Examples.Visual
                 Random = random,
             });
 
-            machine.GenerateField(new DiscreteDomain<char>(Pixel.BlackPixel, Pixel.WhitePixel, Pixel.RedPixel, Pixel.GreenPixel), (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
+            machine.GenerateField(null, (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
 
             var center = Settings.GridSize / 2;
             var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];

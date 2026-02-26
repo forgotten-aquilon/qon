@@ -19,7 +19,7 @@ namespace qon.Variables
     /// <typeparam name="TQ">
     /// Key generic parameter
     /// </typeparam>
-    public class QVariable<TQ> : ICopy<QVariable<TQ>>, ILayerHolder<TQ, QVariable<TQ>> where TQ : notnull
+    public class QVariable<TQ> : ICopy<QVariable<TQ>>, ILayerHolder<TQ, QVariable<TQ>>, IEquatable<QVariable<TQ>> where TQ : notnull
     {
         /// <summary>
         /// Nullable reference to Solution Machine. Allows late binding to actual instance of machine.
@@ -40,7 +40,7 @@ namespace qon.Variables
         /// <summary>
         /// Kinda obsolete way to storing additional data. Layers should be used instead
         /// </summary>
-        public Dictionary<string, ValueType> Properties { get; set; } = new Dictionary<string, ValueType>();
+        public Dictionary<string, IConvertible> Properties { get; set; } = new Dictionary<string, IConvertible>();
 
         /// <summary>
         /// Contains layers with additional data or functionality
@@ -95,7 +95,7 @@ namespace qon.Variables
             {
                 Id = Id,
                 Name = Name,
-                Properties = new Dictionary<string, ValueType>(Properties),
+                Properties = new Dictionary<string, IConvertible>(Properties),
                 Value = Value,
                 State = State,
                 Machine = Machine,
@@ -159,7 +159,7 @@ namespace qon.Variables
         /// <param name="name">Property's name</param>
         /// <param name="value">Value</param>
         /// <returns></returns>
-        public QVariable<TQ> AddProperty(string name, ValueType value)
+        public QVariable<TQ> AddProperty(string name, IConvertible value)
         {
             if (!Properties.TryAdd(name, value))
             {
@@ -174,7 +174,7 @@ namespace qon.Variables
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        public virtual ValueType this[string propertyName]
+        public virtual IConvertible this[string propertyName]
         {
             get => Properties[propertyName];
 
@@ -184,12 +184,12 @@ namespace qon.Variables
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual object? GetNullOrValueProperty(string propertyName)
         {
-            Properties.TryGetValue(propertyName, out ValueType? property);
+            Properties.TryGetValue(propertyName, out IConvertible? property);
             return property;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool TryGetProperty(string propertyName, out ValueType? property)
+        public virtual bool TryGetProperty(string propertyName, out IConvertible? property)
         {
             return Properties.TryGetValue(propertyName, out property);
         }
@@ -203,6 +203,64 @@ namespace qon.Variables
         public override string ToString()
         {
             return $"{Name.ToShortString(5)}:{Value}";
+        }
+
+        #endregion
+
+        #region IEquatable
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(QVariable<TQ>? other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            if (Id != other.Id)
+                return false;
+
+            if (Name != other.Name) 
+                return false;
+
+            if (Value != other.Value)
+                return false;
+
+            if (State != other.State) 
+                return false;
+
+            if (!Properties.SequenceEqual(other.Properties))
+                return false;
+
+            if (!LayerManager.Layers.SequenceEqual(other.LayerManager.Layers))
+                return false;
+
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object? obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((QVariable<TQ>)obj);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(_machine, Id, Name, Properties, LayerManager, Value, (int)State);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(QVariable<TQ> left, QVariable<TQ> right)
+        {
+            return left.Equals(right);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(QVariable<TQ> left, QVariable<TQ> right)
+        {
+            return !(left == right);
         }
 
         #endregion

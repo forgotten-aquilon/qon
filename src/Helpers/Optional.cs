@@ -95,7 +95,7 @@ namespace qon.Helpers
             return !HasValue ? 0 : Value!.GetHashCode();
         }
 
-        #region Equality
+        #region IEquatable
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Optional<T> other)

@@ -27,7 +27,8 @@ namespace qon.Layers.StateLayers
     {
         private Field<TQ>? _bestSample;
 
-        private Dictionary<string, List<Field<TQ>>> _sampleHistory = new Dictionary<string, List<Field<TQ>>>();
+        //TODO: Add collision protection
+        private static Dictionary<Field<TQ>, HashSet<Field<TQ>>> _sampleHistory = new Dictionary<Field<TQ>, HashSet<Field<TQ>>>();
 
         public MutationLayerParameter<TQ> _parameter;
 
@@ -48,13 +49,16 @@ namespace qon.Layers.StateLayers
             var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter.MutationFunction, nameof(_parameter.MutationFunction));
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
 
-            if (_parameter.BacktrackingEnabled && _sampleHistory.TryGetValue(field.ToString(), out var samples))
+            Samples = mutationFunction.ApplyTo(field).Select(f => f.Copy()).ToList();
+
+            if (_parameter.BacktrackingEnabled && _sampleHistory.TryGetValue(field, out var usedSamples))
             {
-                Samples = samples;
-            }
-            else
-            {
-                Samples = mutationFunction.ApplyTo(field).Select(f => f.Copy()).ToList();
+                Samples.RemoveAll(f => usedSamples.Contains(f));
+
+                if (Samples.Count == 0)
+                {
+                    return Result.HasErrors();
+                }
             }
 
             return Result.Success(0);
@@ -94,7 +98,14 @@ namespace qon.Layers.StateLayers
 
             if (_parameter.BacktrackingEnabled)
             {
-                _sampleHistory[Machine.State.Field.ToString()] = Samples;
+                if (_sampleHistory.TryGetValue(field, out var set))
+                {
+                    set.Add(_bestSample);
+                }
+                else
+                {
+                    _sampleHistory[field] = new HashSet<Field<TQ>>{_bestSample};
+                }
             }
 
             if (fitness == 0)
