@@ -9,7 +9,7 @@ namespace qon.Solvers
 {
     public interface ISolver<TQ> : IEnumerator<MachineState<TQ>> where TQ : notnull
     {
-        //TODO: Update with abstract static members when Unity supports it
+        //TODO: Future: Update with abstract static members when Unity supports it
         public Guid UniqueIteration { get; }
         /// <summary>
         /// Function used for initialization of Solver with the instance of <see cref="QMachine{TQ}"/>
@@ -25,5 +25,7 @@ namespace qon.Solvers
         /// Current amount of all steps performed by Solver while backtracking
         /// </summary>
         public int BackStepCounter { get; }
+
+        public bool BackTrackingEnabled { get; }
     }
 }

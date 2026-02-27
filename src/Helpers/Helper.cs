@@ -179,6 +179,18 @@ namespace qon.Helpers
             return chain.ApplyTo(input);
         }
 
+        public static Func<int, int> Log10Strategy = count =>
+        {
+            return count switch
+            {
+                < 10 => 1,
+                < 100 => 10,
+                < 1000 => 100,
+                < 10000 => 10000,
+                _ => (int)Math.Log10(count + 1) * 10
+            };
+        };
+
         #endregion
 
         #region Enum Extensions

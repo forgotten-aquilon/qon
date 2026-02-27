@@ -5,6 +5,7 @@ using qon.Functions.Searchers.Anchors;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
+using qon.Solvers;
 using qon.Variables;
 using qon.Variables.Domains;
 using Raylib_cs;
@@ -64,9 +65,15 @@ namespace Examples.Visual
 
         private static QMachine<char> CreateMachine(Random random)
         {
-            var machine = new QMachine<char>(new ());
+            var machine = new QMachine<char>(new()
+            {
+                SolverInjection = DefaultSolver<char>.InjectWith(new DefaultSolver<char>.SolverParameter
+                {
+                    BackTrackingEnabled = false,
+                })
+            });
 
-            machine.GenerateField(new DiscreteDomain<char>(Pixel.BlackPixel, Pixel.WhitePixel), (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.WhitePixel));
+            machine.GenerateField(null, (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.WhitePixel));
 
             var center = Settings.GridSize / 2;
 
@@ -90,9 +97,8 @@ namespace Examples.Visual
                 var3.Value = Optional<char>.Of(Pixel.BlackPixel);
             }
 
-            MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
+            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
             {
-                //TODO: When() for field state
                 MutationFunction = QSL.CreateMutation<char>()
                     .Sampling(1)
                     .AddMutation(QSL.Mutation<char>()
@@ -112,7 +118,8 @@ namespace Examples.Visual
                         .Build())
                     .AddMutation(QSL.Mutation<char>()
                         .Frequency(0.1)
-                        .When(Filters.EqualsToValue(Pixel.WhitePixel) & Filters.FieldFilter<char>(f => f.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) < 10))
+                        .When(Filters.EqualsToValue(Pixel.WhitePixel))
+                        .WhenField(f => f.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) < 10)
                         .Into(Mutations<char>.ToValue(Pixel.BlackPixel))
                         .Build())
                     .AddMutation(QSL.Mutation<char>()

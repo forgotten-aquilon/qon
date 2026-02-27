@@ -14,8 +14,7 @@ using qon.Solvers;
 
 namespace qon.Layers.StateLayers
 {
-    public class ConstraintLayerParameter<TQ> : BaseStateFunctionalParameter<TQ>
-        where TQ : notnull
+    public class ConstraintLayerParameter<TQ> where TQ : notnull
     {
         public List<IPreparation<TQ>> GeneralConstraints { get; set; } = new List<IPreparation<TQ>>();
         public List<IPreparation<TQ>>? ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
@@ -31,18 +30,14 @@ namespace qon.Layers.StateLayers
 
         public ConstraintLayer()
         {
-            BaseParameter = new ConstraintLayerParameter<TQ>();
         }
 
         public ConstraintLayer(ConstraintLayerParameter<TQ> constraints)
         {
             Constraints = constraints;
-            BaseParameter = constraints;
         }
 
         #region Solving lifecycle
-
-        public BaseStateFunctionalParameter<TQ> BaseParameter { get; set; }
 
         public Result Prepare(Field<TQ> field)
         {
