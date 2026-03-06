@@ -21,13 +21,16 @@ namespace Examples
         {
             List<int> domain = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-            var machine = new QMachine<int>(new QMachineParameter<int>());
+            var machine = new QMachine<int>(new QMachineParameter<int>()
+            {
+                Random = new Random(1),
+            });
             ConstraintLayer<int>.GetOrCreate(machine.State).Constraints = new()
             {
                 GeneralConstraints = new()
                 {
                     QSL.Constraint<int>()
-                        .GroupBy(EuclideanFilters.GroupByRectangle<int>(2, 2))
+                        .GroupBy(EuclideanFilters.GroupByRectangle<int>(3, 3))
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build(),
                     QSL.Constraint<int>()

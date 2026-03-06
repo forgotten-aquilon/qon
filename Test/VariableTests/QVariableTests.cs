@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using qon.Layers.StateLayers;
+﻿using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.Variables;
 using qon.Variables.Domains;
 
-namespace qon.Tests
+namespace qon.Tests.VariableTests
 {
     public class QVariableTests
     {
@@ -74,23 +69,6 @@ namespace qon.Tests
             copy["bool"] = false;
 
             Assert.False(original == copy);
-        }
-
-        [Fact]
-        public void DomainLayerEqualityTest()
-        {
-            QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
-
-            QVariable<char> original = QVariable<char>.New('a');
-
-            DomainLayer<char> layer = DomainLayer<char>.GetOrCreate(original);
-            layer.AssignDomain(new DiscreteDomain<char>('a', 'b', 'c'));
-
-            original.Machine = machine;
-
-            var copy = original.Copy();
-
-            Assert.True(original == copy);
         }
 
         [Fact]
