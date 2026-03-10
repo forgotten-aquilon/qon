@@ -1,4 +1,4 @@
-﻿using qon.Layers.StateLayers;
+using qon.Layers.StateLayers;
 using qon.Machines;
 using Raylib_cs;
 using System;
@@ -24,6 +24,7 @@ namespace Examples.Visual
             public const char BlackPixel = '@';
             public const char WhitePixel = 'W';
             public const char GreyPixel = '_';
+            public const char BluePixel = 'B';
             public const char RedPixel = '*';
             public const char GreenPixel = 'G';
         }
@@ -35,6 +36,7 @@ namespace Examples.Visual
                 Pixel.BlackPixel => Raylib_cs.Color.Black,
                 Pixel.WhitePixel => Raylib_cs.Color.White,
                 Pixel.GreyPixel => Raylib_cs.Color.Gray,
+                Pixel.BluePixel => Raylib_cs.Color.Blue,
                 Pixel.RedPixel => Raylib_cs.Color.Red,
                 Pixel.GreenPixel => Raylib_cs.Color.Green,
                 _ => Raylib_cs.Color.Magenta
@@ -59,5 +61,75 @@ namespace Examples.Visual
                 }
             }
         }
+
+        private static void DrawField(MachineState<char> state)
+        {
+            var layer = EuclideanStateLayer<char>.With(state);
+
+            for (int y = 0; y < Settings.GridSize; y++)
+            {
+                for (int x = 0; x < Settings.GridSize; x++)
+                {
+                    var cell = layer[(x, y, 0)];
+                    var pixelValue = Pixel.WhitePixel;
+
+                    if (cell?.Value.TryGetValue(out var resolvedValue) == true)
+                    {
+                        pixelValue = resolvedValue;
+                    }
+
+                    var color = ResolveColor(pixelValue);
+
+
+                    Raylib.DrawRectangle(x * Settings.PixelSize, y * Settings.PixelSize, Settings.PixelSize, Settings.PixelSize, color);
+                }
+            }
+        }
+
+        public static void Draw(QMachine<char> machine)
+        {
+            using var solver = machine.Solver;
+            bool simulationFinished = !solver.MoveNext();
+
+            Raylib.InitWindow(Settings.CanvasSize, Settings.CanvasSize + Settings.InfoPanelHeight, "Forest Fire Visual");
+
+            try
+            {
+                while (!Raylib.WindowShouldClose())
+                {
+                    Raylib.BeginDrawing();
+                    Raylib.ClearBackground(Color.White);
+
+                    DrawField(machine.State);
+
+                    var statusText = simulationFinished ? "Finished" : "Running";
+                    Raylib.DrawText($"{statusText} | Iteration {solver.StepCounter}", 10, Settings.CanvasSize + 8, 20, Color.Black);
+
+                    Raylib.EndDrawing();
+
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(45);
+                    }).GetAwaiter().GetResult();
+
+                    if (simulationFinished)
+                    {
+                        continue;
+                    }
+
+                    var moved = solver.MoveNext();
+
+                    if (!moved)
+                    {
+                        simulationFinished = true;
+                    }
+                }
+            }
+            finally
+            {
+                Raylib.CloseWindow();
+            }
+        }
     }
 }
+

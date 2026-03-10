@@ -2,4 +2,9 @@
 using Examples.Visual;
 
 //VoidFill.Run();
-GameOfLife.Run();
+//GameOfLife.Run();
+//ForestFire.Run();
+//RiverFlow.Run();
+ChessRandomEngine.Run();
+
+
