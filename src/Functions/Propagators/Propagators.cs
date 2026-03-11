@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Functions.Operations;
@@ -9,6 +7,9 @@ using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
 using qon.Variables.Domains;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace qon.Functions.Propagators
 {
@@ -75,14 +76,14 @@ namespace qon.Functions.Propagators
             return new DefaultPropagator<bool>(value => new Result(value ^ invert, 0));
         }
 
-        public static DefaultPropagator<VonNeumannParameter<TQ>> FromVonNeumann<TQ>(EuclideanConstraintParameter<TQ> param) where TQ : notnull
+        public static DefaultPropagator<VonNeumannParameter<TQ>> ToVonNeumann<TQ>(EuclideanConstraintParameter<TQ> param) where TQ : notnull
         {
             return new DefaultPropagator<VonNeumannParameter<TQ>>(vnp =>
             {
                 //TODO optimize
                 int cumulativeChanges = 0;
 
-                var leftResult = ReduceDomainTo(param[Side.Left]).ApplyTo(vnp.Left.FromNullableToArray());
+                var leftResult = ReduceDomainTo(param.CenterLevel[Side.Left]).ApplyTo(vnp.Left.FromNullableToArray());
                 if (leftResult.Failed)
                 {
                     return leftResult;
@@ -92,7 +93,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += leftResult.ChangesAmount;
                 }
 
-                var rightResult = ReduceDomainTo(param[Side.Right]).ApplyTo(vnp.Right.FromNullableToArray());
+                var rightResult = ReduceDomainTo(param.CenterLevel[Side.Right]).ApplyTo(vnp.Right.FromNullableToArray());
                 if (rightResult.Failed)
                 {
                     return rightResult;
@@ -102,7 +103,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += rightResult.ChangesAmount;
                 }
 
-                var frontResult = ReduceDomainTo(param[Side.Front]).ApplyTo(vnp.Front.FromNullableToArray());
+                var frontResult = ReduceDomainTo(param.CenterLevel[Side.Front]).ApplyTo(vnp.Front.FromNullableToArray());
                 if (frontResult.Failed)
                 {
                     return frontResult;
@@ -112,7 +113,7 @@ namespace qon.Functions.Propagators
                     cumulativeChanges += frontResult.ChangesAmount;
                 }
 
-                var backResult = ReduceDomainTo(param[Side.Back]).ApplyTo(vnp.Back.FromNullableToArray());
+                var backResult = ReduceDomainTo(param.CenterLevel[Side.Back]).ApplyTo(vnp.Back.FromNullableToArray());
                 if (backResult.Failed)
                 {
                     return backResult;
@@ -144,6 +145,162 @@ namespace qon.Functions.Propagators
 
                 return Result.Success(cumulativeChanges);
             });
-        }       
+        }
+
+        public static DefaultPropagator<MooreParameter<TQ>> ToMoore<TQ>(EuclideanConstraintParameter<TQ> param) where TQ : notnull
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            bool TryReduce(in Result result, ref int changes)
+            {
+                if (!result.Failed)
+                {
+                    changes += result.ChangesAmount;
+                    return true;
+                }
+
+                return false;
+            }
+
+            return new DefaultPropagator<MooreParameter<TQ>>(m =>
+            {
+                int cumulativeChanges = 0;
+                //TODO: Finish
+
+                //Top layer
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Corner.FrontLeft]).ApplyTo(m.TopFrontLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Side.Front]).ApplyTo(m.TopFrontCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Corner.FrontRight]).ApplyTo(m.TopFrontRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Side.Left]).ApplyTo(m.TopMedianLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Slab.Top]).ApplyTo(m.TopMedianCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Side.Right]).ApplyTo(m.TopMedianRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Corner.BackRight]).ApplyTo(m.TopBackRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Side.Back]).ApplyTo(m.TopBackCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Top][Corner.BackLeft]).ApplyTo(m.TopBackLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                //Middle layer
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Corner.FrontLeft]).ApplyTo(m.MiddleFrontLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Side.Front]).ApplyTo(m.MiddleFrontCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Corner.FrontRight]).ApplyTo(m.MiddleFrontRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Side.Left]).ApplyTo(m.MiddleMedianLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Side.Right]).ApplyTo(m.MiddleMedianRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Corner.BackRight]).ApplyTo(m.MiddleBackRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Side.Back]).ApplyTo(m.MiddleBackCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Middle][Corner.BackLeft]).ApplyTo(m.MiddleBackLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                //Bottom layer
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Corner.FrontLeft]).ApplyTo(m.BottomFrontLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Side.Front]).ApplyTo(m.BottomFrontCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Corner.FrontRight]).ApplyTo(m.BottomFrontRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Side.Left]).ApplyTo(m.BottomMedianLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Slab.Bottom]).ApplyTo(m.BottomMedianCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Side.Right]).ApplyTo(m.BottomMedianRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Corner.BackRight]).ApplyTo(m.BottomBackRight.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Side.Back]).ApplyTo(m.BottomBackCenter.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                if (!TryReduce(ReduceDomainTo(param[Level.Bottom][Corner.BackLeft]).ApplyTo(m.BottomBackLeft.FromNullableToArray()), ref cumulativeChanges))
+                {
+                    return Result.HasErrors();
+                }
+
+                return Result.Success(cumulativeChanges);
+            });
+        }
     }
 }

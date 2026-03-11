@@ -130,7 +130,7 @@ namespace qon.Functions.Constraints
             Levels = new Dictionary<Level, LevelHandler>
             {
                 [Level.Top] = new(),
-                [Level.Center] = new(),
+                [Level.Middle] = new(),
                 [Level.Bottom] = new(),
             };
 
@@ -294,7 +294,7 @@ namespace qon.Functions.Constraints
             (EuclideanBlockTemplate<TQ> block, int rot) item1, (EuclideanBlockTemplate<TQ> block, int rot) item2)
             where TQ : notnull
         {
-            //"oppositeSide" is the side of the second block, which can be potentially connected to the side of the first block
+            //"oppositeCorner" is the corner of the second block, which can be potentially connected to the corner of the first block
             Corner oppositeCorner = (Corner)(((int)corner + 2) % 4);
 
             Dictionary<Corner, List<CornerConnection>> rotatedBlock1 = RotateCorners(item1.block, item1.rot, level);
@@ -342,7 +342,7 @@ namespace qon.Functions.Constraints
             //Iterating over available connections of the first block
             foreach (VerticalConnection vConn1 in item1.block.VerticalPools[slab])
             {
-                //Iterating over avaiable connections of the second block
+                //Iterating over available connections of the second block
                 foreach (VerticalConnection vConn2 in item2.block.VerticalPools[oppositeSlab])
                 {
                     if (vConn1.Name == vConn2.Name 

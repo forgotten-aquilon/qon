@@ -129,5 +129,10 @@ namespace qon.Machines
 
             StateType = MachineStateType.Ready;
         }
+
+        public void Clear()
+        {
+            //TODO: Add clearing functions
+        }
     }
 }

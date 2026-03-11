@@ -18,7 +18,7 @@ namespace qon.Helpers
     {
         private static readonly EqualityComparer<T> Comparer = EqualityComparer<T>.Default;
 
-        //TODO: Future: Update to C# 10 when available (default)
+        //FUTURE: Update to C# 10 when available (default)
         private readonly T? _value;
 
         public bool HasValue { get; }

@@ -23,7 +23,7 @@ namespace qon.Functions.Constraints
     public enum Level
     {
         Top,
-        Center,
+        Middle,
         Bottom
     }
 
@@ -71,7 +71,7 @@ namespace qon.Functions.Constraints
         public Dictionary<Level, LevelParameter<TQ>> Levels = new()
         {
             { Level.Top, new() },
-            { Level.Center, new() },
+            { Level.Middle, new() },
             { Level.Bottom, new() },
         };
 
@@ -82,13 +82,13 @@ namespace qon.Functions.Constraints
             level switch
             {
                 Level.Top => Levels[Level.Top],
-                Level.Center => Levels[Level.Center],
+                Level.Middle => Levels[Level.Middle],
                 Level.Bottom => Levels[Level.Bottom],
                 _ => throw new NonExhaustiveExpressionException(level)
             };
 
         public LevelParameter<TQ> TopLevel => Levels[Level.Top];
-        public LevelParameter<TQ> CenterLevel => Levels[Level.Center];
+        public LevelParameter<TQ> CenterLevel => Levels[Level.Middle];
         public LevelParameter<TQ> BottomLevel => Levels[Level.Bottom];
 
         public HashSet<TQ> this[Slab side] =>
