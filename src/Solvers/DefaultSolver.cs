@@ -17,10 +17,19 @@ namespace qon.Solvers
     /// <typeparam name="TQ"></typeparam>
     public class DefaultSolver<TQ> : ISolver<TQ> where TQ : notnull
     {
+        public class SolverParameter
+        {
+            public bool BackTrackingEnabled { get; set; } = true;
+
+            public Func<int, int>? BackTrackingStrategy { get; set; }
+        }
+
+        public SolverParameter Parameter { get; set; }
+
         /// <summary>
         /// Function used for initialization of Solver with the instance of <see cref="QMachine{TQ}"/>
         /// </summary>
-        public static Func<QMachine<TQ>, ISolver<TQ>> Injection => (machine) => new DefaultSolver<TQ>(machine);
+        public static Func<QMachine<TQ>, ISolver<TQ>> Injection => (machine) => new DefaultSolver<TQ>(machine, new SolverParameter());
 
         /// <summary>
         /// Current amount of all steps performed by Solver
@@ -31,6 +40,8 @@ namespace qon.Solvers
         /// Current amount of all steps performed by Solver while backtracking
         /// </summary>
         public int BackStepCounter { get; protected set; } = -1;
+
+        public bool BackTrackingEnabled { get; } = true;
 
         /// <summary>
         /// Instance of the current Machine
@@ -51,11 +62,15 @@ namespace qon.Solvers
         /// </summary>
         private readonly Stack<Field<TQ>> _solutionStack;
 
-        private DefaultSolver(QMachine<TQ> machine)
+        private DefaultSolver(QMachine<TQ> machine, SolverParameter parameter)
         {
             _solutionStack = new Stack<Field<TQ>>();
 
             Machine = machine;
+
+            Parameter = parameter;
+
+            BackTrackingEnabled = Parameter.BackTrackingEnabled;
 
             UniqueIteration = Machine.Random.GetRandomGuid();
         }
@@ -67,7 +82,12 @@ namespace qon.Solvers
         private int GoForth()
         {
             UniqueIteration = Machine.Random.GetRandomGuid();
-            _solutionStack.Push(Current.Field.Copy());
+
+            if (_solutionStack.Count == 0 || Parameter.BackTrackingEnabled)
+            {
+                _solutionStack.Push(Current.Field.Copy());
+            }
+
             StepCounter++;
             return 1;
         }
@@ -79,30 +99,17 @@ namespace qon.Solvers
         /// <returns></returns>
         private int GoBack()
         {
-            if (_solutionStack.Count > 10)
+            if (Parameter.BackTrackingStrategy is { } strategy)
+            {
+                for (int i = 0; i < strategy(_solutionStack.Count); i++)
+                {
+                    _solutionStack.Pop();
+                }
+            }
+            else
             {
                 _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
             }
-
-            if (_solutionStack.Count > 100)
-            {
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-                _solutionStack.Pop();
-            }
-
-            _solutionStack.Pop();
 
             if (_solutionStack.Count == 0)
             {
@@ -302,6 +309,11 @@ namespace qon.Solvers
 
         protected virtual void Dispose(bool disposing)
         {
+        }
+
+        public static Func<QMachine<TQ>, ISolver<TQ>> InjectWith(SolverParameter parameter)
+        {
+            return (machine) => new DefaultSolver<TQ>(machine, parameter);
         }
     }
 }

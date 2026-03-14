@@ -84,7 +84,7 @@ namespace qon.Variables.Domains
         public override string ToString() => $"[{Start}..{End}]";
     }
 
-    public class NumericalDomain<TQ> : IDomain<TQ> where TQ : notnull //TODO: Refactor this shit with INumber<TQ> as soon as available in Unity3D
+    public class NumericalDomain<TQ> : IDomain<TQ> where TQ : notnull //FUTURE: Refactor this shit with INumber<TQ> as soon as available in Unity3D
     {
         private static readonly IComparer<TQ> Comparer = Comparer<TQ>.Default;
 
@@ -242,7 +242,7 @@ namespace qon.Variables.Domains
             return Math.Log(TrueSize(), 2);
         }
 
-        //TODO: C# 10 supports random long
+        //FUTURE: C# 10 supports random long
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TQ GetRandomValue(Random random)
         {
@@ -326,7 +326,7 @@ namespace qon.Variables.Domains
 
         #region Helpers
 
-        //TODO: Holy fuck, redo this shit, when will be able to work with generic math via INumber<T>
+        //FUTURE: Holy fuck, redo this shit, when will be able to work with generic math via INumber<T>
         private static (TQ minValue, TQ maxValue) GetLimits()
         {
             var innerType = typeof(TQ);

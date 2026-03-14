@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace qon.Exceptions
 {
-    //TODO: Update using CallerArgumentExpression attribute when possible
+    //FUTURE: Update using CallerArgumentExpression attribute when possible
     public static class ExceptionHelper
     {
         public static void ThrowIfArgumentIsNull([NotNull] object? obj, string? name = null)

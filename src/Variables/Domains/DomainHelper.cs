@@ -17,7 +17,7 @@ namespace qon.Variables.Domains
         {
             public HashSet<char> Symbols { get; } = new();
 
-            //TODO: add check for same script symbols
+            //FUTURE: add check for same script symbols
             public CharDomainOptions WithAlphabet(char leftSymbol, char rightSymbol)
             {
                 var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsLetter(leftSymbol));
@@ -66,7 +66,7 @@ namespace qon.Variables.Domains
             return new PrimitiveDomain<int>(symbols);
         }
 
-        //TODO: God, I really need INumber<T>, Unity, WHEN???
+        //FUTURE: God, I really need INumber<T>, Unity, WHEN???
         public static NumericalDomain<int> NumericalDomain(params (int, int)[] ranges)
         {
             if (ranges.Length == 0)

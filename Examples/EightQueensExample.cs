@@ -22,7 +22,10 @@ namespace Examples
         {
             var domain = new DiscreteDomain<char>(new List<char>() { 'Q', '.' });
 
-            var machine = new QMachine<char>(new QMachineParameter<char>());
+            var machine = new QMachine<char>(new QMachineParameter<char>()
+            {
+                Random = new Random(7),  
+            });
 
             ConstraintLayer<char>.GetOrCreate(machine.State).Constraints = new()
             {
@@ -52,6 +55,7 @@ namespace Examples
             {
                 Console.Clear();
                 GridPrinter.Print(state, 8, true);
+                Console.WriteLine($"{machine.Solver.StepCounter} {machine.StateType}");
             }
         }
     }

@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using qon.Exceptions;
+﻿using qon.Exceptions;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace qon.Functions.Constraints
 {
@@ -11,20 +12,48 @@ namespace qon.Functions.Constraints
         Left = 3
     }
 
+    public enum Corner
+    {
+        FrontLeft = 0,
+        FrontRight = 1,
+        BackRight = 2,
+        BackLeft = 3
+    }
+
+    public enum Level
+    {
+        Top,
+        Middle,
+        Bottom
+    }
+
     public enum Slab
     {
         Top = 0,
         Bottom = 1,
     }
 
-    public class EuclideanConstraintParameter<TQ> where TQ : notnull
+    public class LevelParameter<TQ> where TQ : notnull
     {
         public HashSet<TQ> Left { get; set; } = new();
         public HashSet<TQ> Right { get; set; } = new();
         public HashSet<TQ> Front { get; set; } = new();
         public HashSet<TQ> Back { get; set; } = new();
-        public HashSet<TQ> Top { get; set; } = new();
-        public HashSet<TQ> Bottom { get; set; } = new();
+
+        public HashSet<TQ> FrontLeft { get; set; } = new();
+        public HashSet<TQ> FrontRight { get; set; } = new();
+        public HashSet<TQ> BackRight { get; set; } = new();
+        public HashSet<TQ> BackLeft { get; set; } = new();
+
+        public HashSet<TQ> this[Corner corner] =>
+            corner switch
+            {
+                Corner.FrontLeft => FrontLeft,
+                Corner.FrontRight => FrontRight,
+                Corner.BackRight => BackRight,
+                Corner.BackLeft => BackLeft,
+                _ => throw new NonExhaustiveExpressionException(corner)
+            };
 
         public HashSet<TQ> this[Side side] =>
             side switch
@@ -35,6 +64,32 @@ namespace qon.Functions.Constraints
                 Side.Left => Left,
                 _ => throw new NonExhaustiveExpressionException(side)
             };
+    }
+
+    public class EuclideanConstraintParameter<TQ> where TQ : notnull
+    {
+        public Dictionary<Level, LevelParameter<TQ>> Levels = new()
+        {
+            { Level.Top, new() },
+            { Level.Middle, new() },
+            { Level.Bottom, new() },
+        };
+
+        public HashSet<TQ> Top { get; set; } = new();
+        public HashSet<TQ> Bottom { get; set; } = new();
+
+        public LevelParameter<TQ> this[Level level] =>
+            level switch
+            {
+                Level.Top => Levels[Level.Top],
+                Level.Middle => Levels[Level.Middle],
+                Level.Bottom => Levels[Level.Bottom],
+                _ => throw new NonExhaustiveExpressionException(level)
+            };
+
+        public LevelParameter<TQ> TopLevel => Levels[Level.Top];
+        public LevelParameter<TQ> CenterLevel => Levels[Level.Middle];
+        public LevelParameter<TQ> BottomLevel => Levels[Level.Bottom];
 
         public HashSet<TQ> this[Slab side] =>
             side switch

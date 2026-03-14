@@ -19,22 +19,22 @@ namespace Examples
         public static void Run(int size)
         {
             EuclideanBlockTemplate<string> tileGrassCube = new("Tile_Grass_cube");
-            tileGrassCube.Add(Side.Left, "Open");
-            tileGrassCube.Add(Side.Front, "Open");
-            tileGrassCube.Add(Side.Right, "Open");
-            tileGrassCube.Add(Side.Back, "Open");
+            tileGrassCube.Add(Level.Middle, Side.Left, "Open");
+            tileGrassCube.Add(Level.Middle, Side.Front, "Open");
+            tileGrassCube.Add(Level.Middle, Side.Right, "Open");
+            tileGrassCube.Add(Level.Middle, Side.Back, "Open");
 
             EuclideanBlockTemplate<string> cliffCornerInside = new("Cliff_corner_inside");
-            cliffCornerInside.Add(Side.Left, "Open");
-            cliffCornerInside.Add(Side.Front, "Open");
-            cliffCornerInside.Add(Side.Right, "Closed");
-            cliffCornerInside.Add(Side.Back, "Closed");
+            cliffCornerInside.Add(Level.Middle, Side.Left, "Open");
+            cliffCornerInside.Add(Level.Middle, Side.Front, "Open");
+            cliffCornerInside.Add(Level.Middle, Side.Right, "Closed");
+            cliffCornerInside.Add(Level.Middle, Side.Back, "Closed");
 
             EuclideanBlockTemplate<string> cliffCornerOutside = new("Cliff_Corner_outside");
-            cliffCornerOutside.Add(Side.Left, "Closed");
-            cliffCornerOutside.Add(Side.Front, "Closed");
-            cliffCornerOutside.Add(Side.Right, "Open");
-            cliffCornerOutside.Add(Side.Back, "Open");
+            cliffCornerOutside.Add(Level.Middle, Side.Left, "Closed");
+            cliffCornerOutside.Add(Level.Middle, Side.Front, "Closed");
+            cliffCornerOutside.Add(Level.Middle, Side.Right, "Open");
+            cliffCornerOutside.Add(Level.Middle, Side.Back, "Open");
 
             var blocks = EuclideanRotationHelper.GenerateConnections<string>(new List<EuclideanBlockTemplate<string>>
             {

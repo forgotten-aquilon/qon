@@ -30,8 +30,15 @@ namespace qon.Functions.QSL
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
             return variable => VonNeumannFilter<TQ>.Filter.ApplyTo(variable)
-                .Then(Propagators.Propagators.FromVonNeumann(parameter));
-            // ~Propagators.Propagators.FromVonNeumann(parameter);
+                .Then(Propagators.Propagators.ToVonNeumann(parameter));
+        }
+
+        public static Func<QVariable<TQ>, Result> Moore<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull
+        {
+            ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
+
+            return variable => MooreFilter<TQ>.Filter.ApplyTo(variable)
+                .Then(Propagators.Propagators.ToMoore(parameter));
         }
 
         public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull

@@ -19,8 +19,6 @@ namespace qon.Layers.StateLayers
         public Func<Field<TQ>, int>? Fitness { get; set; }
 
         public Func<Field<TQ>, bool>? Validation { get; set; }
-
-        public bool BacktrackingEnabled { get; set; } = false;
     }
 
     public class MutationLayer<TQ> : BaseLayer<TQ, MutationLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>, IStateLayer<TQ> where TQ : notnull
@@ -30,28 +28,27 @@ namespace qon.Layers.StateLayers
         //TODO: Add collision protection
         private static Dictionary<Field<TQ>, HashSet<Field<TQ>>> _sampleHistory = new Dictionary<Field<TQ>, HashSet<Field<TQ>>>();
 
-        public MutationLayerParameter<TQ> _parameter;
+        public MutationLayerParameter<TQ> Parameter = new();
 
         public List<Field<TQ>> Samples { get; set; } = new();
 
-        public MutationLayer()
+        public MutationLayer() {}
+
+        public MutationLayer(MutationLayerParameter<TQ> parameter)
         {
-            _parameter = new MutationLayerParameter<TQ>();
-            BaseParameter = new BaseStateFunctionalParameter<TQ>();
+            Parameter = parameter;
         }
 
         #region Solving lifecycle
 
-        public BaseStateFunctionalParameter<TQ> BaseParameter { get; set; }
-
         public Result Prepare(Field<TQ> field)
         {
-            var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(_parameter.MutationFunction, nameof(_parameter.MutationFunction));
+            var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(Parameter.MutationFunction, nameof(Parameter.MutationFunction));
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
 
             Samples = mutationFunction.ApplyTo(field).Select(f => f.Copy()).ToList();
 
-            if (_parameter.BacktrackingEnabled && _sampleHistory.TryGetValue(field, out var usedSamples))
+            if (Machine.Solver.BackTrackingEnabled && _sampleHistory.TryGetValue(field, out var usedSamples))
             {
                 Samples.RemoveAll(f => usedSamples.Contains(f));
 
@@ -71,7 +68,7 @@ namespace qon.Layers.StateLayers
                 return PreValidationResult.PreValidated;
             }
 
-            ExceptionHelper.ThrowIfInternalValueIsNull(_parameter.Fitness);
+            ExceptionHelper.ThrowIfInternalValueIsNull(Parameter.Fitness);
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
 
             int fitness = int.MaxValue;
@@ -81,7 +78,7 @@ namespace qon.Layers.StateLayers
 
             foreach (var sample in Samples)
             {
-                var localFitness = _parameter.Fitness(sample);
+                var localFitness = Parameter.Fitness(sample);
                 if (localFitness < fitness && localFitness >= 0)
                 {
                     fitness = localFitness;
@@ -96,7 +93,7 @@ namespace qon.Layers.StateLayers
 
             Samples.RemoveAt(pos);
 
-            if (_parameter.BacktrackingEnabled)
+            if (Machine.Solver.BackTrackingEnabled)
             {
                 if (_sampleHistory.TryGetValue(field, out var set))
                 {
@@ -127,7 +124,7 @@ namespace qon.Layers.StateLayers
 
         public bool Validate(Field<TQ> field)
         {
-            if (_parameter.Validation is { } validationFunc)
+            if (Parameter.Validation is { } validationFunc)
             {
                 if (validationFunc(field))
                 {

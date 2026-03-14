@@ -14,14 +14,16 @@ namespace qon.Functions.Mutations
     public class GeneralMutationParameter<TQ> where TQ : notnull
     {
         public QPredicate<TQ> Filter { get; set; }
+        public Func<Field<TQ>, bool>? FieldCheck { get; set; }
         public double Frequency { get; set; }
         public VariableMutation<TQ> MutationFunction { get; set; }
 
-        public GeneralMutationParameter(QPredicate<TQ> filter, double frequency, VariableMutation<TQ> mutationFunction)
+        public GeneralMutationParameter(QPredicate<TQ> filter, double frequency, VariableMutation<TQ> mutationFunction, Func<Field<TQ>, bool>? fieldCheck = null)
         {
             Filter = filter;
             Frequency = frequency;
             MutationFunction = mutationFunction;
+            FieldCheck = fieldCheck;
         }
     }
 
@@ -54,7 +56,7 @@ namespace qon.Functions.Mutations
 
                 foreach (var mutation in _mutations)
                 {
-                    if (mutation.Filter.ApplyTo(variable))
+                    if (mutation.Filter.ApplyTo(variable) && !(mutation.FieldCheck is { } fieldCheck && !fieldCheck(field)))
                     {
                         foreach (var sample in samples)
                         {

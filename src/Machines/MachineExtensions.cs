@@ -69,6 +69,8 @@ namespace qon.Machines
                             DomainLayer<TQ>.GetOrCreate(newVariable).AssignDomain(d);
                         }
 
+                        EuclideanLayer<TQ>.GetOrCreate(newVariable);
+
                         layer.FieldGrid[x, y, z] = newVariable.Id;
                         layer.Coordinates[newVariable.Id] = (x, y, z);
                         variables.Add(newVariable);

@@ -12,7 +12,7 @@ namespace qon.Machines
     /// <summary>
     /// "Hack" for searching for variables in the field by properties. Working without collection-expressions is not possible in Unity for now.
     /// I don't like recursive allocation, but by design solution machine is not supposed to run too often.
-    /// TODO: Remove this as soon Unity supports recent .NET versions
+    /// FUTURE: Remove this as soon Unity supports recent .NET versions
     /// Or maybe keep, because public API looks much better this way.
     /// </summary>
     /// <typeparam name="TQ"></typeparam>

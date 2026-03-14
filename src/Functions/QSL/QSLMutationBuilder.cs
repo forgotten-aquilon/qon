@@ -13,10 +13,17 @@ namespace qon.Functions.QSL
         private QPredicate<TQ>? _guard;
         private double _frequency = 1.0;
         private VariableMutation<TQ>? _mutation;
+        private Func<Field<TQ>, bool>? _fieldCheck;
 
         public QSLMutationParameterBuilder<TQ> When(QPredicate<TQ> guard)
         {
             _guard = guard;
+            return this;
+        }
+
+        public QSLMutationParameterBuilder<TQ> WhenField(Func<Field<TQ>, bool> condition)
+        {
+            _fieldCheck = condition;
             return this;
         }
 
@@ -32,6 +39,12 @@ namespace qon.Functions.QSL
             return this;
         }
 
+        public QSLMutationParameterBuilder<TQ> Into(TQ mutationValue)
+        {
+            _mutation = VariableMutation<TQ>.FromValue(mutationValue);
+            return this;
+        }
+
         public QSLMutationParameterBuilder<TQ> Into(Action<QVariable<TQ>> mutationFunction)
         {
             _mutation = new VariableMutation<TQ>(mutationFunction);
@@ -42,7 +55,7 @@ namespace qon.Functions.QSL
         {
             ExceptionHelper.ThrowIfInternalValueIsNull(_guard, nameof(_guard));
             ExceptionHelper.ThrowIfInternalValueIsNull(_mutation, nameof(_mutation));
-            return new GeneralMutationParameter<TQ>(_guard, _frequency, _mutation);
+            return new GeneralMutationParameter<TQ>(_guard, _frequency, _mutation, _fieldCheck);
         }
     }
 

@@ -42,7 +42,7 @@ namespace Examples
                     new AnchorManager<char>(anchors),
                     new Mutators.ValueMutator<char>('@', '@'));
 
-            MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
+            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
             {
                 MutationFunction = mutation,
                 Fitness = _ => random.Next()

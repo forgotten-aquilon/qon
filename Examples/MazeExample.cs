@@ -46,10 +46,7 @@ namespace Examples
                     .When(Filters.EqualsToValue(tile))
                     .Where(QSL.VonNeumann(new EuclideanConstraintParameter<string>()
                     {
-                        Left = left,
-                        Right = right,
-                        Front = front,
-                        Back = back,
+                        CenterLevel = {Left = left, Right = right, Front = front, Back = back},
                     }))
                     .Build();
             }

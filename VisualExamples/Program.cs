@@ -1,5 +1,6 @@
 #pragma warning disable
 using Examples.Visual;
 
-VoidFill.Run();
+//VoidFill.Run();
 //GameOfLife.Run();
+ForestFire.Run();

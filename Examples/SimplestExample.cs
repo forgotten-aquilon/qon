@@ -29,9 +29,9 @@ namespace Examples
 
             var domain = DomainHelper.SymbolicalDomain(
                 new DomainHelper.CharDomainOptions()
-                    .WithAlphabet('a', 'e'));
+                    .WithAlphabet('a', 'j'));
 
-            machine.GenerateField(domain, new[] { "V1", "V2", "V3", "V4" });
+            machine.GenerateField(domain, 10);
 
             foreach (var state in machine.States)
             {

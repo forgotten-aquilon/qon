@@ -28,7 +28,7 @@ namespace Examples
 
             var target = "ME THINKS IT IS LIKE A WEASEL";
 
-            MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
+            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
             {
                 MutationFunction = QSL.CreateMutation<char>()
                     .Sampling(100)

@@ -5,6 +5,7 @@ using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.Solvers;
 using qon.Variables.Domains;
 using Raylib_cs;
 using static Examples.Visual.VisualHelper;
@@ -64,6 +65,11 @@ namespace Examples.Visual
             var machine = new QMachine<char>(new QMachineParameter<char>
             {
                 Random = random,
+                SolverInjection = DefaultSolver<char>.InjectWith(new()
+                {
+                    BackTrackingEnabled = true,
+                    BackTrackingStrategy = Helper.Log10Strategy
+                })
             });
 
             machine.GenerateField(null, (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
@@ -83,7 +89,7 @@ namespace Examples.Visual
                 endVariable.Value = Optional<char>.Of(Pixel.GreenPixel);
             }
 
-            MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
+            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
             {
                 MutationFunction = new FallbackMutation<char>(
                     new EuclideanReplacer<char>(
@@ -113,8 +119,7 @@ namespace Examples.Visual
                     }
 
                     return true;
-                },
-                BacktrackingEnabled = true
+                }
             };
 
             return machine;

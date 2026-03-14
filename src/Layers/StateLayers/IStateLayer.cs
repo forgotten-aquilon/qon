@@ -13,8 +13,6 @@ namespace qon.Layers.StateLayers
 {
     public interface IStateLayer<TQ> where TQ : notnull
     {
-        BaseStateFunctionalParameter<TQ> BaseParameter { get; set; }
-
         public Result Prepare(Field<TQ> field);
 
         public PreValidationResult PreValidate(Field<TQ> field);
