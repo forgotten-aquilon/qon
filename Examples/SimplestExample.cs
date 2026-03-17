@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using qon;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.StateLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables.Domains;
 
@@ -36,7 +36,7 @@ namespace Examples
             foreach (var state in machine.States)
             {
                 Console.WriteLine(state);
-                Console.WriteLine(machine.StateType);
+                Console.WriteLine(machine.Status);
             }
         }
     }

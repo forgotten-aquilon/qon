@@ -10,22 +10,13 @@ using qon.Machines;
 using qon.Variables.Domains;
 
 bool a;
-//NumberExample.Run();
+NumberExample.Run();
 //SimplestExample.Run();
 //SimpleSudokuExample.Run();
 //SudokuExample.Run();
-EverestSudokuExample.Run();
+//EverestSudokuExample.Run();
 //EightQueensExample.Run();
 //RotationExample.Run(22);
 //MazeExample.Run();
 //WeaselExample.Run();
 //AnchorExpansionExample.Run();
-
-
-public class A : IEnumerable
-{
-    public IEnumerator GetEnumerator()
-    {
-        throw new NotImplementedException();
-    }
-}

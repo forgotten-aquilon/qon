@@ -3,7 +3,7 @@ using qon.Functions;
 using qon.Helpers;
 using qon.Layers;
 using qon.Variables;
-using static qon.Helpers.Helper;
+using static qon.QSL.QSL;
 
 namespace qon.Functions.Filters
 {

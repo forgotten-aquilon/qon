@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using qon;
 using qon.Functions.Constraints;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
@@ -11,6 +10,7 @@ using qon.Solvers;
 using qon.Variables;
 using qon.Functions;
 using qon.Layers.StateLayers;
+using qon.QSL;
 using qon.Variables.Domains;
 
 namespace Examples

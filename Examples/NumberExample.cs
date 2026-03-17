@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using qon;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
+using qon.Helpers;
 using qon.Machines;
 using qon.Solvers;
 using qon.Variables.Domains;
 using qon.Layers.StateLayers;
+using qon.QSL;
 
 namespace Examples
 {
@@ -28,11 +29,18 @@ namespace Examples
                 }
             };
 
-            machine.GenerateField(new NumericalDomain<int>(), new[] { "V1", "V2", "V3", "V4" });
+            var domain = new NumericalDomain<int>();
+
+            var z = machine.Q();
+
+            var a = machine.Q().WithDomain(domain);
+            var b = machine.Q().WithDomain(domain);
+            var c = machine.Q().WithDomain(domain);
+            var d = machine.Q().WithDomain(domain);
 
             foreach (var state in machine.States)
             {
-                Console.WriteLine(state);
+                Console.WriteLine($"{machine.Status}: {a}, {b}, {c}, {d}");
             }
         }
     }

@@ -5,6 +5,7 @@ using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables.Domains;
 using Raylib_cs;
@@ -68,7 +69,7 @@ namespace Examples.Visual
                 SolverInjection = DefaultSolver<char>.InjectWith(new()
                 {
                     BackTrackingEnabled = true,
-                    BackTrackingStrategy = Helper.Log10Strategy
+                    BackTrackingStrategy = QSL.Log10Strategy
                 })
             });
 

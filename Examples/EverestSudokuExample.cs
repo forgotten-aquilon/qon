@@ -1,6 +1,5 @@
 using qon;
 using qon.Functions.Constraints;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Helpers;
@@ -12,6 +11,7 @@ using qon.Variables;
 using System;
 using System.Threading.Tasks;
 using qon.Variables.Domains;
+using QSL = qon.QSL.QSL;
 
 namespace Examples
 {

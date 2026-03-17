@@ -66,6 +66,17 @@ namespace qon.Machines
             Variables = anotherField.Variables;
         }
 
+        public int Add(QVariable<TQ> variable)
+        {
+            var tempList = Variables.ToList();
+
+            tempList.Add(variable);
+
+            Variables = tempList.ToArray();
+
+            return Variables.Length - 1;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Field<TQ> Copy()
         {

@@ -99,6 +99,11 @@ namespace qon.Machines
             Field.Update(field);
         }
 
+        public int AddToField(QVariable<TQ> variable)
+        {
+            return Field.Add(variable);
+        }
+
         #region Queries
 
         public SearchResult<TQ> this[string name, object value]

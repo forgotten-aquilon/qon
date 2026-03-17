@@ -3,7 +3,6 @@ using System.Linq;
 using qon;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
-using qon.Functions.QSL;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
@@ -11,6 +10,7 @@ using qon.Machines;
 using qon.Solvers;
 using qon.Variables;
 using qon.Variables.Domains;
+using QSL = qon.QSL.QSL;
 
 namespace Examples
 {

@@ -1,6 +1,5 @@
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
-using qon.Functions.QSL;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
@@ -9,6 +8,7 @@ using qon.Variables;
 using Raylib_cs;
 using Color = Raylib_cs.Color;
 using static Examples.Visual.VisualHelper;
+using QSL = qon.QSL.QSL;
 
 namespace Examples.Visual
 {

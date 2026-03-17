@@ -1,14 +1,14 @@
 ﻿using System;
 using qon.Exceptions;
+using qon.Functions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
-using qon.Helpers;
 using qon.Layers;
 using qon.Variables;
 
-namespace qon.Functions.QSL
+namespace qon.QSL
 {
-    public static class QSL
+    public static partial class QSL
     {
         public static QSLConstraintBuilder<TQ> Constraint<TQ>() where TQ : notnull
         {
@@ -30,7 +30,7 @@ namespace qon.Functions.QSL
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
             return variable => VonNeumannFilter<TQ>.Filter.ApplyTo(variable)
-                .Then(Propagators.Propagators.ToVonNeumann(parameter));
+                .Then(Functions.Propagators.Propagators.ToVonNeumann(parameter));
         }
 
         public static Func<QVariable<TQ>, Result> Moore<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull
@@ -38,7 +38,7 @@ namespace qon.Functions.QSL
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
             return variable => MooreFilter<TQ>.Filter.ApplyTo(variable)
-                .Then(Propagators.Propagators.ToMoore(parameter));
+                .Then(Functions.Propagators.Propagators.ToMoore(parameter));
         }
 
         public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull

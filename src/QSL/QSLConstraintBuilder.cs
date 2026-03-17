@@ -1,10 +1,11 @@
 ﻿using System;
+using qon.Functions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Variables;
 
-namespace qon.Functions.QSL
+namespace qon.QSL
 {
     public class QSLConstraintBuilder<TQ> where TQ : notnull
     {

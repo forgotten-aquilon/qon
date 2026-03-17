@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using qon.Layers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 
 namespace qon.Variables
 {
@@ -32,9 +33,9 @@ namespace qon.Variables
         public Guid Id { get; protected set; } = Guid.Empty;
 
         /// <summary>
-        /// Human-defined name of the variable, there is no check for its uniqueness, but it should be.
+        /// Human-defined name of the variable
         /// </summary>
-        public string Name { get; protected set; } //TODO: Add uniqueness check in <see cref="QMachine{TQ}"/>
+        public string Name { get; protected set; }
 
         //NOTE: Still not sure about general properties, when layers exist
         /// <summary>
@@ -103,14 +104,24 @@ namespace qon.Variables
             };
         }
 
+        public QLink<TQ> ToLink()
+        {
+            return new QLink<TQ>((machine) => machine[this.Id], Machine);
+        }
+
         /// <summary>
         /// Creates Variable without value and with random ID and Name.
         /// </summary>
         /// <returns></returns>
         public static QVariable<TQ> Empty()
         {
-            var newVariable = new QVariable<TQ>() { Id = Guid.NewGuid() };
-            newVariable.Name = newVariable.Id.ToString();
+            var newId = Guid.NewGuid();
+            var newVariable = new QVariable<TQ>()
+            {
+                Id = newId,
+                Name = newId.ToString()
+            };
+
             return newVariable;
         }
 
@@ -123,8 +134,8 @@ namespace qon.Variables
         {
             QVariable<TQ> newVariable = new()
             {
+                Id = Guid.NewGuid(),
                 Name = name,
-                Id = Guid.NewGuid()
             };
             return newVariable;
         }

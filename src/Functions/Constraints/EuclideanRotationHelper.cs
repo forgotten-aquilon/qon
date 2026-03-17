@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using qon.Helpers;
+using qon.QSL;
 
 namespace qon.Functions.Constraints
 {
@@ -410,15 +411,15 @@ namespace qon.Functions.Constraints
 
     public static class EuclideanExtensions
     {
-        public static List<Level> Levels { get; } = Helper.ToList<Level>();
+        public static List<Level> Levels { get; } = QSL.QSL.ToList<Level>();
 
-        public static List<Side> Sides { get; } = Helper.ToList<Side>();
+        public static List<Side> Sides { get; } = QSL.QSL.ToList<Side>();
         public static Side Rotate(this Side original, int rotation) => (Side)(((int)original + rotation) % 4);
 
-        public static List<Corner> Corners { get; } = Helper.ToList<Corner>();
+        public static List<Corner> Corners { get; } = QSL.QSL.ToList<Corner>();
         public static Corner Rotate(this Corner original, int rotation) => (Corner)(((int)original + rotation) % 4);
 
-        public static List<Slab> Slabs { get; } = Helper.ToList<Slab>();
+        public static List<Slab> Slabs { get; } = QSL.QSL.ToList<Slab>();
         public static Slab GetOpposite(this Slab original) => original == Slab.Bottom ? Slab.Top : Slab.Bottom;
     }
 }

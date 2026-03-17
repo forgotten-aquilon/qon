@@ -1,12 +1,12 @@
-﻿using qon.Exceptions;
+﻿using System;
+using System.Collections.Generic;
+using qon.Exceptions;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
-using qon.Variables;
-using System;
-using System.Collections.Generic;
 using qon.Machines;
+using qon.Variables;
 
-namespace qon.Functions.QSL
+namespace qon.QSL
 {
     public class QSLMutationParameterBuilder<TQ> where TQ : notnull
     {

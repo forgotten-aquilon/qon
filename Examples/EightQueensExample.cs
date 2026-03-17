@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using qon;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Operations;
 using qon.Functions.Propagators;
@@ -10,9 +9,11 @@ using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables;
 using qon.Variables.Domains;
+using QSL = qon.QSL.QSL;
 
 namespace Examples
 {
@@ -55,7 +56,7 @@ namespace Examples
             {
                 Console.Clear();
                 GridPrinter.Print(state, 8, true);
-                Console.WriteLine($"{machine.Solver.StepCounter} {machine.StateType}");
+                Console.WriteLine($"{machine.Solver.StepCounter} {machine.Status}");
             }
         }
     }

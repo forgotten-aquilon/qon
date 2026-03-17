@@ -1,6 +1,5 @@
 using qon;
 using qon.Functions.Constraints;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Helpers;
@@ -10,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using qon.Layers.StateLayers;
 using qon.Variables.Domains;
+using QSL = qon.QSL.QSL;
 
 namespace Examples
 {

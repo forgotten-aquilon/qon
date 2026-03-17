@@ -107,7 +107,7 @@ namespace qon.Solvers
 
             if (_solutionStack.Count == 0)
             {
-                Machine.StateType = MachineStateType.Error;
+                Machine.Status = MachineStateType.Error;
                 return 1;
             }
 
@@ -117,7 +117,7 @@ namespace qon.Solvers
 
             BackStepCounter++;
 
-            Machine.StateType = MachineStateType.IsSolving;
+            Machine.Status = MachineStateType.IsSolving;
             return 1;
         }
 
@@ -132,13 +132,13 @@ namespace qon.Solvers
 
             int changes = 0;
 
-            switch (Machine.StateType)
+            switch (Machine.Status)
             {
                 case MachineStateType.Created:
                     throw new InternalLogicException("Machine is not prepared for solving");
                 case MachineStateType.Ready:
                     changes += GoForth();
-                    Machine.StateType = MachineStateType.IsSolving;
+                    Machine.Status = MachineStateType.IsSolving;
                     break;
                 case MachineStateType.IsSolving:
                     var result = Prepare();
@@ -154,7 +154,7 @@ namespace qon.Solvers
 
                     if (preValidationResult == PreValidationResult.PreValidated)
                     {
-                        Machine.StateType = MachineStateType.Validation;
+                        Machine.Status = MachineStateType.Validation;
                         changes++;
                     }
                     else if (preValidationResult == PreValidationResult.InvalidState)
@@ -173,7 +173,7 @@ namespace qon.Solvers
                     if (Validate())
                     {
                         changes += GoForth();
-                        Machine.StateType = MachineStateType.Finished;
+                        Machine.Status = MachineStateType.Finished;
                     }
                     else
                     {
