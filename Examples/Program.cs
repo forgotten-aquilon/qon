@@ -1,6 +1,7 @@
 #pragma warning disable
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Examples;
@@ -8,6 +9,7 @@ using qon.Helpers;
 using qon.Machines;
 using qon.Variables.Domains;
 
+bool a;
 //NumberExample.Run();
 //SimplestExample.Run();
 //SimpleSudokuExample.Run();
@@ -18,3 +20,12 @@ EverestSudokuExample.Run();
 //MazeExample.Run();
 //WeaselExample.Run();
 //AnchorExpansionExample.Run();
+
+
+public class A : IEnumerable
+{
+    public IEnumerator GetEnumerator()
+    {
+        throw new NotImplementedException();
+    }
+}

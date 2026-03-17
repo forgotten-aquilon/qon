@@ -17,11 +17,18 @@ namespace qon.Variables.Domains
         {
             public HashSet<char> Symbols { get; } = new();
 
+            public CharDomainOptions(){}
+
+            public CharDomainOptions(IEnumerable<char> chars)
+            {
+                Symbols = new HashSet<char>(chars);
+            }
+
             //FUTURE: add check for same script symbols
             public CharDomainOptions WithAlphabet(char leftSymbol, char rightSymbol)
             {
-                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsLetter(leftSymbol));
-                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, symbol => char.IsLetter(rightSymbol));
+                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, char.IsLetter);
+                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, char.IsLetter);
 
                 if (char.IsLower(validatedLeftSymbol) != char.IsLower(validatedRightSymbol))
                 {
@@ -37,8 +44,8 @@ namespace qon.Variables.Domains
 
             public CharDomainOptions WithDigits(char leftSymbol, char rightSymbol)
             {
-                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsDigit(leftSymbol));
-                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, symbol => char.IsDigit(rightSymbol));
+                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, char.IsDigit);
+                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, char.IsDigit);
 
                 var diff = ExceptionHelper.ThrowIfPredicateFalse(validatedRightSymbol - validatedLeftSymbol, diff => diff > 0);
 

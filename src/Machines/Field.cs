@@ -16,7 +16,6 @@ namespace qon.Machines
     /// <typeparam name="TQ"></typeparam>
     public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
     {
-        public Guid IterationId { get; protected set; }
         /// <summary>
         /// All variables of the current Field
         /// </summary>
@@ -40,7 +39,6 @@ namespace qon.Machines
         {
             Machine = machine;
             Variables = Array.Empty<QVariable<TQ>>();
-            IterationId = Machine.Solver.UniqueIteration;
         }
 
         /// <summary>
@@ -48,11 +46,10 @@ namespace qon.Machines
         /// </summary>
         /// <param name="machine"></param>
         /// <param name="variables"></param>
-        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables, Guid iteration)
+        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables)
         {
             Machine = machine;
             Variables = variables;
-            IterationId = iteration;
         }
 
         /// <summary>
@@ -72,7 +69,7 @@ namespace qon.Machines
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Field<TQ> Copy()
         {
-            return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray(), IterationId);
+            return new Field<TQ>(Machine, Variables.Select(x => x.Copy()).ToArray());
         }
 
         /// <summary>
@@ -84,7 +81,7 @@ namespace qon.Machines
         {
             QVariable<TQ>[] fieldCopy = new QVariable<TQ>[Count];
             Array.Copy(Variables, fieldCopy, Count);
-            Field<TQ> newField = new Field<TQ>(Machine, fieldCopy, IterationId);
+            Field<TQ> newField = new Field<TQ>(Machine, fieldCopy);
 
             return newField;
         }

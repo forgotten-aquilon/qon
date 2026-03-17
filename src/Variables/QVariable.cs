@@ -29,14 +29,14 @@ namespace qon.Variables
         /// <summary>
         /// Unique ID, which is preserved by copying.
         /// </summary>
-        public Guid Id { get; protected set; } = Guid.NewGuid(); // TODO: Remove unnecessary initialization
+        public Guid Id { get; protected set; } = Guid.Empty;
 
         /// <summary>
         /// Human-defined name of the variable, there is no check for its uniqueness, but it should be.
         /// </summary>
         public string Name { get; protected set; } //TODO: Add uniqueness check in <see cref="QMachine{TQ}"/>
 
-        //TODO: Still not sure about general properties, when there are layers
+        //NOTE: Still not sure about general properties, when layers exist
         /// <summary>
         /// Kinda obsolete way to storing additional data. Layers should be used instead
         /// </summary>
@@ -109,7 +109,7 @@ namespace qon.Variables
         /// <returns></returns>
         public static QVariable<TQ> Empty()
         {
-            var newVariable = new QVariable<TQ>();
+            var newVariable = new QVariable<TQ>() { Id = Guid.NewGuid() };
             newVariable.Name = newVariable.Id.ToString();
             return newVariable;
         }
@@ -123,7 +123,8 @@ namespace qon.Variables
         {
             QVariable<TQ> newVariable = new()
             {
-                Name = name
+                Name = name,
+                Id = Guid.NewGuid()
             };
             return newVariable;
         }

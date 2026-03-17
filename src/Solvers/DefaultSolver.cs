@@ -55,8 +55,6 @@ namespace qon.Solvers
 
         object IEnumerator.Current => Current;
 
-        public Guid UniqueIteration { get; protected set; }
-
         /// <summary>
         /// Stack discrete steps made by Solver, representing the state of the Field
         /// </summary>
@@ -71,8 +69,6 @@ namespace qon.Solvers
             Parameter = parameter;
 
             BackTrackingEnabled = Parameter.BackTrackingEnabled;
-
-            UniqueIteration = Machine.Random.GetRandomGuid();
         }
 
         /// <summary>
@@ -81,8 +77,6 @@ namespace qon.Solvers
         /// <returns></returns>
         private int GoForth()
         {
-            UniqueIteration = Machine.Random.GetRandomGuid();
-
             if (_solutionStack.Count == 0 || Parameter.BackTrackingEnabled)
             {
                 _solutionStack.Push(Current.Field.Copy());
@@ -120,8 +114,6 @@ namespace qon.Solvers
             var field = _solutionStack.Peek();
 
             Current.SetField(field.Copy().Variables);
-
-            UniqueIteration = field.IterationId;
 
             BackStepCounter++;
 

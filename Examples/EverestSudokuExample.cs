@@ -10,7 +10,6 @@ using qon.Machines;
 using qon.Solvers;
 using qon.Variables;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using qon.Variables.Domains;
 

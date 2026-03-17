@@ -80,7 +80,6 @@ namespace qon.Functions.Propagators
         {
             return new DefaultPropagator<VonNeumannParameter<TQ>>(vnp =>
             {
-                //TODO optimize
                 int cumulativeChanges = 0;
 
                 var leftResult = ReduceDomainTo(param.CenterLevel[Side.Left]).ApplyTo(vnp.Left.FromNullableToArray());
@@ -164,7 +163,6 @@ namespace qon.Functions.Propagators
             return new DefaultPropagator<MooreParameter<TQ>>(m =>
             {
                 int cumulativeChanges = 0;
-                //TODO: Finish
 
                 //Top layer
                 if (!TryReduce(ReduceDomainTo(param[Level.Top][Corner.FrontLeft]).ApplyTo(m.TopFrontLeft.FromNullableToArray()), ref cumulativeChanges))

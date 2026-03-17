@@ -10,6 +10,7 @@ using qon.Machines;
 
 namespace qon.Functions.Constraints
 {
+    //TODO: Rename
     public class RelativeConstraintBuilder<TQ> : IPreparation<TQ> where TQ : notnull
     {
         protected QPredicate<TQ> Guard { get; }
