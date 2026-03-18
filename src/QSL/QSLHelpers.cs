@@ -12,7 +12,7 @@ using qon.Machines;
 using qon.Variables;
 using qon.Variables.Domains;
 
-namespace qon.QSL
+namespace qon
 {
     public static partial class QSL
     {
@@ -181,14 +181,14 @@ namespace qon.QSL
             return chain.ApplyTo(input);
         }
 
-        public static Func<int, int> Log10Strategy = count =>
+        public static Func<int, int> Decimation = count =>
         {
             return count switch
             {
                 < 10 => 1,
                 < 100 => 10,
                 < 1000 => 100,
-                < 10000 => 10000,
+                < 10000 => 1000,
                 _ => (int)Math.Log10(count + 1) * 10
             };
         };
@@ -215,6 +215,16 @@ namespace qon.QSL
             byte[] guidBytes = new byte[16];
             random.NextBytes(guidBytes);
             return new Guid(guidBytes);
+        }
+
+        #endregion
+
+        #region Object
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T NewOrExisting<T>(this T? obj) where T: new()
+        {
+            return obj ?? new T();
         }
 
         #endregion

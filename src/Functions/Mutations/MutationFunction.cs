@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace qon.Functions.Mutations
 {
-    public interface IMutationFunction<TQ> : IChain<Field<TQ>, List<Field<TQ>>> where TQ : notnull
+    public abstract class MutationFunction<TQ> : Chain<Field<TQ>, List<Field<TQ>>> where TQ : notnull
     {
     }
 }

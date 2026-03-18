@@ -3,6 +3,7 @@ using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Variables;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace qon.Functions.Filters
@@ -85,11 +86,9 @@ namespace qon.Functions.Filters
         }
     }
 
-    public class MooreFilter<TQ> : IChain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
+    public class MooreFilter<TQ> : Chain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
     {
-        public static MooreFilter<TQ> Filter { get; } = new();
-
-        public MooreParameter<TQ> ApplyTo(QVariable<TQ> input)
+        public static MooreParameter<TQ> CreateParameter(QVariable<TQ> input)
         {
             var layer = EuclideanLayer<TQ>.With(input);
 
@@ -140,9 +139,9 @@ namespace qon.Functions.Filters
             return result;
         }
 
-        QVariable<TQ>[] IChain<QVariable<TQ>, QVariable<TQ>[]>.ApplyTo(QVariable<TQ> input)
+        public override QVariable<TQ>[] ApplyTo(QVariable<TQ> input)
         {
-            return ApplyTo(input).ToArray();
+            return CreateParameter(input).ToArray();
         }
     }
 }

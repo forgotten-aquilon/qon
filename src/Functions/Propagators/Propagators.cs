@@ -1,7 +1,6 @@
 ﻿using qon.Exceptions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
-using qon.Functions.Operations;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
@@ -10,7 +9,6 @@ using qon.Variables.Domains;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using qon.QSL;
 
 namespace qon.Functions.Propagators
 {

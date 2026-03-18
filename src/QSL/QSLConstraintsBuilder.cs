@@ -5,9 +5,9 @@ using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Variables;
 
-namespace qon.QSL
+namespace qon
 {
-    public class QSLConstraintBuilder<TQ> where TQ : notnull
+    public class QSLConstraintsBuilder<TQ> where TQ : notnull
     {
         private QPredicate<TQ>? _guard;
         private Filter<TQ>? _grouping;
@@ -17,44 +17,44 @@ namespace qon.QSL
         private Propagator<TQ>? _propagator;
         private Func<QVariable<TQ>[], Result>? _customExecutor;
 
-        public QSLConstraintBuilder<TQ> When(QPredicate<TQ> guard)
+        public QSLConstraintsBuilder<TQ> When(QPredicate<TQ> guard)
         {
             _guard = guard;
             return this;
         }
 
-        public QSLConstraintBuilder<TQ> GroupBy(Filter<TQ> grouping)
+        public QSLConstraintsBuilder<TQ> GroupBy(Filter<TQ> grouping)
         {
             _grouping = grouping;
             return this;
         }
 
-        public QSLConstraintBuilder<TQ> Select(QPredicate<TQ> selector)
+        public QSLConstraintsBuilder<TQ> Select(QPredicate<TQ> selector)
         {
             _selector = selector;
             return this;
         }
 
-        public QSLConstraintBuilder<TQ> Where(Func<QVariable<TQ>, QPredicate<TQ>> aggregationFactory)
+        public QSLConstraintsBuilder<TQ> Where(Func<QVariable<TQ>, QPredicate<TQ>> aggregationFactory)
         {
             _neighbourAggregation = aggregationFactory;
             return this;
         }
 
-        public QSLConstraintBuilder<TQ> Where(Func<QVariable<TQ>, Result> neighbourConstraint)
+        public QSLConstraintsBuilder<TQ> Where(Func<QVariable<TQ>, Result> neighbourConstraint)
         {
             _neighbourConstraint = neighbourConstraint;
             return this;
         }
 
-        public QSLConstraintBuilder<TQ> Propagate(Propagator<TQ> propagator)
+        public QSLConstraintsBuilder<TQ> Propagate(Propagator<TQ> propagator)
         {
             _propagator = propagator;
             return this;
         }
 
         //TODO: Rename
-        public QSLConstraintBuilder<TQ> Execute(Func<QVariable<TQ>[], Result> executor)   
+        public QSLConstraintsBuilder<TQ> Execute(Func<QVariable<TQ>[], Result> executor)   
         {
             _customExecutor = executor;
             return this;

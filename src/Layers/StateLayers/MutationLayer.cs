@@ -14,7 +14,7 @@ namespace qon.Layers.StateLayers
 {
     public class MutationLayerParameter<TQ> where TQ : notnull
     {
-        public IMutationFunction<TQ>? MutationFunction { get; set; }
+        public MutationFunction<TQ>? MutationFunction { get; set; }
 
         public Func<Field<TQ>, int>? Fitness { get; set; }
 

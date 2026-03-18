@@ -1,3 +1,4 @@
+using qon;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
 using qon.Helpers;
@@ -8,7 +9,6 @@ using qon.Variables;
 using Raylib_cs;
 using Color = Raylib_cs.Color;
 using static Examples.Visual.VisualHelper;
-using QSL = qon.QSL.QSL;
 
 namespace Examples.Visual
 {
@@ -24,10 +24,10 @@ namespace Examples.Visual
 
         private static QMachine<char> CreateMachine(Random random)
         {
-            var machine = new QMachine<char>(new()
+            var machine = QSL.Machine<char>(new()
             {
                 Random = random,
-                SolverInjection = DefaultSolver<char>.InjectWith(new DefaultSolver<char>.SolverParameter
+                SolverInit = QSL.DefaultSolver<char>(new()
                 {
                     BackTrackingEnabled = false,
                 })

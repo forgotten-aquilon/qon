@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using qon.Layers.StateLayers;
 using qon.Variables.Domains;
-using QSL = qon.QSL.QSL;
 
 namespace Examples
 {
@@ -23,15 +22,15 @@ namespace Examples
             {
                 GeneralConstraints = new()
                 {
-                    QSL.Constraint<int>()
+                    QSL.CreateConstraint<int>()
                         .GroupBy(EuclideanFilters.GroupByRectangle<int>(2, 2))
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build(),
-                    QSL.Constraint<int>()
+                    QSL.CreateConstraint<int>()
                         .GroupBy(EuclideanFilters.GroupByX<int>())
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build(),
-                    QSL.Constraint<int>()
+                    QSL.CreateConstraint<int>()
                         .GroupBy(EuclideanFilters.GroupByY<int>())
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build(),

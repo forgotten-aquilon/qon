@@ -11,7 +11,7 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class EuclideanReplacer<TQ> : IMutationFunction<TQ>  where TQ : notnull
+    public class EuclideanReplacer<TQ> : MutationFunction<TQ>  where TQ : notnull
     {
         private readonly struct Dimension
         {
@@ -57,7 +57,7 @@ namespace qon.Functions.Mutations
             _dimension = new Dimension(d3, d2, d1);
         }
 
-        public List<Field<TQ>> ApplyTo(Field<TQ> input)
+        public override List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
             var layer = EuclideanStateLayer<TQ>.With(input.Machine.State);
 

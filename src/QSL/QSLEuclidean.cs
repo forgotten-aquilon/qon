@@ -1,35 +1,22 @@
-﻿using System;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Functions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Layers;
+using qon.Layers.StateLayers;
+using qon.Machines;
 using qon.Variables;
+using System;
 
-namespace qon.QSL
+namespace qon
 {
     public static partial class QSL
     {
-        public static QSLConstraintBuilder<TQ> Constraint<TQ>() where TQ : notnull
-        {
-            return new QSLConstraintBuilder<TQ>();
-        }
-
-        public static QSLMutationBuilder<TQ> CreateMutation<TQ>() where TQ : notnull
-        {
-            return new QSLMutationBuilder<TQ>();
-        }
-
-        public static QSLMutationParameterBuilder<TQ> Mutation<TQ>() where TQ : notnull
-        {
-            return new QSLMutationParameterBuilder<TQ>();
-        }
-
         public static Func<QVariable<TQ>, Result> VonNeumann<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull
         {
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
-            return variable => VonNeumannFilter<TQ>.Filter.ApplyTo(variable)
+            return variable => VonNeumannFilter<TQ>.CreateParameter(variable)
                 .Then(Functions.Propagators.Propagators.ToVonNeumann(parameter));
         }
 
@@ -37,7 +24,8 @@ namespace qon.QSL
         {
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
-            return variable => MooreFilter<TQ>.Filter.ApplyTo(variable)
+            //TODO: Propagators.Propagators????
+            return variable => MooreFilter<TQ>.CreateParameter(variable)
                 .Then(Functions.Propagators.Propagators.ToMoore(parameter));
         }
 
@@ -45,6 +33,11 @@ namespace qon.QSL
             where TLayer : ILayer<TQ, QVariable<TQ>>
         {
             return RelativeConstraint<TQ>.WithLayer(predicate);
+        }
+
+        public static QVariable<TQ> At<TQ>(this QMachine<TQ> machine, int x, int y, int z) where TQ : notnull
+        {
+            return ExceptionHelper.ThrowIfInternalValueIsNull(EuclideanStateLayer<TQ>.With(machine.State)[x, y, z]);
         }
     }
 }

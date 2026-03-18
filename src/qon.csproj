@@ -9,8 +9,4 @@
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<LangVersion>9</LangVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Functions\QSL\" />
-  </ItemGroup>
 </Project>

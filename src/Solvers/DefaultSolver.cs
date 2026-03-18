@@ -21,6 +21,7 @@ namespace qon.Solvers
         {
             public bool BackTrackingEnabled { get; set; } = true;
 
+            //TODO: Setup in QSL
             public Func<int, int>? BackTrackingStrategy { get; set; }
         }
 

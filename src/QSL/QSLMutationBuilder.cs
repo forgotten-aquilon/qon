@@ -6,7 +6,7 @@ using qon.Functions.Mutations;
 using qon.Machines;
 using qon.Variables;
 
-namespace qon.QSL
+namespace qon
 {
     public class QSLMutationParameterBuilder<TQ> where TQ : notnull
     {
@@ -76,7 +76,7 @@ namespace qon.QSL
             return this;
         }
 
-        public IMutationFunction<TQ> Build()
+        public MutationFunction<TQ> Build()
         {
             return new GeneralMutation<TQ>(_mutations, _sampling);
         }

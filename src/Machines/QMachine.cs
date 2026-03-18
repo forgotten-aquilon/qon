@@ -10,7 +10,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.QSL;
 
 namespace qon.Machines
 {
@@ -101,7 +100,7 @@ namespace qon.Machines
         {
             Random = parameter.Random;
             Status = MachineStateType.Created;
-            Solver = parameter.SolverInjection(this);
+            Solver = parameter.SolverInit(this);
             State = new MachineState<TQ>(this);
             States = new States<TQ>(this);
 

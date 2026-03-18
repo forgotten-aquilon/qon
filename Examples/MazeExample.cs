@@ -10,7 +10,6 @@ using qon.Solvers;
 using qon.Variables;
 using qon.Functions;
 using qon.Layers.StateLayers;
-using qon.QSL;
 using qon.Variables.Domains;
 
 namespace Examples
@@ -42,7 +41,7 @@ namespace Examples
                 HashSet<string> front,
                 HashSet<string> back)
             {
-                return QSL.Constraint<string>()
+                return QSL.CreateConstraint<string>()
                     .When(Filters.EqualsToValue(tile))
                     .Where(QSL.VonNeumann(new EuclideanConstraintParameter<string>()
                     {

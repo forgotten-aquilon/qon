@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Functions.Propagators;
-using static qon.QSL.QSL;
 using qon.Functions.Filters;
 using qon.Layers;
 using qon.Machines;

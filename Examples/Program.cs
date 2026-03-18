@@ -9,8 +9,7 @@ using qon.Helpers;
 using qon.Machines;
 using qon.Variables.Domains;
 
-bool a;
-NumberExample.Run();
+//NumberExample.Run();
 //SimplestExample.Run();
 //SimpleSudokuExample.Run();
 //SudokuExample.Run();
@@ -18,5 +17,5 @@ NumberExample.Run();
 //EightQueensExample.Run();
 //RotationExample.Run(22);
 //MazeExample.Run();
-//WeaselExample.Run();
+WeaselExample.Run();
 //AnchorExpansionExample.Run();

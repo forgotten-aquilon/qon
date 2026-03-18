@@ -1,11 +1,9 @@
 ﻿using System;
-using qon.Functions;
-using qon.Functions.Operations;
 using qon.Variables;
 
 namespace qon.Functions.Filters
 {
-    public class Filter<TQ> : IChain<QVariable<TQ>, object> where TQ : notnull
+    public class Filter<TQ> : Chain<QVariable<TQ>, object> where TQ : notnull
     {
         public Func<QVariable<TQ>, object> AggregationFunction { get; }
 
@@ -14,7 +12,7 @@ namespace qon.Functions.Filters
             AggregationFunction = aggregationFunction;
         }
 
-        public object ApplyTo(QVariable<TQ> input)
+        public override object ApplyTo(QVariable<TQ> input)
         {
             return AggregationFunction(input);
         }

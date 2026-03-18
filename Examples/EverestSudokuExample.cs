@@ -11,7 +11,6 @@ using qon.Variables;
 using System;
 using System.Threading.Tasks;
 using qon.Variables.Domains;
-using QSL = qon.QSL.QSL;
 
 namespace Examples
 {
@@ -30,15 +29,15 @@ namespace Examples
             {
                 GeneralConstraints = new()
                 {
-                    QSL.Constraint<int>()
+                    QSL.CreateConstraint<int>()
                         .GroupBy(EuclideanFilters.GroupByRectangle<int>(3, 3))
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build(),
-                    QSL.Constraint<int>()
+                    QSL.CreateConstraint<int>()
                         .GroupBy(EuclideanFilters.GroupByX<int>())
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build(),
-                    QSL.Constraint<int>()
+                    QSL.CreateConstraint<int>()
                         .GroupBy(EuclideanFilters.GroupByY<int>())
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build(),

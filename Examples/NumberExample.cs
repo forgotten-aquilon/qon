@@ -8,7 +8,6 @@ using qon.Machines;
 using qon.Solvers;
 using qon.Variables.Domains;
 using qon.Layers.StateLayers;
-using qon.QSL;
 
 namespace Examples
 {
@@ -16,22 +15,18 @@ namespace Examples
     {
         public static void Run()
         {
-            var machine = new QMachine<int>(new QMachineParameter<int>());
-
-            ConstraintLayer<int>.GetOrCreate(machine.State).Constraints = new()
+            var machine = QSL.Machine<int>().WithConstraint(new()
             {
                 GeneralConstraints = new()
                 {
-                    QSL.Constraint<int>()
+                    QSL.CreateConstraint<int>()
                         .Select(Filters.All<int>())
                         .Propagate(Propagators.AllDistinct<int>())
                         .Build()
                 }
-            };
+            });
 
             var domain = new NumericalDomain<int>();
-
-            var z = machine.Q();
 
             var a = machine.Q().WithDomain(domain);
             var b = machine.Q().WithDomain(domain);

@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using qon.Functions;
 using qon.Layers.StateLayers;
 using qon.Variables.Domains;
-using QSL = qon.QSL.QSL;
 
 namespace Examples
 {
@@ -50,7 +49,7 @@ namespace Examples
             {
                 domain.Add(block.Key);
                 rotationRules.Add(
-                    QSL.Constraint<EuclideanBlock<string>>()
+                    QSL.CreateConstraint<EuclideanBlock<string>>()
                         .When(Filters.EqualsToValue(block.Key))
                         .Where(QSL.VonNeumann(block.Value))
                         .Build());
