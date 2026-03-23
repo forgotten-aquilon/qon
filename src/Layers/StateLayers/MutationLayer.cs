@@ -14,6 +14,7 @@ namespace qon.Layers.StateLayers
 {
     public class MutationLayerParameter<TQ> where TQ : notnull
     {
+        //FUTURE: "required" modifier for all such parameters in C# awaits
         public MutationFunction<TQ>? MutationFunction { get; set; }
 
         public Func<Field<TQ>, int>? Fitness { get; set; }

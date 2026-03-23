@@ -1,15 +1,13 @@
 using qon;
+using qon.Functions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Helpers;
 using qon.Machines;
-using qon.Solvers;
 using qon.Variables;
+using qon.Variables.Domains;
 using System;
 using System.Collections.Generic;
-using qon.Functions;
-using qon.Layers.StateLayers;
-using qon.Variables.Domains;
 
 namespace Examples
 {
@@ -50,19 +48,18 @@ namespace Examples
                 domain.Add(block.Key);
                 rotationRules.Add(
                     QSL.CreateConstraint<EuclideanBlock<string>>()
-                        .When(Filters.EqualsToValue(block.Key))
+                        .When(QSL.Filters.EqualsToValue(block.Key))
                         .Where(QSL.VonNeumann(block.Value))
                         .Build());
             }
 
-            var machine = new QMachine<EuclideanBlock<string>>(new QMachineParameter<EuclideanBlock<string>>(){Random = new Random(100) });
+            var machine = QSL.Machine<EuclideanBlock<string>>(new QMachineParameter<EuclideanBlock<string>>() { Random = new Random(100) })
+                .WithConstraint(new()
+                {
+                    GeneralConstraints = rotationRules
+                })
+                .GenerateField(new DiscreteDomain<EuclideanBlock<string>>(domain), (size, size, 1));
 
-            ConstraintLayer<EuclideanBlock<string>>.GetOrCreate(machine.State).Constraints = new()
-            {
-                GeneralConstraints = rotationRules
-            };
-
-            machine.GenerateField(new DiscreteDomain<EuclideanBlock<string>>(domain), (size, size, 1));
             int i = 0;
             foreach (var state in machine.States)
             {

@@ -29,19 +29,19 @@ namespace Examples
                     GeneralConstraints = new()
                     {
                         QSL.CreateConstraint<char>()
-                            .When(Filters.EqualsToValue('Q'))
-                            .Where(QSL.WithLayer<char, EuclideanLayer<char>>(l1 =>
+                            .When(QSL.Filters.EqualsToValue('Q'))
+                            .Where(QSL.OnLayer<char, EuclideanLayer<char>>(l1 =>
                                 QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.X == l2.X)
                                 | QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.Y == l2.Y)
                                 | QPredicate<char>.Create<EuclideanLayer<char>>(l2 =>
                                     Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y))))
-                            .Propagate(Propagators.ReduceDomainTo<char>(new HashSet<char> { '.' }))
+                            .Propagate(QSL.Propagators.ReduceDomainTo<char>(new HashSet<char> { '.' }))
                             .Build()
                     },
                     ValidationConstraints = new()
                     {
                         QSL.CreateConstraint<char>()
-                            .Execute(field => (field.Count(Filters.EqualsToValue('Q')) == 8).Then(Propagators.FromBool(true)))
+                            .Execute(field => (field.Count(QSL.Filters.EqualsToValue('Q')) == 8).Then(QSL.Propagators.FromBool(true)))
                             .Build(),
                     }
                 })

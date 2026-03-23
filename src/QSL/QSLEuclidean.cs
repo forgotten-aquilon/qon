@@ -1,5 +1,6 @@
 ﻿using qon.Exceptions;
 using qon.Functions;
+using qon.Functions.Propagators;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
 using qon.Layers;
@@ -17,7 +18,7 @@ namespace qon
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
             return variable => VonNeumannFilter<TQ>.CreateParameter(variable)
-                .Then(Functions.Propagators.Propagators.ToVonNeumann(parameter));
+                .Then(Propagators.ToVonNeumann(parameter));
         }
 
         public static Func<QVariable<TQ>, Result> Moore<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull
@@ -26,10 +27,10 @@ namespace qon
 
             //TODO: Propagators.Propagators????
             return variable => MooreFilter<TQ>.CreateParameter(variable)
-                .Then(Functions.Propagators.Propagators.ToMoore(parameter));
+                .Then(Propagators.ToMoore(parameter));
         }
 
-        public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull
+        public static Func<QVariable<TQ>, QPredicate<TQ>> OnLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull
             where TLayer : ILayer<TQ, QVariable<TQ>>
         {
             return RelativeConstraint<TQ>.WithLayer(predicate);

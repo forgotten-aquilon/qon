@@ -30,8 +30,8 @@ namespace Examples
                         .Sampling(100)
                         .AddMutation(QSL.Mutation<char>()
                             .Frequency(0.1)
-                            .When(Filters.All<char>())
-                            .Into(Mutations<char>.RandomFromDomain)
+                            .When(QSL.Filters.All<char>())
+                            .Into(QSL.Mutations<char>.RandomFromDomain)
                             .Build())
                         .Build(),
                     Fitness = (field) => Score(field, target)

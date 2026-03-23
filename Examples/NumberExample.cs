@@ -20,8 +20,8 @@ namespace Examples
                 GeneralConstraints = new()
                 {
                     QSL.CreateConstraint<int>()
-                        .Select(Filters.All<int>())
-                        .Propagate(Propagators.AllDistinct<int>())
+                        .Select(QSL.Filters.All<int>())
+                        .Propagate(QSL.Propagators.AllDistinct<int>())
                         .Build()
                 }
             });

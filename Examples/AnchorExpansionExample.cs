@@ -7,7 +7,6 @@ using qon.Functions.Searchers.Anchors;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
-using qon.Solvers;
 using qon.Variables;
 using qon.Variables.Domains;
 
@@ -20,33 +19,16 @@ namespace Examples
         public static void Run()
         {
             var random = new Random(42);
-            var machine = new QMachine<char>(
-                new QMachineParameter<char> { Random = random });
-
-            machine.GenerateField(new DiscreteDomain<char>('@', '.'), (GridSize, GridSize, 1), Optional<char>.Of('.'));
+            var machine = QSL.Machine<char>(new QMachineParameter<char> { Random = random })
+                .WithMutation(new MutationLayerParameter<char>
+                {
+                    MutationFunction = CreateMutation(),
+                    Fitness = _ => random.Next()
+                })
+                .GenerateField(new DiscreteDomain<char>('@', '.'), (GridSize, GridSize, 1), '.');
 
             var center = GridSize / 2;
-            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(center, center, 0)];
-            if (centerVariable is not null)
-            {
-                centerVariable.Value = Optional<char>.Of('@');
-            }
-
-            var anchors = new List<IAnchor<char>>
-            {
-                Anchors.VNA(Filters.EqualsToValue('@')),
-                Anchors.VNA(Filters.EqualsToValue('.'))
-            };
-
-            var mutation = new BijectiveReplacer<char>(
-                    new AnchorManager<char>(anchors),
-                    new Mutators.ValueMutator<char>('@', '@'));
-
-            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
-            {
-                MutationFunction = mutation,
-                Fitness = _ => random.Next()
-            };
+            machine.At(center, center, 0).Value = '@';
 
             int counter = 0;
             foreach (var state in machine.States)
@@ -57,14 +39,27 @@ namespace Examples
             }
         }
 
+        private static MutationFunction<char> CreateMutation()
+        {
+            var anchors = new List<IAnchor<char>>
+            {
+                Anchors.VNA(QSL.Filters.EqualsToValue('@')),
+                Anchors.VNA(QSL.Filters.EqualsToValue('.'))
+            };
+
+            return new BijectiveReplacer<char>(
+                new AnchorManager<char>(anchors),
+                new Mutators.ValueMutator<char>('@', '@'));
+        }
+
         private static void Print(MachineState<char> state, int width, int height)
         {
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    var cell = EuclideanStateLayer<char>.With(state)[(x, y, 0)];
-                    var value = cell?.Value.TryGetValue(out var v) == true ? v : '.';
+                    var cell = state.Machine.At(x, y, 0);
+                    var value = cell.Value.TryGetValue(out var v) ? v : '.';
                     Console.Write(value);
                 }
 

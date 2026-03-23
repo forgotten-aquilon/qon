@@ -1,8 +1,11 @@
-﻿using qon.Layers.StateLayers;
+﻿using qon.Functions.Mutations;
+using qon.Layers.StateLayers;
 using qon.Machines;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using qon.Helpers;
+using qon.Layers.VariableLayers;
 
 namespace qon
 {
@@ -23,6 +26,22 @@ namespace qon
             MutationLayer<TQ>.GetOrCreate(machine.State).Parameter = parameter;
 
             return machine;
+        }
+
+        public static class Mutations<TQ> where TQ : notnull
+        {
+            public static VariableMutation<TQ> RandomFromDomain = new(v =>
+            {
+                v.Value = Optional<TQ>.Of(DomainLayer<TQ>.With(v).GetRandomValue(v.Machine.Random));
+            });
+
+            public static VariableMutation<TQ> ToValue(TQ value)
+            {
+                return new VariableMutation<TQ>(v =>
+                {
+                    v.Value = Optional<TQ>.Of(value);
+                });
+            }
         }
     }
 }
