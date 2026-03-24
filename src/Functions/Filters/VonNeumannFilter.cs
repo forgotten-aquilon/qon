@@ -32,13 +32,13 @@ namespace qon.Functions.Filters
         }
     }
 
-    public class VonNeumannFilter<TQ> : IChain<QVariable<TQ>, VonNeumannParameter<TQ>>, IChain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
+    public class VonNeumannFilter<TQ> : Chain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
     {
         public static VonNeumannFilter<TQ> Filter { get; } = new();
 
         private VonNeumannFilter(){}
 
-        public VonNeumannParameter<TQ> ApplyTo(QVariable<TQ> input)
+        public static VonNeumannParameter<TQ> CreateParameter(QVariable<TQ> input)
         {
             var layer = EuclideanLayer<TQ>.With(input);
             ExceptionHelper.ThrowIfFieldIsNull(layer, nameof(layer));
@@ -59,9 +59,9 @@ namespace qon.Functions.Filters
             return result;
         }
 
-        QVariable<TQ>[] IChain<QVariable<TQ>, QVariable<TQ>[]>.ApplyTo(QVariable<TQ> input)
+        public override QVariable<TQ>[] ApplyTo(QVariable<TQ> input)
         {
-            return ApplyTo(input).ToArray();
+            return CreateParameter(input).ToArray();
         }
     }
 }

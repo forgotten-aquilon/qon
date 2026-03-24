@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using qon;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.StateLayers;
@@ -15,28 +14,26 @@ namespace Examples
     {
         public static void Run()
         {
-            var machine = new QMachine<char>(new QMachineParameter<char>());
-            ConstraintLayer<char>.GetOrCreate(machine.State).Constraints = new()
-            {
-                GeneralConstraints = new()
-                {
-                    QSL.Constraint<char>()
-                        .Select(Filters.All<char>())
-                        .Propagate(Propagators.AllDistinct<char>())
-                        .Build()
-                }
-            };
-
             var domain = DomainHelper.SymbolicalDomain(
                 new DomainHelper.CharDomainOptions()
                     .WithAlphabet('a', 'j'));
 
-            machine.GenerateField(domain, 10);
+            var machine = QSL.Machine<char>()
+                .WithConstraintLayer(new()
+                {
+                    GeneralConstraints = new()
+                    {
+                        QSL.CreateConstraint<char>()
+                            .Select(QSL.Filters.All<char>())
+                            .Propagate(QSL.Propagators.AllDistinct<char>())
+                            .Build()
+                    }
+                })
+                .GenerateField(domain, 10);
 
             foreach (var state in machine.States)
             {
-                Console.WriteLine(state);
-                Console.WriteLine(machine.StateType);
+                Console.WriteLine($"{state}: {machine.Status}");
             }
         }
     }

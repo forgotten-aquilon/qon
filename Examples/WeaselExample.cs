@@ -3,7 +3,6 @@ using System.Linq;
 using qon;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
-using qon.Functions.QSL;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
@@ -22,33 +21,26 @@ namespace Examples
                     .WithAlphabet('A', 'Z')
                     .WithOtherSymbols(' '));
 
-            QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
-
-            machine.GenerateField(domain, (29,1,1), Optional<char>.Of('A'));
-
             var target = "ME THINKS IT IS LIKE A WEASEL";
 
-            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
-            {
-                MutationFunction = QSL.CreateMutation<char>()
-                    .Sampling(100)
-                    .AddMutation(QSL.Mutation<char>()
-                        .Frequency(0.1)
-                        .When(Filters.All<char>())
-                        .Into(Mutations<char>.RandomFromDomain)
-                        .Build())
-                    .Build(),
-                Fitness = BuildFitness(target)
-            };
+            var machine = QSL.Machine<char>()
+                .WithMutation(new MutationLayerParameter<char>
+                {
+                    MutationFunction = QSL.CreateMutation<char>()
+                        .Sampling(100)
+                        .AddMutation(QSL.Mutation<char>()
+                            .Frequency(0.1)
+                            .When(QSL.Filters.All<char>())
+                            .Into(QSL.Mutations<char>.RandomFromDomain)
+                            .Build())
+                        .Build(),
+                    Fitness = (field) => Score(field, target)
+                })
+                .GenerateField(domain, (29, 1, 1), 'A');
 
             foreach (var state in machine.States)
             {
                 Console.WriteLine(FormatState(state));
-            }
-
-            Func<Field<char>, int> BuildFitness(string template)
-            {
-                return sample => Score(sample, template);
             }
 
             int Score(Field<char> first, string second)

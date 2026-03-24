@@ -5,16 +5,16 @@ using qon.Machines;
 
 namespace qon.Functions.Mutations
 {
-    public class CascadeMutation<TQ> : IMutationFunction<TQ> where TQ : notnull
+    public class CascadeMutation<TQ> : MutationFunction<TQ> where TQ : notnull
     {
-        private readonly List<IMutationFunction<TQ>> _mutations;
+        private readonly List<MutationFunction<TQ>> _mutations;
 
-        public CascadeMutation(List<IMutationFunction<TQ>> mutations)
+        public CascadeMutation(List<MutationFunction<TQ>> mutations)
         {
             _mutations = mutations;
         }
 
-        public List<Field<TQ>> ApplyTo(Field<TQ> input)
+        public override List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
             List<Field<TQ>> results = new List<Field<TQ>>{input};
 

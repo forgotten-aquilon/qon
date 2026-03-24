@@ -3,11 +3,10 @@ using qon.Functions;
 using qon.Helpers;
 using qon.Layers;
 using qon.Variables;
-using static qon.Helpers.Helper;
 
 namespace qon.Functions.Filters
 {
-    public class QPredicate<TQ> : IChain<QVariable<TQ>, bool> where TQ : notnull
+    public class QPredicate<TQ> : Chain<QVariable<TQ>, bool> where TQ : notnull
     {
         public static readonly QPredicate<TQ> Empty = new QPredicate<TQ>(o => false);
 
@@ -18,7 +17,7 @@ namespace qon.Functions.Filters
             PredicateFunction = predicateFunction;
         }
 
-        public bool ApplyTo(QVariable<TQ> input)
+        public override bool ApplyTo(QVariable<TQ> input)
         {
             return PredicateFunction(input);
         }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace qon.Layers.StateLayers
 {
+    //TODO: Add support for compact fields
     public class EuclideanStateLayer<TQ> : BaseLayer<TQ, EuclideanStateLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>> where TQ : notnull
     {
         public Guid[,,] FieldGrid { get; private set; } = new Guid[0, 0, 0];

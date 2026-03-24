@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using qon;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
-using qon.Functions.Operations;
 using qon.Functions.Propagators;
 using qon.Helpers;
 using qon.Layers.StateLayers;
@@ -22,40 +20,36 @@ namespace Examples
         {
             var domain = new DiscreteDomain<char>(new List<char>() { 'Q', '.' });
 
-            var machine = new QMachine<char>(new QMachineParameter<char>()
+            var machine = QSL.Machine<char>(new()
             {
-                Random = new Random(7),  
-            });
-
-            ConstraintLayer<char>.GetOrCreate(machine.State).Constraints = new()
-            {
-                GeneralConstraints = new()
+                Random = new Random(2),  
+            })
+                .WithConstraintLayer(new()
                 {
-                    QSL.Constraint<char>()
-                        .When(Filters.EqualsToValue('Q'))
-                        .Where(QSL.WithLayer<char, EuclideanLayer<char>>(l1 =>
-                            QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.X == l2.X)
-                            | QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.Y == l2.Y)
-                            | QPredicate<char>.Create<EuclideanLayer<char>>(l2 =>
-                                Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y))))
-                        .Propagate(Propagators.ReduceDomainTo<char>(new HashSet<char> { '.' }))
-                        .Build()
-                },
-                ValidationConstraints = new()
-                {
-                    QSL.Constraint<char>()
-                        .Execute(field => (field.Count(Filters.EqualsToValue('Q').ApplyTo) == 8).Then(Propagators.FromBool(true)))
-                        .Build(),
-                }
-            };
+                    GeneralConstraints = new()
+                    {
+                        //TODO: Add new QSL functions for layers
+                        QSL.CreateConstraint<char>()
+                            .When(QSL.Filters.EqualsToValue('Q'))
+                            .Where(QSL.Euclidean<char>((l1, l2) => l1.X == l2.X || l1.Y == l2.Y || Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y)))
+                            .Propagate(QSL.Propagators.ReduceDomainTo(new HashSet<char> { '.' }))
+                            .Build()
+                    },
+                    ValidationConstraints = new()
+                    {
+                        QSL.CreateConstraint<char>()
+                            .Constraint(field => (field.Count(QSL.Filters.EqualsToValue('Q')) == 8).Then(QSL.Propagators.FromBool(true)))
+                            .Build(),
+                    }
+                })
+                .GenerateField(domain, (8, 8, 1));
 
-            machine.GenerateField(domain, (8, 8, 1));
 
             foreach (var state in machine.States)
             {
                 Console.Clear();
                 GridPrinter.Print(state, 8, true);
-                Console.WriteLine($"{machine.Solver.StepCounter} {machine.StateType}");
+                Console.WriteLine($"{machine.Solver.StepCounter} {machine.Status}");
             }
         }
     }

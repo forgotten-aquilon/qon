@@ -1,18 +1,20 @@
-﻿using qon.Exceptions;
-using qon.Variables;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using qon.Exceptions;
 using qon.Functions;
 using qon.Functions.Filters;
-using qon.Layers;
+using qon.Helpers;
+using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.Variables;
+using qon.Variables.Domains;
 
-namespace qon.Helpers
+namespace qon
 {
-    public static class Helper
+    public static partial class QSL
     {
         #region Collection Extensions
 
@@ -179,14 +181,14 @@ namespace qon.Helpers
             return chain.ApplyTo(input);
         }
 
-        public static Func<int, int> Log10Strategy = count =>
+        public static Func<int, int> Decimation = count =>
         {
             return count switch
             {
                 < 10 => 1,
                 < 100 => 10,
                 < 1000 => 100,
-                < 10000 => 10000,
+                < 10000 => 1000,
                 _ => (int)Math.Log10(count + 1) * 10
             };
         };
@@ -217,6 +219,16 @@ namespace qon.Helpers
 
         #endregion
 
+        #region Object
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T NewOrExisting<T>(this T? obj) where T: new()
+        {
+            return obj ?? new T();
+        }
+
+        #endregion
+
         #region String Extension
 
         public static string ToShortString(this string str, int limit) 
@@ -226,6 +238,39 @@ namespace qon.Helpers
                 return str;
             }
             return str.Substring(0, limit) + "...";
+        }
+
+        public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
+        {
+            return string.IsNullOrEmpty(str);
+        }
+
+        #endregion
+
+        #region Variables Extensions
+
+        public static QLink<TQ> WithDomain<TQ>(this QLink<TQ> link, IDomain<TQ> domain) where TQ : notnull
+        {
+            var d = DomainLayer<TQ>.GetOrCreate(link.Variable);
+            d.AssignDomain(domain);
+
+            return link;
+        }
+
+        public static QLink<TQ> WithValue<TQ>(this QLink<TQ> link, TQ value) where TQ : notnull
+        {
+            link.Variable.Value = value;
+
+            return link;
+        }
+
+        public static Action<QVariable<TQ>> WithDomain<TQ>(IDomain<TQ> domain) where TQ: notnull
+        {
+            return (variable) =>
+            {
+                var d = DomainLayer<TQ>.GetOrCreate(variable);
+                d.AssignDomain(domain);
+            };
         }
 
         #endregion

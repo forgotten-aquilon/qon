@@ -2,5 +2,5 @@
 using Examples.Visual;
 
 //VoidFill.Run();
-//GameOfLife.Run();
-ForestFire.Run();
+GameOfLife.Run();
+//ForestFire.Run();

@@ -2,20 +2,23 @@
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
+using qon.Machines;
 using qon.Variables;
 using qon.Variables.Domains;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace qon.Machines
+namespace qon
 {
-    public static class MachineExtensions
+    public static partial class QSL
     {
-        public static void GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, int count) where TQ : notnull
+        public static QMachine<TQ> Machine<TQ>(QMachineParameter<TQ>? parameter = null) where TQ : notnull
+        {
+            return new QMachine<TQ>(parameter.NewOrExisting());
+        }
+
+        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, int count) where TQ : notnull
         {
             var field = new List<QVariable<TQ>>();
             for (int i = 0; i < count; i++)
@@ -25,9 +28,11 @@ namespace qon.Machines
                 field.Add(variable);
             }
             machine.InitializeField(field);
+
+            return machine;
         }
 
-        public static void GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, IEnumerable<string> names) where TQ : notnull
+        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, IEnumerable<string> names) where TQ : notnull
         {
             var field = new List<QVariable<TQ>>();
             foreach (var name in names)
@@ -37,10 +42,11 @@ namespace qon.Machines
                 field.Add(variable);
             }
             machine.InitializeField(field);
+
+            return machine;
         }
 
-
-        public static void GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ>? domain, (int x, int y, int z) dimensions, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
+        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ>? domain, (int x, int y, int z) dimensions, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
         {
             List<QVariable<TQ>> variables = new();
 
@@ -79,6 +85,8 @@ namespace qon.Machines
             }
 
             machine.InitializeField(variables);
+
+            return machine;
         }
     }
 }

@@ -1,3 +1,4 @@
+using qon;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
 using qon.Functions.Searchers.Anchors;
@@ -62,13 +63,13 @@ namespace Examples.Visual
 
         private static QMachine<char> CreateMachine(Random random)
         {
-            var machine = new QMachine<char>(new QMachineParameter<char>
+            var machine = QSL.Machine<char>(new()
             {
                 Random = random,
-                SolverInjection = DefaultSolver<char>.InjectWith(new()
+                SolverInit = QSL.DefaultSolver<char>(new()
                 {
                     BackTrackingEnabled = true,
-                    BackTrackingStrategy = Helper.Log10Strategy
+                    BackTrackingStrategy = QSL.Decimation
                 })
             });
 

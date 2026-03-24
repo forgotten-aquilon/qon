@@ -9,6 +9,7 @@ using qon.Variables;
 
 namespace qon.Functions.Constraints
 {
+    //TODO: Rename
     public class ConstraintBuilder<TQ> : IPreparation<TQ> where TQ : notnull
     {
         public Func<QVariable<TQ>[], Result> Constraint { get; }

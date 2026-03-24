@@ -1,6 +1,6 @@
+using qon;
 using qon.Functions.Filters;
 using qon.Functions.Mutations;
-using qon.Functions.QSL;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
@@ -24,10 +24,10 @@ namespace Examples.Visual
 
         private static QMachine<char> CreateMachine(Random random)
         {
-            var machine = new QMachine<char>(new()
+            var machine = QSL.Machine<char>(new()
             {
                 Random = random,
-                SolverInjection = DefaultSolver<char>.InjectWith(new DefaultSolver<char>.SolverParameter
+                SolverInit = QSL.DefaultSolver<char>(new()
                 {
                     BackTrackingEnabled = false,
                 })
@@ -43,25 +43,25 @@ namespace Examples.Visual
                     .Sampling(1)
                     .AddMutation(QSL.Mutation<char>()
                         .Frequency(1.0)
-                        .When(Filters.EqualsToValue(Pixel.RedPixel))
-                        .Into(Mutations<char>.ToValue(Pixel.WhitePixel))
+                        .When(QSL.Filters.EqualsToValue(Pixel.RedPixel))
+                        .Into(QSL.Mutations<char>.ToValue(Pixel.WhitePixel))
                         .Build())
                     .AddMutation(QSL.Mutation<char>()
                         .Frequency(1.0)
-                        .When(Filters.EqualsToValue(Pixel.GreenPixel) & Filters.MooreFilter<char>(neighbors =>
-                            neighbors.Any(Filters.EqualsToValue(Pixel.RedPixel).ApplyTo)))
-                        .Into(Mutations<char>.ToValue(Pixel.RedPixel))
+                        .When(QSL.Filters.EqualsToValue(Pixel.GreenPixel) & QSL.Filters.MooreFilter<char>(neighbors =>
+                            neighbors.Any(QSL.Filters.EqualsToValue(Pixel.RedPixel).ApplyTo)))
+                        .Into(QSL.Mutations<char>.ToValue(Pixel.RedPixel))
                         .Build())
                     .AddMutation(QSL.Mutation<char>()
                         .Frequency(0.0006)
-                        .When(Filters.EqualsToValue(Pixel.GreenPixel))
-                        .WhenField(f => f.Count(Filters.EqualsToValue(Pixel.RedPixel).ApplyTo) == 0)
-                        .Into(Mutations<char>.ToValue(Pixel.RedPixel))
+                        .When(QSL.Filters.EqualsToValue(Pixel.GreenPixel))
+                        .WhenField(f => f.Count(QSL.Filters.EqualsToValue(Pixel.RedPixel).ApplyTo) == 0)
+                        .Into(QSL.Mutations<char>.ToValue(Pixel.RedPixel))
                         .Build())
                     .AddMutation(QSL.Mutation<char>()
                         .Frequency(0.02)
-                        .When(Filters.EqualsToValue(Pixel.WhitePixel))
-                        .Into(Mutations<char>.ToValue(Pixel.GreenPixel))
+                        .When(QSL.Filters.EqualsToValue(Pixel.WhitePixel))
+                        .Into(QSL.Mutations<char>.ToValue(Pixel.GreenPixel))
                         .Build())
                     .Build(),
                 Fitness = _ => random.Next(),

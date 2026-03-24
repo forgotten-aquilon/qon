@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace qon.Variables.Domains
 {
+    //TODO: Move to QSL
     public static class DomainHelper
     {
         #region Pre-built Domains
@@ -17,11 +18,18 @@ namespace qon.Variables.Domains
         {
             public HashSet<char> Symbols { get; } = new();
 
+            public CharDomainOptions(){}
+
+            public CharDomainOptions(IEnumerable<char> chars)
+            {
+                Symbols = new HashSet<char>(chars);
+            }
+
             //FUTURE: add check for same script symbols
             public CharDomainOptions WithAlphabet(char leftSymbol, char rightSymbol)
             {
-                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsLetter(leftSymbol));
-                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, symbol => char.IsLetter(rightSymbol));
+                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, char.IsLetter);
+                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, char.IsLetter);
 
                 if (char.IsLower(validatedLeftSymbol) != char.IsLower(validatedRightSymbol))
                 {
@@ -37,8 +45,8 @@ namespace qon.Variables.Domains
 
             public CharDomainOptions WithDigits(char leftSymbol, char rightSymbol)
             {
-                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, symbol => char.IsDigit(leftSymbol));
-                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, symbol => char.IsDigit(rightSymbol));
+                var validatedLeftSymbol = ExceptionHelper.ThrowIfPredicateFalse(leftSymbol, char.IsDigit);
+                var validatedRightSymbol = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol, char.IsDigit);
 
                 var diff = ExceptionHelper.ThrowIfPredicateFalse(validatedRightSymbol - validatedLeftSymbol, diff => diff > 0);
 
@@ -75,7 +83,7 @@ namespace qon.Variables.Domains
             }
             else
             {
-                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateTrue(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
                 return new NumericalDomain<int>(validatedRanges.Select(x => new Interval<int>(x.Item1, x.Item2)));
             }
         }
@@ -88,7 +96,7 @@ namespace qon.Variables.Domains
             }
             else
             {
-                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateTrue(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
                 return new NumericalDomain<uint>(validatedRanges.Select(x => new Interval<uint>(x.Item1, x.Item2)));
             }
         }

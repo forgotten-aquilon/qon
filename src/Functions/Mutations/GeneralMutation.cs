@@ -27,7 +27,7 @@ namespace qon.Functions.Mutations
         }
     }
 
-    public class GeneralMutation<TQ> : IMutationFunction<TQ> where TQ : notnull
+    public class GeneralMutation<TQ> : MutationFunction<TQ> where TQ : notnull
     {
         private readonly int _sampling = 1;
 
@@ -39,7 +39,7 @@ namespace qon.Functions.Mutations
             _mutations = mutation;
         }
 
-        public List<Field<TQ>> ApplyTo(Field<TQ> field)
+        public override List<Field<TQ>> ApplyTo(Field<TQ> field)
         {
             List<Field<TQ>> samples = new List<Field<TQ>>();
 

@@ -6,7 +6,7 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class BijectiveReplacer<TQ> : IMutationFunction<TQ> where TQ : notnull
+    public class BijectiveReplacer<TQ> : MutationFunction<TQ> where TQ : notnull
     {
         private readonly ISearcher<TQ> _searcher;
         private readonly IMutator<TQ> _mutator;
@@ -25,7 +25,7 @@ namespace qon.Functions.Mutations
             _size = searcher.SearchDepth;
         }
 
-        public List<Field<TQ>> ApplyTo(Field<TQ> input)
+        public override List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
             List<List<QVariable<TQ>>> sequences = _searcher.Search(input);
             List<Field<TQ>> samples = new List<Field<TQ>>();

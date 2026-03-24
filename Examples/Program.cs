@@ -1,6 +1,7 @@
 #pragma warning disable
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Examples;
@@ -9,10 +10,11 @@ using qon.Machines;
 using qon.Variables.Domains;
 
 //NumberExample.Run();
+BindingExample.Run();
 //SimplestExample.Run();
 //SimpleSudokuExample.Run();
 //SudokuExample.Run();
-EverestSudokuExample.Run();
+//EverestSudokuExample.Run();
 //EightQueensExample.Run();
 //RotationExample.Run(22);
 //MazeExample.Run();

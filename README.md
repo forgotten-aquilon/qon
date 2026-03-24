@@ -1,4 +1,4 @@
-# qon
+<h1 align="center">「qon」</h1>
 
 qon is a C# library for iterative backtracking-based problem solving. By default it provides functionality for constraint and genetic programming. Originally it was created as a base for implementation of the [Wave-Function Collapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm. Main idea for its usage is a procedural generation, but of course it can be applied for anything else.
 
@@ -19,28 +19,26 @@ I suggest to check the [Wiki](https://github.com/forgotten-aquilon/qon/wiki) to 
 #### Simplest Example. Generates 4 variables with different `char` values
 
 ```csharp
-var machine = new QMachine<char>(new QMachineParameter<char>());
-ConstraintLayer<char>.GetOrCreate(machine.State).Constraints = new()
-{
-    GeneralConstraints = new()
-    {
-        QSL.Constraint<char>()
-            .Select(Filters.All<char>())
-            .Propagate(Propagators.AllDistinct<char>())
-            .Build()
-    }
-};
-
 var domain = DomainHelper.SymbolicalDomain(
-    new DomainHelper.CharDomainOptions()
-        .WithAlphabet('a', 'e'));
+                new DomainHelper.CharDomainOptions()
+                    .WithAlphabet('a', 'j'));
 
-machine.GenerateField(domain, new[] { "V1", "V2", "V3", "V4" });
+var machine = QSL.Machine<char>()
+    .WithConstraint(new()
+    {
+        GeneralConstraints = new()
+        {
+            QSL.CreateConstraint<char>()
+                .Select(Filters.All<char>())
+                .Propagate(Propagators.AllDistinct<char>())
+                .Build()
+        }
+    })
+    .GenerateField(domain, 10);
 
 foreach (var state in machine.States)
 {
-    Console.WriteLine(state);
-    Console.WriteLine(machine.StateType);
+    Console.WriteLine($"{state}: {machine.Status}");
 }
 ```
 
@@ -57,31 +55,26 @@ var domain = DomainHelper.SymbolicalDomain(new DomainHelper.CharDomainOptions()
         .WithAlphabet('A', 'Z')
         .WithOtherSymbols(' '));
 
-QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
-
-machine.GenerateField(domain, (29,1,1), Optional<char>.Of('A'));
-
 var target = "ME THINKS IT IS LIKE A WEASEL";
 
-MutationLayer<char>.GetOrCreate(machine.State)._parameter = new MutationLayerParameter<char>
-{
-    MutationFunction = QSL.Mutation<char>()
-        .When(Filters.All<char>())
-        .Sampling(100)
-        .Frequency(0.1)
-        .Into(Mutations<char>.RandomFromDomain)
-        .Build(),
-    Fitness = BuildFitness(target)
-};
+var machine = QSL.Machine<char>()
+    .WithMutation(new MutationLayerParameter<char>
+    {
+        MutationFunction = QSL.CreateMutation<char>()
+            .Sampling(100)
+            .AddMutation(QSL.Mutation<char>()
+                .Frequency(0.1)
+                .When(Filters.All<char>())
+                .Into(Mutations<char>.RandomFromDomain)
+                .Build())
+            .Build(),
+        Fitness = (field) => Score(field, target)
+    })
+    .GenerateField(domain, (29, 1, 1), 'A');
 
 foreach (var state in machine.States)
 {
     Console.WriteLine(FormatState(state));
-}
-
-Func<Field<char>, int> BuildFitness(string template)
-{
-    return sample => Score(sample, template);
 }
 
 int Score(Field<char> first, string second)
@@ -92,7 +85,7 @@ int Score(Field<char> first, string second)
     }
 
     int mismatch = 0;
-
+                    
     for (int i = 0; i < first.Count; i++)
     {
         if (!first[i].Value.CheckValue(second[i]))

@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
 using qon;
+using qon.Functions;
 using qon.Functions.Constraints;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
 using qon.Machines;
-using qon.Solvers;
 using qon.Variables;
-using qon.Functions;
-using qon.Layers.StateLayers;
 using qon.Variables.Domains;
 
 namespace Examples
@@ -42,11 +39,11 @@ namespace Examples
                 HashSet<string> front,
                 HashSet<string> back)
             {
-                return QSL.Constraint<string>()
-                    .When(Filters.EqualsToValue(tile))
+                return QSL.CreateConstraint<string>()
+                    .When(QSL.Filters.EqualsToValue(tile))
                     .Where(QSL.VonNeumann(new EuclideanConstraintParameter<string>()
                     {
-                        CenterLevel = {Left = left, Right = right, Front = front, Back = back},
+                        CenterLevel = { Left = left, Right = right, Front = front, Back = back },
                     }))
                     .Build();
             }
@@ -64,18 +61,15 @@ namespace Examples
             mazeRules.Add(CreateRule("╩", leftConn, rightConn, frontConn, backWall));
             mazeRules.Add(CreateRule(" ", leftWall, rightWall, frontWall, backWall));
 
-            QMachine<string> machine = new(new QMachineParameter<string>(){Random = new Random(10) });
-
-            ConstraintLayer<string>.GetOrCreate(machine.State).Constraints = new()
-            {
-                GeneralConstraints = mazeRules
-            };
-
             var d = new DiscreteDomain<string>(domain);
-            d.UpdateWeight(" ", 21);
-            d.UpdateWeight("╣", 51);
+            d.SetWeight(" ", 21).SetWeight("═", 51);
 
-            machine.GenerateField(d, (25, 25, 1));
+            var machine = QSL.Machine<string>(new QMachineParameter<string>() { Random = new Random(10) })
+                .WithConstraintLayer(new()
+                {
+                    GeneralConstraints = mazeRules
+                })
+                .GenerateField(d, (25, 25, 1));
 
             foreach (var state in machine.States)
             {

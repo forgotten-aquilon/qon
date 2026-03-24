@@ -1,15 +1,12 @@
 using qon;
 using qon.Functions.Constraints;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Helpers;
 using qon.Machines;
-using qon.Solvers;
+using qon.Variables.Domains;
 using System;
 using System.Collections.Generic;
-using qon.Layers.StateLayers;
-using qon.Variables.Domains;
 
 namespace Examples
 {
@@ -18,29 +15,28 @@ namespace Examples
         public static void Run()
         {
             var numericalDomain = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 4) });
-            var machine = new QMachine<int>(new QMachineParameter<int>(){Random = new Random() });
-            ConstraintLayer<int>.GetOrCreate(machine.State).Constraints = new()
-            {
-                GeneralConstraints = new()
+            var machine = QSL.Machine<int>(new QMachineParameter<int>() { Random = new Random() })
+                .WithConstraintLayer(new()
                 {
-                    QSL.Constraint<int>()
-                        .GroupBy(EuclideanFilters.GroupByRectangle<int>(2, 2))
-                        .Propagate(Propagators.AllDistinct<int>())
-                        .Build(),
-                    QSL.Constraint<int>()
-                        .GroupBy(EuclideanFilters.GroupByX<int>())
-                        .Propagate(Propagators.AllDistinct<int>())
-                        .Build(),
-                    QSL.Constraint<int>()
-                        .GroupBy(EuclideanFilters.GroupByY<int>())
-                        .Propagate(Propagators.AllDistinct<int>())
-                        .Build(),
-                }
-            };
-            machine.GenerateField(numericalDomain, (4, 4, 1));
-            var grid = EuclideanStateLayer<int>.With(machine.State);
+                    GeneralConstraints = new()
+                    {
+                        QSL.CreateConstraint<int>()
+                            .GroupBy(QSL.EuclideanFilters.GroupByRectangle<int>(2, 2))
+                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                            .Build(),
+                        QSL.CreateConstraint<int>()
+                            .GroupBy(QSL.EuclideanFilters.GroupByX<int>())
+                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                            .Build(),
+                        QSL.CreateConstraint<int>()
+                            .GroupBy(QSL.EuclideanFilters.GroupByY<int>())
+                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                            .Build(),
+                    }
+                })
+                .GenerateField(numericalDomain, (4, 4, 1));
 
-            ConstraintLayer<int>.Collapse(grid[(0, 0, 0)]!, 1, true);
+            machine.At(0, 0, 0).Collapse(1, true);
 
             foreach (var state in machine.States)
             {

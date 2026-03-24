@@ -6,16 +6,16 @@ using qon.Machines;
 
 namespace qon.Functions.Mutations
 {
-    public class UnionMutation<TQ> : IMutationFunction<TQ> where TQ : notnull
+    public class UnionMutation<TQ> : MutationFunction<TQ> where TQ : notnull
     {
-        private readonly List<IMutationFunction<TQ>> _mutations;
+        private readonly List<MutationFunction<TQ>> _mutations;
 
-        public UnionMutation(params IMutationFunction<TQ>[] mutations)
+        public UnionMutation(params MutationFunction<TQ>[] mutations)
         {
             _mutations = mutations.ToList();
         }
 
-        public List<Field<TQ>> ApplyTo(Field<TQ> input)
+        public override List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
             List<Field<TQ>> result = new List<Field<TQ>>();
 

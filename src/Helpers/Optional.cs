@@ -76,7 +76,7 @@ namespace qon.Helpers
 
         public object Clone()
         {
-            return _value is not null ? new Optional<T>(_value) : Optional<T>.Empty;
+            return Copy();
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace qon.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Optional<T> Copy()
         {
-            return (Optional<T>)Clone();
+            return _value is not null ? new Optional<T>(_value) : Optional<T>.Empty;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -147,5 +147,7 @@ namespace qon.Helpers
         {
             return new Optional<T>(value);
         }
+
+        public static implicit operator Optional<T>(T value) => new Optional<T>(value);
     }
 }

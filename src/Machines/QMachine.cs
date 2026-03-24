@@ -1,14 +1,15 @@
 ﻿using qon.Exceptions;
 using qon.Helpers;
+using qon.Layers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Solvers;
 using qon.Variables;
+using qon.Variables.Domains;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using qon.Variables.Domains;
 
 namespace qon.Machines
 {
@@ -80,7 +81,7 @@ namespace qon.Machines
         /// <summary>
         /// Property representing the current <see cref="MachineStateType"/> of the machine.
         /// </summary>
-        public MachineStateType StateType {  get; set; }
+        public MachineStateType Status {  get; set; }
 
         /// <summary>
         /// Single point of access to random number generator instance.
@@ -98,8 +99,8 @@ namespace qon.Machines
         public QMachine(QMachineParameter<TQ> parameter)
         {
             Random = parameter.Random;
-            StateType = MachineStateType.Created;
-            Solver = parameter.SolverInjection(this);
+            Status = MachineStateType.Created;
+            Solver = parameter.SolverInit(this);
             State = new MachineState<TQ>(this);
             States = new States<TQ>(this);
 
@@ -127,7 +128,27 @@ namespace qon.Machines
                 State.Field[i].Machine = this;
             }
 
-            StateType = MachineStateType.Ready;
+            Status = MachineStateType.Ready;
+        }
+
+        public void AddToField(QVariable<TQ> variable)
+        {
+            int newPos = State.AddToField(variable);
+
+            _namedIndexer.Add(variable.Name, newPos);
+            _guidIndexer.Add(variable.Id, newPos);
+            State.Field[newPos].Machine = this;
+
+            Status = MachineStateType.Ready;
+        }
+
+        public QLink<TQ> Q(string? name = null)
+        {
+            var q = name.IsNullOrEmpty() ? QVariable<TQ>.Empty() : QVariable<TQ>.Empty(name);
+
+            AddToField(q);
+
+            return q.ToLink();
         }
 
         public void Clear()

@@ -17,7 +17,7 @@ namespace qon.Layers.StateLayers
     public class ConstraintLayerParameter<TQ> where TQ : notnull
     {
         public List<IPreparation<TQ>> GeneralConstraints { get; set; } = new List<IPreparation<TQ>>();
-        public List<IPreparation<TQ>>? ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
+        public List<IPreparation<TQ>> ValidationConstraints { get; set; } = new List<IPreparation<TQ>>();
     }
 
 

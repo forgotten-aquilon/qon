@@ -7,6 +7,13 @@ namespace qon.Functions
         public TOut ApplyTo(TIn input);
     }
 
+    public abstract class Chain<TIn, TOut> : IChain<TIn, TOut>
+    {
+        public abstract TOut ApplyTo(TIn input);
+
+        public static implicit operator Func<TIn, TOut>(Chain<TIn, TOut> chain) => chain.ApplyTo;
+    }
+
     public static class ChainExtensions
     {
         public static IChain<TIn, TNext> Then<TIn, TOut, TNext>(
@@ -17,7 +24,7 @@ namespace qon.Functions
         }
     }
 
-    internal class CombinedChain<TIn, TMid, TOut> : IChain<TIn, TOut>
+    internal class CombinedChain<TIn, TMid, TOut> : Chain<TIn, TOut>
     {
         private readonly IChain<TIn, TMid> _first;
         private readonly IChain<TMid, TOut> _second;
@@ -28,6 +35,6 @@ namespace qon.Functions
             _second = second;
         }
 
-        public TOut ApplyTo(TIn input) => _second.ApplyTo(_first.ApplyTo(input));
+        public override TOut ApplyTo(TIn input) => _second.ApplyTo(_first.ApplyTo(input));
     }
 }

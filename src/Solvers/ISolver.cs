@@ -9,8 +9,6 @@ namespace qon.Solvers
 {
     public interface ISolver<TQ> : IEnumerator<MachineState<TQ>> where TQ : notnull
     {
-        public Guid UniqueIteration { get; }
-
         //FUTURE: Update with abstract static members when Unity supports it
         /// <summary>
         /// Function used for initialization of Solver with the instance of <see cref="QMachine{TQ}"/>

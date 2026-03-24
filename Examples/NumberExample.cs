@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using qon;
-using qon.Functions.QSL;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
+using qon.Helpers;
 using qon.Machines;
 using qon.Solvers;
 using qon.Variables.Domains;
@@ -15,24 +15,27 @@ namespace Examples
     {
         public static void Run()
         {
-            var machine = new QMachine<int>(new QMachineParameter<int>());
-
-            ConstraintLayer<int>.GetOrCreate(machine.State).Constraints = new()
+            var machine = QSL.Machine<int>().WithConstraintLayer(new()
             {
                 GeneralConstraints = new()
                 {
-                    QSL.Constraint<int>()
-                        .Select(Filters.All<int>())
-                        .Propagate(Propagators.AllDistinct<int>())
+                    QSL.CreateConstraint<int>()
+                        .Select(QSL.Filters.All<int>())
+                        .Propagate(QSL.Propagators.AllDistinct<int>())
                         .Build()
                 }
-            };
+            });
 
-            machine.GenerateField(new NumericalDomain<int>(), new[] { "V1", "V2", "V3", "V4" });
+            var domain = new NumericalDomain<int>();
+
+            var a = machine.Q().WithDomain(domain);
+            var b = machine.Q().WithDomain(domain);
+            var c = machine.Q().WithDomain(domain);
+            var d = machine.Q().WithDomain(domain);
 
             foreach (var state in machine.States)
             {
-                Console.WriteLine(state);
+                Console.WriteLine($"{machine.Status}: {a}, {b}, {c}, {d}");
             }
         }
     }
