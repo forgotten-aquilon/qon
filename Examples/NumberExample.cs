@@ -15,7 +15,7 @@ namespace Examples
     {
         public static void Run()
         {
-            var machine = QSL.Machine<int>().WithConstraint(new()
+            var machine = QSL.Machine<int>().WithConstraintLayer(new()
             {
                 GeneralConstraints = new()
                 {

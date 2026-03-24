@@ -19,7 +19,7 @@ namespace Examples
                     .WithAlphabet('a', 'j'));
 
             var machine = QSL.Machine<char>()
-                .WithConstraint(new()
+                .WithConstraintLayer(new()
                 {
                     GeneralConstraints = new()
                     {

@@ -22,26 +22,23 @@ namespace Examples
 
             var machine = QSL.Machine<char>(new()
             {
-                Random = new Random(7),  
+                Random = new Random(2),  
             })
-                .WithConstraint(new()
+                .WithConstraintLayer(new()
                 {
                     GeneralConstraints = new()
                     {
+                        //TODO: Add new QSL functions for layers
                         QSL.CreateConstraint<char>()
                             .When(QSL.Filters.EqualsToValue('Q'))
-                            .Where(QSL.OnLayer<char, EuclideanLayer<char>>(l1 =>
-                                QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.X == l2.X)
-                                | QPredicate<char>.Create<EuclideanLayer<char>>(l2 => l1.Y == l2.Y)
-                                | QPredicate<char>.Create<EuclideanLayer<char>>(l2 =>
-                                    Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y))))
-                            .Propagate(QSL.Propagators.ReduceDomainTo<char>(new HashSet<char> { '.' }))
+                            .Where(QSL.Euclidean<char>((l1, l2) => l1.X == l2.X || l1.Y == l2.Y || Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y)))
+                            .Propagate(QSL.Propagators.ReduceDomainTo(new HashSet<char> { '.' }))
                             .Build()
                     },
                     ValidationConstraints = new()
                     {
                         QSL.CreateConstraint<char>()
-                            .Execute(field => (field.Count(QSL.Filters.EqualsToValue('Q')) == 8).Then(QSL.Propagators.FromBool(true)))
+                            .Constraint(field => (field.Count(QSL.Filters.EqualsToValue('Q')) == 8).Then(QSL.Propagators.FromBool(true)))
                             .Build(),
                     }
                 })

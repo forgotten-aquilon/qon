@@ -18,10 +18,7 @@ namespace Examples
             {
                 for (int x = 0; x < size; x++)
                 {
-                    var variable = state[v =>
-                        v.LayerManager.With<EuclideanLayer<T>>() is var layer
-                        && layer.X == x
-                        && layer.Y == y].Result.FirstOrDefault();
+                    var variable = state.Machine.At(x, y, 0);
 
                     var value = variable?.State != ValueState.Uncertain
                         ? variable?.Value.Value.ToString()

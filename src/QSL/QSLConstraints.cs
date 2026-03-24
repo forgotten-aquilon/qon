@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Text;
+﻿using qon.Functions;
 using qon.Layers.StateLayers;
 using qon.Machines;
 using qon.Variables;
+using System;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace qon
 {
@@ -15,9 +16,23 @@ namespace qon
             return new QSLConstraintsBuilder<TQ>();
         }
 
-        public static QMachine<TQ> WithConstraint<TQ>(this QMachine<TQ> machine, ConstraintLayerParameter<TQ> parameter) where TQ : notnull
+        public static QMachine<TQ> WithConstraintLayer<TQ>(this QMachine<TQ> machine, ConstraintLayerParameter<TQ> parameter) where TQ : notnull
         {
             ConstraintLayer<TQ>.GetOrCreate(machine.State).Constraints = parameter;
+
+            return machine;
+        }
+
+        public static QMachine<TQ> AddConstraint<TQ>(this QMachine<TQ> machine, IPreparation<TQ> constraint) where TQ : notnull
+        {
+            ConstraintLayer<TQ>.GetOrCreate(machine.State).Constraints.GeneralConstraints.Add(constraint);
+
+            return machine;
+        }
+
+        public static QMachine<TQ> AddValidation<TQ>(this QMachine<TQ> machine, IPreparation<TQ> validation) where TQ : notnull
+        {
+            ConstraintLayer<TQ>.GetOrCreate(machine.State).Constraints.ValidationConstraints.Add(validation);
 
             return machine;
         }

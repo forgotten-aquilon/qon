@@ -42,7 +42,7 @@ namespace qon.Solvers
         /// </summary>
         public int BackStepCounter { get; protected set; } = -1;
 
-        public bool BackTrackingEnabled { get; } = true;
+        public bool BackTrackingEnabled { get; }
 
         /// <summary>
         /// Instance of the current Machine

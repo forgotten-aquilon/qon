@@ -75,6 +75,16 @@ namespace qon.Exceptions
             return obj;
         }
 
+        public static T ThrowIfPredicateTrue<T>(T obj, Func<T, bool> predicate)
+        {
+            if (predicate(obj))
+            {
+                throw new ValidationException(obj!, predicate);
+            }
+
+            return obj;
+        }
+
         public static TOut ThrowIfTypesMismatch<TOut>(object? variable)
         {
             Type expectedType = typeof(TOut);

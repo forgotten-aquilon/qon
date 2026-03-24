@@ -16,7 +16,7 @@ namespace Examples
         {
             var numericalDomain = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 4) });
             var machine = QSL.Machine<int>(new QMachineParameter<int>() { Random = new Random() })
-                .WithConstraint(new()
+                .WithConstraintLayer(new()
                 {
                     GeneralConstraints = new()
                     {

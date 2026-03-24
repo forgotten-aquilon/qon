@@ -20,7 +20,7 @@ namespace Examples
                 {
                     Random = new Random(1),
                 })
-                .WithConstraint(new()
+                .WithConstraintLayer(new()
                 {
                     GeneralConstraints = new()
                     {

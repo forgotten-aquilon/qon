@@ -1,4 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using qon.Exceptions;
 using qon.Functions;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
@@ -16,6 +19,8 @@ namespace qon
         private Func<QVariable<TQ>, Result>? _neighbourConstraint;
         private Propagator<TQ>? _propagator;
         private Func<QVariable<TQ>[], Result>? _customExecutor;
+        private BindingConstraint<TQ>? _bindingConstraint;
+        private List<QLink<TQ>>? _qLinks;
 
         public QSLConstraintsBuilder<TQ> When(QPredicate<TQ> guard)
         {
@@ -32,6 +37,12 @@ namespace qon
         public QSLConstraintsBuilder<TQ> Select(QPredicate<TQ> selector)
         {
             _selector = selector;
+            return this;
+        }
+
+        public QSLConstraintsBuilder<TQ> Select(params QLink<TQ>[] links)
+        {
+            _qLinks = links.ToList();
             return this;
         }
 
@@ -53,11 +64,56 @@ namespace qon
             return this;
         }
 
-        //TODO: Rename
-        public QSLConstraintsBuilder<TQ> Execute(Func<QVariable<TQ>[], Result> executor)   
+        public QSLConstraintsBuilder<TQ> Constraint(Func<QVariable<TQ>[], Result> executor)
         {
             _customExecutor = executor;
             return this;
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(Func<IReadOnlyList<TQ>, bool> bindingFunction, params QLink<TQ>[] qLinks)
+        {
+            return Bind(qLinks, bindingFunction);
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ>[] qLinks, Func<IReadOnlyList<TQ>, bool> bindingFunction)
+        {
+            _bindingConstraint = new BindingConstraint<TQ>(qLinks, bindingFunction);
+            return this;
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, Func<TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b }, values => bindingFunction(values[0], values[1]));
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, Func<TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c }, values => bindingFunction(values[0], values[1], values[2]));
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, Func<TQ, TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c, d }, values => bindingFunction(values[0], values[1], values[2], values[3]));
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, QLink<TQ> e, Func<TQ, TQ, TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c, d, e }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4]));
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, QLink<TQ> e, QLink<TQ> f, Func<TQ, TQ, TQ, TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c, d, e, f }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4], values[5]));
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, QLink<TQ> e, QLink<TQ> f, QLink<TQ> g, Func<TQ, TQ, TQ, TQ, TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c, d, e, f, g }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4], values[5], values[6]));
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, QLink<TQ> e, QLink<TQ> f, QLink<TQ> g, QLink<TQ> h, Func<TQ, TQ, TQ, TQ, TQ, TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c, d, e, f, g, h }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]));
         }
 
         public IPreparation<TQ> Build()
@@ -67,17 +123,28 @@ namespace qon
                 return new ConstraintBuilder<TQ>(_customExecutor);
             }
 
+            if (_bindingConstraint is not null)
+            {
+                return _bindingConstraint;
+            }
+
             if (_grouping is not null)
             {
-                EnsurePropagatorProvided();
+                ExceptionHelper.ThrowIfFieldIsNull(_propagator);
                 return new Constraint<TQ>(_grouping, _propagator!);
             }
 
             if (_selector is not null)
             {
-                EnsurePropagatorProvided();
+                ExceptionHelper.ThrowIfFieldIsNull(_propagator);
                 return new Constraint<TQ>(_selector, _propagator!);
             }
+
+            //if (_qLinks is not null)
+            //{
+            //    ExceptionHelper.ThrowIfFieldIsNull(_propagator);
+            //    return new Constraint<TQ>(_selector, _propagator!);
+            //}
 
             if (_guard is not null && _neighbourConstraint is not null)
             {
@@ -86,19 +153,11 @@ namespace qon
 
             if (_guard is not null && _neighbourAggregation is not null)
             {
-                EnsurePropagatorProvided();
+                ExceptionHelper.ThrowIfFieldIsNull(_propagator);
                 return new RelativeConstraint<TQ>(_guard, _propagator!, _neighbourAggregation);
             }
 
-            throw new InvalidOperationException("Insufficient data to build constraint. Specify grouping/selecting or guard with neighbourhood details.");
-        }
-
-        private void EnsurePropagatorProvided()
-        {
-            if (_propagator is null)
-            {
-                throw new InvalidOperationException("Propagator should be provided before building this constraint.");
-            }
+            throw new InternalLogicException("Insufficient data to build constraint. Specify grouping/selecting or guard with neighbourhood details.");
         }
     }
 }

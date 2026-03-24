@@ -16,51 +16,6 @@ namespace qon.Machines
     /// Or maybe keep, because public API looks much better this way.
     /// </summary>
     /// <typeparam name="TQ"></typeparam>
-    public class SearchResult<TQ> where TQ : notnull
-    {
-        public IEnumerable<QVariable<TQ>> Result { get; set; }
-
-        public SearchResult(IEnumerable<QVariable<TQ>> field)
-        {
-            Result = field;
-        }
-
-        public SearchResult<TQ> this[string name, object value]
-        {
-            get
-            {
-                ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
-                return AsQuery().WithProperty(name, value).ToSearchResult();
-            }
-        }
-
-        public SearchResult<TQ> this[Func<QVariable<TQ>, bool> predicate]
-        {
-            get
-            {
-                ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-                return AsQuery().Where(predicate).ToSearchResult();
-            }
-        }
-
-        public static SearchResult<TQ> Search(IEnumerable<QVariable<TQ>> variables, string name, object value)
-        {
-            var result = variables.Where(x => object.Equals(x.GetNullOrValueProperty(name), value));
-            return new SearchResult<TQ>(result);
-        }
-
-        public MachineStateQuery<TQ> AsQuery()
-        {
-            return new MachineStateQuery<TQ>(Result);
-        }
-
-        public static SearchResult<TQ> Search(IEnumerable<QVariable<TQ>> variables, Func<QVariable<TQ>, bool> predicate)
-        {
-            var result = variables.Where(predicate);
-
-            return new SearchResult<TQ>(result);
-        }
-    }
 
     /// <summary>
     /// Wrapper class for working with current <see cref="Field{TQ}"/>
@@ -106,28 +61,6 @@ namespace qon.Machines
 
         #region Queries
 
-        public SearchResult<TQ> this[string name, object value]
-        {
-            get
-            {
-                ExceptionHelper.ThrowIfArgumentIsNull(name, nameof(name));
-                return Query().WithProperty(name, value).ToSearchResult();
-            }
-        }
-
-        public SearchResult<TQ> this[Func<QVariable<TQ>, bool> predicate]
-        {
-            get
-            {
-                ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-                return Query().Where(predicate).ToSearchResult();
-            }
-        }
-
-        public MachineStateQuery<TQ> Query()
-        {
-            return new MachineStateQuery<TQ>(Field.Variables);
-        }
 
         #endregion
 

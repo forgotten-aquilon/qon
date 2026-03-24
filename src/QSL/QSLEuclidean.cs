@@ -8,6 +8,7 @@ using qon.Layers.StateLayers;
 using qon.Machines;
 using qon.Variables;
 using System;
+using qon.Layers.VariableLayers;
 
 namespace qon
 {
@@ -34,6 +35,23 @@ namespace qon
             where TLayer : ILayer<TQ, QVariable<TQ>>
         {
             return RelativeConstraint<TQ>.WithLayer(predicate);
+        }
+
+        public static Func<QVariable<TQ>, QPredicate<TQ>> Euclidean<TQ>(Func<EuclideanLayer<TQ>, EuclideanLayer<TQ>, bool> func) where TQ : notnull
+        {
+            return variable =>
+            {
+                var flayer = EuclideanLayer<TQ>.With(variable);
+
+                bool Aggregation(QVariable<TQ> newVariable)
+                {
+                    var slayer = EuclideanLayer<TQ>.With(newVariable);
+
+                    return func(flayer, slayer);
+                }
+
+                return new QPredicate<TQ>(Aggregation);
+            };
         }
 
         public static QVariable<TQ> At<TQ>(this QMachine<TQ> machine, int x, int y, int z) where TQ : notnull

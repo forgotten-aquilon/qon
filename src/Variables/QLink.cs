@@ -13,7 +13,7 @@ namespace qon.Variables
         public QMachine<TQ> Machine { get; private set; }
         public QVariable<TQ> Variable => _resolver(Machine);
 
-        public QLink(Func<QMachine<TQ>, QVariable<TQ>> resolver, QMachine<TQ> machine)
+        internal QLink(Func<QMachine<TQ>, QVariable<TQ>> resolver, QMachine<TQ> machine)
         {
             _resolver = resolver;
             Machine = machine;

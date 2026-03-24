@@ -26,13 +26,13 @@ namespace qon.Functions.Constraints
 
         public virtual Result Execute(Field<TQ> field)
         {
-            IEnumerable<QVariable<TQ>>? relativeVariables = field.Where(Guard.ApplyTo);
+            IEnumerable<QVariable<TQ>> anchoredVariables = field.Where(Guard.ApplyTo);
 
             HashSet<QVariable<TQ>> aggregation = new();
 
-            foreach (QVariable<TQ> relativeVariable in relativeVariables)
+            foreach (QVariable<TQ> anchor in anchoredVariables)
             {
-                aggregation.UnionWith(field.Where(AggregationFactory(relativeVariable).ApplyTo));
+                aggregation.UnionWith(field.Where(AggregationFactory(anchor).ApplyTo));
             }
 
             return Propagator.ApplyTo(aggregation);

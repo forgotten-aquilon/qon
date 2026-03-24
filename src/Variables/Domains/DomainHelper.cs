@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace qon.Variables.Domains
 {
+    //TODO: Move to QSL
     public static class DomainHelper
     {
         #region Pre-built Domains
@@ -82,7 +83,7 @@ namespace qon.Variables.Domains
             }
             else
             {
-                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateTrue(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
                 return new NumericalDomain<int>(validatedRanges.Select(x => new Interval<int>(x.Item1, x.Item2)));
             }
         }
@@ -95,7 +96,7 @@ namespace qon.Variables.Domains
             }
             else
             {
-                var validatedRanges = ExceptionHelper.ThrowIfPredicateFalse(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
+                var validatedRanges = ExceptionHelper.ThrowIfPredicateTrue(ranges, rngs => rngs.Any(range => range.Item2 - range.Item1 < 1));
                 return new NumericalDomain<uint>(validatedRanges.Select(x => new Interval<uint>(x.Item1, x.Item2)));
             }
         }

@@ -54,7 +54,7 @@ namespace Examples
             }
 
             var machine = QSL.Machine<EuclideanBlock<string>>(new QMachineParameter<EuclideanBlock<string>>() { Random = new Random(100) })
-                .WithConstraint(new()
+                .WithConstraintLayer(new()
                 {
                     GeneralConstraints = rotationRules
                 })
