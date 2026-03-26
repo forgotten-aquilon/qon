@@ -70,15 +70,15 @@ namespace qon
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Bind(Func<IReadOnlyList<TQ>, bool> bindingFunction, params QLink<TQ>[] qLinks)
-        {
-            return Bind(qLinks, bindingFunction);
-        }
-
-        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ>[] qLinks, Func<IReadOnlyList<TQ>, bool> bindingFunction)
+        public QSLConstraintsBuilder<TQ> Bind(IReadOnlyList<QLink<TQ>> qLinks, Func<IReadOnlyList<TQ>, bool> bindingFunction)
         {
             _bindingConstraint = new BindingConstraint<TQ>(qLinks, bindingFunction);
             return this;
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, Func<TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a }, values => bindingFunction(values[0]));
         }
 
         public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, Func<TQ, TQ, bool> bindingFunction)
@@ -114,6 +114,11 @@ namespace qon
         public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, QLink<TQ> e, QLink<TQ> f, QLink<TQ> g, QLink<TQ> h, Func<TQ, TQ, TQ, TQ, TQ, TQ, TQ, TQ, bool> bindingFunction)
         {
             return Bind(new[] { a, b, c, d, e, f, g, h }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]));
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, QLink<TQ> e, QLink<TQ> f, QLink<TQ> g, QLink<TQ> h, QLink<TQ> i, Func<TQ, TQ, TQ, TQ, TQ, TQ, TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c, d, e, f, g, h, i }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8]));
         }
 
         public IPreparation<TQ> Build()
