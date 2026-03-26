@@ -21,15 +21,23 @@ namespace qon.Variables
     /// </typeparam>
     public class QObject<TQ> : ICopy<QObject<TQ>>, ILayerHolder<TQ, QObject<TQ>>, IEquatable<QObject<TQ>> where TQ : notnull
     {
+        private Func<Guid>? _idResolver;
+
         /// <summary>
         /// Nullable reference to Solution Machine. Allows late binding to actual instance of machine.
         /// </summary>
         private QMachine<TQ>? _machine;
 
+        public Func<Guid> IdResolver 
+        { 
+            get => ExceptionHelper.ThrowIfFieldIsNull(_idResolver);
+            set => _idResolver ??= value;
+        }
+
         /// <summary>
         /// Unique ID, which is preserved by copying.
         /// </summary>
-        public Guid Id { get; protected set; } = Guid.Empty;
+        public Guid Id => IdResolver();
 
         /// <summary>
         /// Human-defined name of the @object
@@ -93,7 +101,7 @@ namespace qon.Variables
         {
             return new QObject<TQ>()
             {
-                Id = Id,
+                IdResolver = IdResolver,
                 Name = Name,
                 Properties = new Dictionary<string, IConvertible>(Properties),
                 Value = Value,
@@ -117,7 +125,6 @@ namespace qon.Variables
             var newId = Guid.NewGuid();
             var newVariable = new QObject<TQ>()
             {
-                Id = newId,
                 Name = newId.ToString()
             };
 
@@ -133,7 +140,6 @@ namespace qon.Variables
         {
             QObject<TQ> newObject = new()
             {
-                Id = Guid.NewGuid(),
                 Name = name,
             };
             return newObject;

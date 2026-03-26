@@ -59,11 +59,6 @@ namespace qon.Machines
             return Field.Add(@object);
         }
 
-        #region Queries
-
-
-        #endregion
-
         public override string ToString()
         {
             StringBuilder result = new StringBuilder("{ ");

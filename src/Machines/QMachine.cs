@@ -103,32 +103,6 @@ namespace qon.Machines
             Solver = parameter.SolverInit(this);
             State = new MachineState<TQ>(this);
             States = new States<TQ>(this);
-
-            if (parameter.Field is not null)
-            {
-                InitializeField(parameter.Field);
-            }
-        }
-
-        /// <summary>
-        /// Sets <see cref="Field{TQ}"/> of the current <see cref="MachineState{TQ}"/> and binds all variables with this <see cref="QMachine{TQ}"/>
-        /// </summary>
-        /// <param name="field"></param>
-        public void InitializeField(IEnumerable<QObject<TQ>> field)
-        {
-            State.SetField(field.ToArray());
-
-            _namedIndexer.Clear();
-            _guidIndexer.Clear();
-
-            for (int i = 0; i < State.Field.Count; i++)
-            {
-                _namedIndexer[State.Field[i].Name] = i;
-                _guidIndexer[State.Field[i].Id] = i;
-                State.Field[i].Machine = this;
-            }
-
-            Status = MachineStateType.Ready;
         }
 
         public void AddToField(QObject<TQ> @object)
@@ -136,8 +110,14 @@ namespace qon.Machines
             int newPos = State.AddToField(@object);
 
             _namedIndexer.Add(@object.Name, newPos);
-            _guidIndexer.Add(@object.Id, newPos);
-            State.Field[newPos].Machine = this;
+
+            Guid id = Guid.NewGuid();
+
+            _guidIndexer.Add(id, newPos);
+
+            @object.Machine = this;
+            @object.IdResolver = () => id;
+
 
             Status = MachineStateType.Ready;
         }

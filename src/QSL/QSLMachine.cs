@@ -25,9 +25,11 @@ namespace qon
             {
                 var variable = QObject<TQ>.Empty();
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(domain);
-                field.Add(variable);
+                //field.Add(variable);
+
+                machine.AddToField(variable);
             }
-            machine.InitializeField(field);
+            //machine.InitializeField(field);
 
             return machine;
         }
@@ -39,9 +41,10 @@ namespace qon
             {
                 var variable = QObject<TQ>.Empty(name);
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(domain);
-                field.Add(variable);
+                //field.Add(variable);
+                machine.AddToField(variable);
             }
-            machine.InitializeField(field);
+            //machine.InitializeField(field);
 
             return machine;
         }
@@ -70,6 +73,8 @@ namespace qon
                             ? QObject<TQ>.New(name, defaultValue.Value)
                             : QObject<TQ>.Empty(name);
 
+                        machine.AddToField(newObject);
+
                         if (domain is { } d)
                         {
                             DomainLayer<TQ>.GetOrCreate(newObject).AssignDomain(d);
@@ -79,12 +84,12 @@ namespace qon
 
                         layer.FieldGrid[x, y, z] = newObject.Id;
                         layer.Coordinates[newObject.Id] = (x, y, z);
-                        variables.Add(newObject);
+                        //variables.Add(newObject);
                     }
                 }
             }
 
-            machine.InitializeField(variables);
+            //machine.InitializeField(variables);
 
             return machine;
         }
