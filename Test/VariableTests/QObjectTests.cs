@@ -6,14 +6,14 @@ using qon.Variables.Domains;
 
 namespace qon.Tests.VariableTests
 {
-    public class QVariableTests
+    public class QObjectTests
     {
         [Fact]
         public void BasicEqualityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            QVariable<char> original = QVariable<char>.Empty();
+            QObject<char> original = QObject<char>.Empty();
             original.Machine = machine;
             var copy = original.Copy();
 
@@ -25,10 +25,10 @@ namespace qon.Tests.VariableTests
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            QVariable<char> original = QVariable<char>.Empty();
+            QObject<char> original = QObject<char>.Empty();
             original.Machine = machine;
 
-            var newVariable = QVariable<char>.Empty();
+            var newVariable = QObject<char>.Empty();
             newVariable.Machine = machine;
 
             Assert.False(original == newVariable);
@@ -39,7 +39,7 @@ namespace qon.Tests.VariableTests
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            QVariable<char> original = QVariable<char>.New('a')
+            QObject<char> original = QObject<char>.New('a')
                 .AddProperty("int", 12)
                 .AddProperty("string", "some string")
                 .AddProperty("double", 12.5)
@@ -57,7 +57,7 @@ namespace qon.Tests.VariableTests
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            QVariable<char> original = QVariable<char>.New('a')
+            QObject<char> original = QObject<char>.New('a')
                 .AddProperty("int", 12)
                 .AddProperty("string", "some string")
                 .AddProperty("double", 12.5)
@@ -78,7 +78,7 @@ namespace qon.Tests.VariableTests
             var stateLayer = EuclideanStateLayer<char>.GetOrCreate(machine.State);
             stateLayer.UpdateSize(1,0,0);
 
-            QVariable<char> original = QVariable<char>.New('a');
+            QObject<char> original = QObject<char>.New('a');
             EuclideanLayer<char>.GetOrCreate(original);
             stateLayer.Coordinates[original.Id] = (0, 0, 0);
 
@@ -96,13 +96,13 @@ namespace qon.Tests.VariableTests
             var stateLayer = EuclideanStateLayer<char>.GetOrCreate(machine.State);
             stateLayer.UpdateSize(2, 0, 0);
 
-            QVariable<char> original = QVariable<char>.New('a');
+            QObject<char> original = QObject<char>.New('a');
             EuclideanLayer<char>.GetOrCreate(original);
             stateLayer.Coordinates[original.Id] = (0, 0, 0);
 
             original.Machine = machine;
 
-            var nonCopy = QVariable<char>.New('B');
+            var nonCopy = QObject<char>.New('B');
             EuclideanLayer<char>.GetOrCreate(nonCopy);
             stateLayer.Coordinates[nonCopy.Id] = (1, 0, 0);
 

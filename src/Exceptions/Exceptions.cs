@@ -32,7 +32,7 @@ namespace qon.Exceptions
     public class TypesMismatchException : InternalLogicException
     {
         public TypesMismatchException(Type receivedType, Type expectedType) : 
-            base($"Was expected variable of type {expectedType.Name}, instead was received variable of type {receivedType.Name}") { }
+            base($"Was expected @object of type {expectedType.Name}, instead was received @object of type {receivedType.Name}") { }
     }
 
     public class UnreachableException : InternalLogicException

@@ -37,11 +37,11 @@ namespace qon
             return machine;
         }
 
-        public static QVariable<TQ> Collapse<TQ>(this QVariable<TQ> variable, TQ value, bool isConstant = false) where TQ : notnull
+        public static QObject<TQ> Collapse<TQ>(this QObject<TQ> @object, TQ value, bool isConstant = false) where TQ : notnull
         {
-            ConstraintLayer<TQ>.Collapse(variable, value, isConstant);
+            ConstraintLayer<TQ>.Collapse(@object, value, isConstant);
 
-            return variable;
+            return @object;
         }
     }
 }

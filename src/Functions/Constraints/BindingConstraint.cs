@@ -21,7 +21,7 @@ namespace qon.Functions.Constraints
             foreach (var qLink in qLinks)
             {
                 ExceptionHelper.ThrowIfArgumentIsNull(qLink, nameof(qLinks));
-                variableIds.Add(qLink.Variable.Id);
+                variableIds.Add(qLink.Object.Id);
             }
 
             if (variableIds.Count == 0)

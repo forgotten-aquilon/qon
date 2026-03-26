@@ -20,10 +20,10 @@ namespace qon
             public static Filter<TQ> GroupByTag<TQ>(string s) where TQ : notnull
             {
                 return new Filter<TQ>(v => v.GetNullOrValueProperty(s)
-                    ?? throw new InternalLogicException($"Variable '{v.Name}' is missing required tag '{s}' for grouping."));
+                    ?? throw new InternalLogicException($"Object '{v.Name}' is missing required tag '{s}' for grouping."));
             }
 
-            public static Filter<TQ> GroupWith<TIn, TQ>(Func<TIn, object> func) where TIn : ILayer<TQ, QVariable<TQ>> where TQ : notnull
+            public static Filter<TQ> GroupWith<TIn, TQ>(Func<TIn, object> func) where TIn : ILayer<TQ, QObject<TQ>> where TQ : notnull
             {
                 return new Filter<TQ>(v =>
                 {
@@ -75,9 +75,9 @@ namespace qon
                 return new QPredicate<TQ>(v => v.State != ValueState.Uncertain && v.Value.CheckValue(value));
             }
 
-            public static QPredicate<TQ> MooreFilter<TQ>(Func<QVariable<TQ>[], bool> func) where TQ : notnull
+            public static QPredicate<TQ> MooreFilter<TQ>(Func<QObject<TQ>[], bool> func) where TQ : notnull
             {
-                var moore = new MooreFilter<TQ>() as IChain<QVariable<TQ>, QVariable<TQ>[]>;
+                var moore = new MooreFilter<TQ>() as IChain<QObject<TQ>, QObject<TQ>[]>;
                 return new QPredicate<TQ>(v => func(moore.ApplyTo(v)));
             }
 

@@ -55,11 +55,11 @@ namespace qon.Machines
         protected Dictionary<string, int> _namedIndexer { get; set; } = new Dictionary<string, int>();
         protected Dictionary<Guid, int> _guidIndexer { get; set; } = new Dictionary<Guid, int>();
         /// <summary>
-        /// Property which maps variable names to their respective indices in the machine's field.
+        /// Property which maps @object names to their respective indices in the machine's field.
         /// </summary>
         public IReadOnlyDictionary<string, int> NamedIndexer => _namedIndexer;
         /// <summary>
-        /// Property which maps variable ids to their respective indices in the machine's field.
+        /// Property which maps @object ids to their respective indices in the machine's field.
         /// </summary>
         public IReadOnlyDictionary<Guid, int> GuidIndexer => _guidIndexer;
 
@@ -89,12 +89,12 @@ namespace qon.Machines
         public Random Random { get; }
 
         /// <param name="name"></param>
-        /// <returns>Variable from the current <see cref="MachineState{TQ}"/></returns>
-        public QVariable<TQ> this[string name] => State.Field[name];
+        /// <returns>Object from the current <see cref="MachineState{TQ}"/></returns>
+        public QObject<TQ> this[string name] => State.Field[name];
 
         /// <param name="id"></param>
-        /// <returns>Variable from the current <see cref="MachineState{TQ}"/></returns>
-        public QVariable<TQ> this[Guid id] => State.Field[id];
+        /// <returns>Object from the current <see cref="MachineState{TQ}"/></returns>
+        public QObject<TQ> this[Guid id] => State.Field[id];
 
         public QMachine(QMachineParameter<TQ> parameter)
         {
@@ -114,7 +114,7 @@ namespace qon.Machines
         /// Sets <see cref="Field{TQ}"/> of the current <see cref="MachineState{TQ}"/> and binds all variables with this <see cref="QMachine{TQ}"/>
         /// </summary>
         /// <param name="field"></param>
-        public void InitializeField(IEnumerable<QVariable<TQ>> field)
+        public void InitializeField(IEnumerable<QObject<TQ>> field)
         {
             State.SetField(field.ToArray());
 
@@ -131,12 +131,12 @@ namespace qon.Machines
             Status = MachineStateType.Ready;
         }
 
-        public void AddToField(QVariable<TQ> variable)
+        public void AddToField(QObject<TQ> @object)
         {
-            int newPos = State.AddToField(variable);
+            int newPos = State.AddToField(@object);
 
-            _namedIndexer.Add(variable.Name, newPos);
-            _guidIndexer.Add(variable.Id, newPos);
+            _namedIndexer.Add(@object.Name, newPos);
+            _guidIndexer.Add(@object.Id, newPos);
             State.Field[newPos].Machine = this;
 
             Status = MachineStateType.Ready;
@@ -144,7 +144,7 @@ namespace qon.Machines
 
         public QLink<TQ> Q(string? name = null)
         {
-            var q = name.IsNullOrEmpty() ? QVariable<TQ>.Empty() : QVariable<TQ>.Empty(name);
+            var q = name.IsNullOrEmpty() ? QObject<TQ>.Empty() : QObject<TQ>.Empty(name);
 
             AddToField(q);
 

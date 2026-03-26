@@ -20,10 +20,10 @@ namespace qon
 
         public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, int count) where TQ : notnull
         {
-            var field = new List<QVariable<TQ>>();
+            var field = new List<QObject<TQ>>();
             for (int i = 0; i < count; i++)
             {
-                var variable = QVariable<TQ>.Empty();
+                var variable = QObject<TQ>.Empty();
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(domain);
                 field.Add(variable);
             }
@@ -34,10 +34,10 @@ namespace qon
 
         public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, IEnumerable<string> names) where TQ : notnull
         {
-            var field = new List<QVariable<TQ>>();
+            var field = new List<QObject<TQ>>();
             foreach (var name in names)
             {
-                var variable = QVariable<TQ>.Empty(name);
+                var variable = QObject<TQ>.Empty(name);
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(domain);
                 field.Add(variable);
             }
@@ -48,7 +48,7 @@ namespace qon
 
         public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ>? domain, (int x, int y, int z) dimensions, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
         {
-            List<QVariable<TQ>> variables = new();
+            List<QObject<TQ>> variables = new();
 
             if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
             {
@@ -66,20 +66,20 @@ namespace qon
                     {
                         string name = $"{x}x{y}x{z}";
 
-                        QVariable<TQ> newVariable = defaultValue.HasValue
-                            ? QVariable<TQ>.New(name, defaultValue.Value)
-                            : QVariable<TQ>.Empty(name);
+                        QObject<TQ> newObject = defaultValue.HasValue
+                            ? QObject<TQ>.New(name, defaultValue.Value)
+                            : QObject<TQ>.Empty(name);
 
                         if (domain is { } d)
                         {
-                            DomainLayer<TQ>.GetOrCreate(newVariable).AssignDomain(d);
+                            DomainLayer<TQ>.GetOrCreate(newObject).AssignDomain(d);
                         }
 
-                        EuclideanLayer<TQ>.GetOrCreate(newVariable);
+                        EuclideanLayer<TQ>.GetOrCreate(newObject);
 
-                        layer.FieldGrid[x, y, z] = newVariable.Id;
-                        layer.Coordinates[newVariable.Id] = (x, y, z);
-                        variables.Add(newVariable);
+                        layer.FieldGrid[x, y, z] = newObject.Id;
+                        layer.Coordinates[newObject.Id] = (x, y, z);
+                        variables.Add(newObject);
                     }
                 }
             }

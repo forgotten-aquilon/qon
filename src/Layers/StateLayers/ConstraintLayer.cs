@@ -91,9 +91,9 @@ namespace qon.Layers.StateLayers
         public void Execute(Field<TQ>? previousField, Field<TQ> currentField)
         {
             double entropy = double.MaxValue;
-            QVariable<TQ>? candidate = null;
+            QObject<TQ>? candidate = null;
 
-            foreach (QVariable<TQ> variable in currentField)
+            foreach (QObject<TQ> variable in currentField)
             {
                 if (variable.State != ValueState.Uncertain)
                 {
@@ -120,7 +120,7 @@ namespace qon.Layers.StateLayers
 
             if (!previousField.IsNullOrEmpty())
             {
-                QVariable<TQ> previousCandidate = previousField[candidate.Name];
+                QObject<TQ> previousCandidate = previousField[candidate.Name];
 
                 DomainLayer<TQ>.With(previousCandidate).RemoveValue(value);
             }
@@ -139,19 +139,19 @@ namespace qon.Layers.StateLayers
             return layer;
         }
 
-        public static void Collapse(QVariable<TQ> variable, TQ value, bool isConstant = false)
+        public static void Collapse(QObject<TQ> @object, TQ value, bool isConstant = false)
         {
-            DomainLayer<TQ>.With(variable).Collapse(value, isConstant);
+            DomainLayer<TQ>.With(@object).Collapse(value, isConstant);
         }
 
-        public static Optional<TQ> TryCollapseVariable(QVariable<TQ> variable)
+        public static Optional<TQ> TryCollapseVariable(QObject<TQ> @object)
         {
-            var layer = DomainLayer<TQ>.With(variable);
+            var layer = DomainLayer<TQ>.With(@object);
             var value = layer.SingleOrEmptyValue();
 
             if (value.HasValue)
             {
-                Collapse(variable, value.Value);
+                Collapse(@object, value.Value);
             }
 
             return value;
@@ -175,7 +175,7 @@ namespace qon.Layers.StateLayers
             return Result.Success(changes);
         }
 
-        public static int AutoCollapse(QVariable<TQ>[] field)
+        public static int AutoCollapse(QObject<TQ>[] field)
         {
             int changes = 0;
 

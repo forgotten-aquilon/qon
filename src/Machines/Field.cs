@@ -11,15 +11,15 @@ using System.Text;
 namespace qon.Machines
 {
     /// <summary>
-    /// Collection of <see cref="QVariable{TQ}"/>
+    /// Collection of <see cref="QObject{TQ}"/>
     /// </summary>
     /// <typeparam name="TQ"></typeparam>
-    public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QVariable<TQ>> where TQ : notnull
+    public class Field<TQ> : ICopy<Field<TQ>>, IEnumerable<QObject<TQ>> where TQ : notnull
     {
         /// <summary>
         /// All variables of the current Field
         /// </summary>
-        public QVariable<TQ>[] Variables { get; protected set; }
+        public QObject<TQ>[] Variables { get; protected set; }
 
         /// <summary>
         /// Instance of the current Machine
@@ -38,7 +38,7 @@ namespace qon.Machines
         public Field(QMachine<TQ> machine)
         {
             Machine = machine;
-            Variables = Array.Empty<QVariable<TQ>>();
+            Variables = Array.Empty<QObject<TQ>>();
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace qon.Machines
         /// </summary>
         /// <param name="machine"></param>
         /// <param name="variables"></param>
-        public Field(QMachine<TQ> machine, QVariable<TQ>[] variables)
+        public Field(QMachine<TQ> machine, QObject<TQ>[] variables)
         {
             Machine = machine;
             Variables = variables;
@@ -56,7 +56,7 @@ namespace qon.Machines
         /// Overwrites variables of Field with new ones
         /// </summary>
         /// <param name="variables"></param>
-        public void Update(QVariable<TQ>[] variables)
+        public void Update(QObject<TQ>[] variables)
         {
             Variables = variables;
         }
@@ -66,11 +66,11 @@ namespace qon.Machines
             Variables = anotherField.Variables;
         }
 
-        public int Add(QVariable<TQ> variable)
+        public int Add(QObject<TQ> @object)
         {
             var tempList = Variables.ToList();
 
-            tempList.Add(variable);
+            tempList.Add(@object);
 
             Variables = tempList.ToArray();
 
@@ -90,7 +90,7 @@ namespace qon.Machines
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Field<TQ> ShallowCopy()
         {
-            QVariable<TQ>[] fieldCopy = new QVariable<TQ>[Count];
+            QObject<TQ>[] fieldCopy = new QObject<TQ>[Count];
             Array.Copy(Variables, fieldCopy, Count);
             Field<TQ> newField = new Field<TQ>(Machine, fieldCopy);
 
@@ -98,33 +98,33 @@ namespace qon.Machines
         }
 
         /// <summary>
-        /// Return <see cref="QVariable{TQ}"/> from the Field based on its numerical position in the array
+        /// Return <see cref="QObject{TQ}"/> from the Field based on its numerical position in the array
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public QVariable<TQ> this[int index]
+        public QObject<TQ> this[int index]
         {
             get => Variables[index];
             set => Variables[index] = value;
         }
 
         /// <summary>
-        /// Return <see cref="QVariable{TQ}"/> from the Field based on its name
+        /// Return <see cref="QObject{TQ}"/> from the Field based on its name
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public QVariable<TQ> this[string name]
+        public QObject<TQ> this[string name]
         {
             get => Variables[Machine.NamedIndexer[name]];
             set => Variables[Machine.NamedIndexer[name]] = value;
         }
 
         /// <summary>
-        /// Returns <see cref="QVariable{TQ}"/> from the Field based on its <see cref="Guid"/>
+        /// Returns <see cref="QObject{TQ}"/> from the Field based on its <see cref="Guid"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public QVariable<TQ> this[Guid id]
+        public QObject<TQ> this[Guid id]
         {
             get => Variables[Machine.GuidIndexer[id]];
             set => Variables[Machine.GuidIndexer[id]] = value;
@@ -158,7 +158,7 @@ namespace qon.Machines
             return base.Equals(obj);
         }
 
-        public IEnumerator<QVariable<TQ>> GetEnumerator()
+        public IEnumerator<QObject<TQ>> GetEnumerator()
         {
             return Variables.AsEnumerable().GetEnumerator();
         }

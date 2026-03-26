@@ -14,9 +14,9 @@ namespace qon.Functions.Constraints
     public class RelativeConstraintBuilder<TQ> : IPreparation<TQ> where TQ : notnull
     {
         protected QPredicate<TQ> Guard { get; }
-        public Func<QVariable<TQ>, Result> Constraint { get; }
+        public Func<QObject<TQ>, Result> Constraint { get; }
 
-        public RelativeConstraintBuilder(QPredicate<TQ> guard, Func<QVariable<TQ>, Result> constraint)
+        public RelativeConstraintBuilder(QPredicate<TQ> guard, Func<QObject<TQ>, Result> constraint)
         {
             Guard = guard;
             Constraint = constraint;
@@ -24,11 +24,11 @@ namespace qon.Functions.Constraints
 
         public Result Execute(Field<TQ> field)
         {
-            List<QVariable<TQ>>? relativeVariables = field.Where(Guard.ApplyTo).ToList();
+            List<QObject<TQ>>? relativeVariables = field.Where(Guard.ApplyTo).ToList();
 
             int cumulativeChanges = 0;
 
-            foreach (QVariable<TQ> relativeVariable in relativeVariables)
+            foreach (QObject<TQ> relativeVariable in relativeVariables)
             {
                 var result = Constraint(relativeVariable);
 

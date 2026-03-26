@@ -20,7 +20,7 @@ namespace qon.Functions.Searchers.Anchors
             Anchors = anchors;
         }
 
-        public void Execute(QVariable<TQ>[] field)
+        public void Execute(QObject<TQ>[] field)
         {
             Paths.Clear();
             Paths.Add(new AnchoredPath<TQ>(field));
@@ -48,7 +48,7 @@ namespace qon.Functions.Searchers.Anchors
 
         public int SearchDepth => Anchors.Count;
 
-        public List<List<QVariable<TQ>>> Search(Field<TQ> field)
+        public List<List<QObject<TQ>>> Search(Field<TQ> field)
         {
             Execute(field.Variables);
 

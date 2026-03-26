@@ -7,6 +7,6 @@ namespace qon.Functions.Searchers.Anchors
     {
         public QPredicate<TQ> GetPredicate();
 
-        public QVariable<TQ>[] GetAnchoredVariables(QVariable<TQ>[] field, QVariable<TQ> anchor);
+        public QObject<TQ>[] GetAnchoredVariables(QObject<TQ>[] field, QObject<TQ> anchor);
     }
 }

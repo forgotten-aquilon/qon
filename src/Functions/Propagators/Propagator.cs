@@ -6,13 +6,13 @@ using qon.Variables;
 
 namespace qon.Functions.Propagators
 {
-    public class Propagator<TQ> : DefaultPropagator<IEnumerable<QVariable<TQ>>> where TQ : notnull
+    public class Propagator<TQ> : DefaultPropagator<IEnumerable<QObject<TQ>>> where TQ : notnull
     {
-        public Propagator(Func<IEnumerable<QVariable<TQ>>, Result> propagationFunction) : base(propagationFunction)
+        public Propagator(Func<IEnumerable<QObject<TQ>>, Result> propagationFunction) : base(propagationFunction)
         {
         }
 
-        public override Result ApplyTo(IEnumerable<QVariable<TQ>> input)
+        public override Result ApplyTo(IEnumerable<QObject<TQ>> input)
         {
             Result result = PropagationFunction(input);
 
@@ -26,7 +26,7 @@ namespace qon.Functions.Propagators
                 : result;
         }
 
-        public static IChain<IEnumerable<QVariable<TQ>>, Result> operator ~(Propagator<TQ> obj)
+        public static IChain<IEnumerable<QObject<TQ>>, Result> operator ~(Propagator<TQ> obj)
         {
             return obj;
         }

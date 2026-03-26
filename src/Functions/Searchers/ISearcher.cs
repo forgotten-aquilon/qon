@@ -7,6 +7,6 @@ namespace qon.Functions.Searchers
     public interface ISearcher<TQ> where TQ : notnull
     {
         public int SearchDepth { get; }
-        public List<List<QVariable<TQ>>> Search(Field<TQ> field);
+        public List<List<QObject<TQ>>> Search(Field<TQ> field);
     }
 }

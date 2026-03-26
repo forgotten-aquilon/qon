@@ -15,10 +15,10 @@ namespace qon
         private QPredicate<TQ>? _guard;
         private Filter<TQ>? _grouping;
         private QPredicate<TQ>? _selector;
-        private Func<QVariable<TQ>, QPredicate<TQ>>? _neighbourAggregation;
-        private Func<QVariable<TQ>, Result>? _neighbourConstraint;
+        private Func<QObject<TQ>, QPredicate<TQ>>? _neighbourAggregation;
+        private Func<QObject<TQ>, Result>? _neighbourConstraint;
         private Propagator<TQ>? _propagator;
-        private Func<QVariable<TQ>[], Result>? _customExecutor;
+        private Func<QObject<TQ>[], Result>? _customExecutor;
         private BindingConstraint<TQ>? _bindingConstraint;
         private List<QLink<TQ>>? _qLinks;
 
@@ -46,13 +46,13 @@ namespace qon
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Where(Func<QVariable<TQ>, QPredicate<TQ>> aggregationFactory)
+        public QSLConstraintsBuilder<TQ> Where(Func<QObject<TQ>, QPredicate<TQ>> aggregationFactory)
         {
             _neighbourAggregation = aggregationFactory;
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Where(Func<QVariable<TQ>, Result> neighbourConstraint)
+        public QSLConstraintsBuilder<TQ> Where(Func<QObject<TQ>, Result> neighbourConstraint)
         {
             _neighbourConstraint = neighbourConstraint;
             return this;
@@ -64,7 +64,7 @@ namespace qon
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Constraint(Func<QVariable<TQ>[], Result> executor)
+        public QSLConstraintsBuilder<TQ> Constraint(Func<QObject<TQ>[], Result> executor)
         {
             _customExecutor = executor;
             return this;

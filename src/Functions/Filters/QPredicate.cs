@@ -6,23 +6,23 @@ using qon.Variables;
 
 namespace qon.Functions.Filters
 {
-    public class QPredicate<TQ> : Chain<QVariable<TQ>, bool> where TQ : notnull
+    public class QPredicate<TQ> : Chain<QObject<TQ>, bool> where TQ : notnull
     {
         public static readonly QPredicate<TQ> Empty = new QPredicate<TQ>(o => false);
 
-        public Func<QVariable<TQ>, bool> PredicateFunction { get; protected set; }
+        public Func<QObject<TQ>, bool> PredicateFunction { get; protected set; }
 
-        public QPredicate(Func<QVariable<TQ>, bool> predicateFunction)
+        public QPredicate(Func<QObject<TQ>, bool> predicateFunction)
         {
             PredicateFunction = predicateFunction;
         }
 
-        public override bool ApplyTo(QVariable<TQ> input)
+        public override bool ApplyTo(QObject<TQ> input)
         {
             return PredicateFunction(input);
         }
 
-        public IChain<QVariable<TQ>, bool> AsIChain()
+        public IChain<QObject<TQ>, bool> AsIChain()
         {
             return this;
         }
@@ -37,7 +37,7 @@ namespace qon.Functions.Filters
             return left.And(right);
         }
 
-        public static QPredicate<TQ> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<TQ, QVariable<TQ>>
+        public static QPredicate<TQ> Create<TLayer>(Func<TLayer, bool> predicate) where TLayer : ILayer<TQ, QObject<TQ>>
         {
             return new QPredicate<TQ>(variable => predicate((TLayer)variable.LayerManager.GetLayer<TLayer>()));
         }

@@ -132,13 +132,13 @@ namespace qon.Variables.Domains
 
     public static class DomainHelper<TQ> where TQ : notnull
     {
-        private static readonly Dictionary<Type, Func<QVariable<TQ>, IDomain<TQ>, HashSet<TQ>, int>> HashSetIntersections = new();
+        private static readonly Dictionary<Type, Func<QObject<TQ>, IDomain<TQ>, HashSet<TQ>, int>> HashSetIntersections = new();
 
-        public static void RegisterHashSetIntersection<TDomain>(Func<QVariable<TQ>, TDomain, HashSet<TQ>, int> handler)
+        public static void RegisterHashSetIntersection<TDomain>(Func<QObject<TQ>, TDomain, HashSet<TQ>, int> handler)
             where TDomain : IDomain<TQ>
             => HashSetIntersections[typeof(TDomain)] = (variable, domain, values) => handler(variable, (TDomain)domain, values);
 
-        public static bool TryGetHashSetIntersection(IDomain<TQ> domain, [NotNullWhen(true)] out Func<QVariable<TQ>, IDomain<TQ>, HashSet<TQ>, int>? func)
+        public static bool TryGetHashSetIntersection(IDomain<TQ> domain, [NotNullWhen(true)] out Func<QObject<TQ>, IDomain<TQ>, HashSet<TQ>, int>? func)
             => HashSetIntersections.TryGetValue(domain.GetType(), out func);
 
         static DomainHelper()
@@ -151,13 +151,13 @@ namespace qon.Variables.Domains
 
         #region Domain intersections with HashSet
 
-        public static int DomainIntersectionWithHashSet(QVariable<TQ> variable, HashSet<TQ> values)
+        public static int DomainIntersectionWithHashSet(QObject<TQ> @object, HashSet<TQ> values)
         {
-            var layer = DomainLayer<TQ>.With(variable);
+            var layer = DomainLayer<TQ>.With(@object);
             var domain = layer.GetDomain();
 
             var result = TryGetHashSetIntersection(domain, out var handler) 
-                ? handler(variable, domain, values) 
+                ? handler(@object, domain, values) 
                 : IntersectDefaultWithHashSet(layer, values);
 
             if (domain is not EmptyDomain<TQ> && domain.IsEmpty())
@@ -180,7 +180,7 @@ namespace qon.Variables.Domains
             return Math.Max(0, originalSize - domain.Size());
         }
 
-        private static int IntersectNumericalWithHashSet(QVariable<TQ> variable, NumericalDomain<TQ> domain, HashSet<TQ> values)
+        private static int IntersectNumericalWithHashSet(QObject<TQ> @object, NumericalDomain<TQ> domain, HashSet<TQ> values)
         {
             int originalSize = domain.Size();
             var filtered = new Dictionary<TQ, int>(values.Comparer);
@@ -193,7 +193,7 @@ namespace qon.Variables.Domains
                 }
             }
 
-            var targetLayer = DomainLayer<TQ>.With(variable);
+            var targetLayer = DomainLayer<TQ>.With(@object);
 
             if (filtered.Count == 0)
             {

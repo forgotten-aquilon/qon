@@ -11,18 +11,18 @@ namespace qon.Functions.Mutations
 {
     public class VariableMutation<TQ> where TQ : notnull
     {
-        public static VariableMutation<TQ> Empty => new VariableMutation<TQ>(new Action<QVariable<TQ>>(_ => { }));
+        public static VariableMutation<TQ> Empty => new VariableMutation<TQ>(new Action<QObject<TQ>>(_ => { }));
 
-        public Action<QVariable<TQ>> MutationFunction { get; protected set; } 
+        public Action<QObject<TQ>> MutationFunction { get; protected set; } 
 
-        public VariableMutation(Action<QVariable<TQ>> mutationFunction)
+        public VariableMutation(Action<QObject<TQ>> mutationFunction)
         {
             MutationFunction = mutationFunction;
         }
 
-        public void Execute(QVariable<TQ> variable)
+        public void Execute(QObject<TQ> @object)
         {
-            MutationFunction(variable);
+            MutationFunction(@object);
         }
 
         public static VariableMutation<TQ> FromValue(TQ value)

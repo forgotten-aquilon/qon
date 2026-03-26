@@ -10,6 +10,6 @@ namespace qon.Functions.Mutations
     public interface IMutator<TQ> where TQ : notnull
     {
         public int MutationCount { get; }
-        public void Mutate(List<QVariable<TQ>> variables);
+        public void Mutate(List<QObject<TQ>> variables);
     }
 }

@@ -16,7 +16,7 @@ namespace qon.Layers
     /// Key generic parameter
     /// </typeparam>
     /// <typeparam name="THolder">
-    /// Type, which can hold this layer, e.g. <see cref="QVariable{TQ}"/> or <see cref="MachineState{TQ}"/>
+    /// Type, which can hold this layer, e.g. <see cref="QObject{TQ}"/> or <see cref="MachineState{TQ}"/>
     /// </typeparam>
     public class LayersManager<TQ, THolder> : KeyedCollection<Type, ILayer<TQ, THolder>>
         where TQ : notnull

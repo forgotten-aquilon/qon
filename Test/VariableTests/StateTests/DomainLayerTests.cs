@@ -17,7 +17,7 @@ namespace qon.Tests.VariableTests.StateTests
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            QVariable<char> original = QVariable<char>.New('a');
+            QObject<char> original = QObject<char>.New('a');
 
             DomainLayer<char> layer = DomainLayer<char>.GetOrCreate(original);
             layer.AssignDomain(new DiscreteDomain<char>('a', 'b', 'c'));

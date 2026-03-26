@@ -12,9 +12,9 @@ namespace qon.Functions.Constraints
     //TODO: Rename
     public class ConstraintBuilder<TQ> : IPreparation<TQ> where TQ : notnull
     {
-        public Func<QVariable<TQ>[], Result> Constraint { get; }
+        public Func<QObject<TQ>[], Result> Constraint { get; }
 
-        public ConstraintBuilder(Func<QVariable<TQ>[], Result> constraint)
+        public ConstraintBuilder(Func<QObject<TQ>[], Result> constraint)
         {
             Constraint = constraint;
         }

@@ -19,7 +19,7 @@ namespace qon.Variables
     /// <typeparam name="TQ">
     /// Key generic parameter
     /// </typeparam>
-    public class QVariable<TQ> : ICopy<QVariable<TQ>>, ILayerHolder<TQ, QVariable<TQ>>, IEquatable<QVariable<TQ>> where TQ : notnull
+    public class QObject<TQ> : ICopy<QObject<TQ>>, ILayerHolder<TQ, QObject<TQ>>, IEquatable<QObject<TQ>> where TQ : notnull
     {
         /// <summary>
         /// Nullable reference to Solution Machine. Allows late binding to actual instance of machine.
@@ -32,7 +32,7 @@ namespace qon.Variables
         public Guid Id { get; protected set; } = Guid.Empty;
 
         /// <summary>
-        /// Human-defined name of the variable
+        /// Human-defined name of the @object
         /// </summary>
         public string Name { get; protected set; }
 
@@ -45,15 +45,15 @@ namespace qon.Variables
         /// <summary>
         /// Contains layers with additional data or functionality
         /// </summary>
-        public LayersManager<TQ, QVariable<TQ>> LayerManager { get; protected set; }
+        public LayersManager<TQ, QObject<TQ>> LayerManager { get; protected set; }
 
         /// <summary>
-        /// Actual value of the variable
+        /// Actual value of the @object
         /// </summary>
         public Optional<TQ> Value { get; set; } = Optional<TQ>.Empty;
 
         /// <summary>
-        /// State of the variable
+        /// State of the @object
         /// </summary>
         public ValueState State { get; set; } = ValueState.Uncertain;
 
@@ -67,20 +67,20 @@ namespace qon.Variables
             set => _machine = value;
         }
 
-        protected QVariable()
+        protected QObject()
         {
-            LayerManager = new LayersManager<TQ, QVariable<TQ>>(this);
+            LayerManager = new LayersManager<TQ, QObject<TQ>>(this);
 
             Name = "";
         }
 
         /// <summary>
-        /// Chaining method for easy setup of Variable's value
+        /// Chaining method for easy setup of Object's value
         /// </summary>
         /// <param name="value"></param>
         /// <param name="state"></param>
-        /// <returns>Instance of the same variable</returns>
-        public QVariable<TQ> WithValue(TQ value, ValueState state = ValueState.Constant)
+        /// <returns>Instance of the same @object</returns>
+        public QObject<TQ> WithValue(TQ value, ValueState state = ValueState.Constant)
         {
             Value = Optional<TQ>.Of(value);
             State = state;
@@ -89,9 +89,9 @@ namespace qon.Variables
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual QVariable<TQ> Copy()
+        public virtual QObject<TQ> Copy()
         {
-            return new QVariable<TQ>()
+            return new QObject<TQ>()
             {
                 Id = Id,
                 Name = Name,
@@ -109,13 +109,13 @@ namespace qon.Variables
         }
 
         /// <summary>
-        /// Creates Variable without value and with random ID and Name.
+        /// Creates Object without value and with random ID and Name.
         /// </summary>
         /// <returns></returns>
-        public static QVariable<TQ> Empty()
+        public static QObject<TQ> Empty()
         {
             var newId = Guid.NewGuid();
-            var newVariable = new QVariable<TQ>()
+            var newVariable = new QObject<TQ>()
             {
                 Id = newId,
                 Name = newId.ToString()
@@ -125,39 +125,39 @@ namespace qon.Variables
         }
 
         /// <summary>
-        /// Creates Variable without value with specified Name
+        /// Creates Object without value with specified Name
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static QVariable<TQ> Empty(string name)
+        public static QObject<TQ> Empty(string name)
         {
-            QVariable<TQ> newVariable = new()
+            QObject<TQ> newObject = new()
             {
                 Id = Guid.NewGuid(),
                 Name = name,
             };
-            return newVariable;
+            return newObject;
         }
 
         /// <summary>
-        /// Creates Variable with specified Value and its State
+        /// Creates Object with specified Value and its State
         /// </summary>
         /// <param name="value"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public static QVariable<TQ> New(TQ value, ValueState state = ValueState.Constant)
+        public static QObject<TQ> New(TQ value, ValueState state = ValueState.Constant)
         {
             return Empty().WithValue(value, state);
         }
 
         /// <summary>
-        /// Creates Variable with specified Name, Value and its State
+        /// Creates Object with specified Name, Value and its State
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public static QVariable<TQ> New(string name, TQ value, ValueState state = ValueState.Constant)
+        public static QObject<TQ> New(string name, TQ value, ValueState state = ValueState.Constant)
         {
             return Empty(name).WithValue(value, state);
         }
@@ -170,7 +170,7 @@ namespace qon.Variables
         /// <param name="name">Property's name</param>
         /// <param name="value">Value</param>
         /// <returns></returns>
-        public QVariable<TQ> AddProperty(string name, IConvertible value)
+        public QObject<TQ> AddProperty(string name, IConvertible value)
         {
             if (!Properties.TryAdd(name, value))
             {
@@ -221,7 +221,7 @@ namespace qon.Variables
         #region IEquatable
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(QVariable<TQ>? other)
+        public bool Equals(QObject<TQ>? other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -253,7 +253,7 @@ namespace qon.Variables
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((QVariable<TQ>)obj);
+            return Equals((QObject<TQ>)obj);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -263,13 +263,13 @@ namespace qon.Variables
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(QVariable<TQ> left, QVariable<TQ> right)
+        public static bool operator ==(QObject<TQ> left, QObject<TQ> right)
         {
             return left.Equals(right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(QVariable<TQ> left, QVariable<TQ> right)
+        public static bool operator !=(QObject<TQ> left, QObject<TQ> right)
         {
             return !(left == right);
         }

@@ -42,7 +42,7 @@ namespace Examples
 
         internal static string Display<TQ>(this QLink<TQ> link)
         {
-            return link.Variable.Value.HasValue ? link.Variable.Value.Value.ToString() : "N";
+            return link.Object.Value.HasValue ? link.Object.Value.Value.ToString() : "N";
         }
     }
 }

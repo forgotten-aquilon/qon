@@ -10,42 +10,42 @@ namespace qon.Functions.Filters
 {
     public class MooreParameter<TQ> where TQ : notnull
     {
-        public QVariable<TQ>? TopFrontLeft { get; set; }
-        public QVariable<TQ>? TopFrontCenter { get; set; }
-        public QVariable<TQ>? TopFrontRight { get; set; }
-        public QVariable<TQ>? TopMedianLeft { get; set; }
-        public QVariable<TQ>? TopMedianCenter { get; set; }
-        public QVariable<TQ>? TopMedianRight { get; set; }
-        public QVariable<TQ>? TopBackLeft { get; set; }
-        public QVariable<TQ>? TopBackCenter { get; set; }
-        public QVariable<TQ>? TopBackRight { get; set; }
+        public QObject<TQ>? TopFrontLeft { get; set; }
+        public QObject<TQ>? TopFrontCenter { get; set; }
+        public QObject<TQ>? TopFrontRight { get; set; }
+        public QObject<TQ>? TopMedianLeft { get; set; }
+        public QObject<TQ>? TopMedianCenter { get; set; }
+        public QObject<TQ>? TopMedianRight { get; set; }
+        public QObject<TQ>? TopBackLeft { get; set; }
+        public QObject<TQ>? TopBackCenter { get; set; }
+        public QObject<TQ>? TopBackRight { get; set; }
 
 
-        public QVariable<TQ>? MiddleFrontLeft { get; set; }
-        public QVariable<TQ>? MiddleFrontCenter { get; set; }
-        public QVariable<TQ>? MiddleFrontRight { get; set; }
-        public QVariable<TQ>? MiddleMedianLeft { get; set; }
-        //public QVariable<TQ>? MiddleMedianCenter { get; set; } //Does not exist, it is its own relative position
-        public QVariable<TQ>? MiddleMedianRight { get; set; }
-        public QVariable<TQ>? MiddleBackLeft { get; set; }
-        public QVariable<TQ>? MiddleBackCenter { get; set; }
-        public QVariable<TQ>? MiddleBackRight { get; set; }
+        public QObject<TQ>? MiddleFrontLeft { get; set; }
+        public QObject<TQ>? MiddleFrontCenter { get; set; }
+        public QObject<TQ>? MiddleFrontRight { get; set; }
+        public QObject<TQ>? MiddleMedianLeft { get; set; }
+        //public QObject<TQ>? MiddleMedianCenter { get; set; } //Does not exist, it is its own relative position
+        public QObject<TQ>? MiddleMedianRight { get; set; }
+        public QObject<TQ>? MiddleBackLeft { get; set; }
+        public QObject<TQ>? MiddleBackCenter { get; set; }
+        public QObject<TQ>? MiddleBackRight { get; set; }
 
-        public QVariable<TQ>? BottomFrontLeft { get; set; }
-        public QVariable<TQ>? BottomFrontCenter { get; set; }
-        public QVariable<TQ>? BottomFrontRight { get; set; }
-        public QVariable<TQ>? BottomMedianLeft { get; set; }
-        public QVariable<TQ>? BottomMedianCenter { get; set; }
-        public QVariable<TQ>? BottomMedianRight { get; set; }
-        public QVariable<TQ>? BottomBackLeft { get; set; }
-        public QVariable<TQ>? BottomBackCenter { get; set; }
-        public QVariable<TQ>? BottomBackRight { get; set; }
+        public QObject<TQ>? BottomFrontLeft { get; set; }
+        public QObject<TQ>? BottomFrontCenter { get; set; }
+        public QObject<TQ>? BottomFrontRight { get; set; }
+        public QObject<TQ>? BottomMedianLeft { get; set; }
+        public QObject<TQ>? BottomMedianCenter { get; set; }
+        public QObject<TQ>? BottomMedianRight { get; set; }
+        public QObject<TQ>? BottomBackLeft { get; set; }
+        public QObject<TQ>? BottomBackCenter { get; set; }
+        public QObject<TQ>? BottomBackRight { get; set; }
 
-        public QVariable<TQ>[] ToArray()
+        public QObject<TQ>[] ToArray()
         {
-            List<QVariable<TQ>> neighbors = new();
+            List<QObject<TQ>> neighbors = new();
 
-            void Add(QVariable<TQ>? neighbor)
+            void Add(QObject<TQ>? neighbor)
             {
                 if (neighbor is not null)
                 {
@@ -86,9 +86,9 @@ namespace qon.Functions.Filters
         }
     }
 
-    public class MooreFilter<TQ> : Chain<QVariable<TQ>, QVariable<TQ>[]> where TQ : notnull
+    public class MooreFilter<TQ> : Chain<QObject<TQ>, QObject<TQ>[]> where TQ : notnull
     {
-        public static MooreParameter<TQ> CreateParameter(QVariable<TQ> input)
+        public static MooreParameter<TQ> CreateParameter(QObject<TQ> input)
         {
             var layer = EuclideanLayer<TQ>.With(input);
 
@@ -99,7 +99,7 @@ namespace qon.Functions.Filters
 
             //TODO: Refactor this into separate euclidean layer
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            QVariable<TQ>? GetNeighbor(int dx, int dy, int dz)
+            QObject<TQ>? GetNeighbor(int dx, int dy, int dz)
             {
                 return stateLayer[(layer.X + dx, layer.Y + dy, layer.Z + dz)];
             }
@@ -139,7 +139,7 @@ namespace qon.Functions.Filters
             return result;
         }
 
-        public override QVariable<TQ>[] ApplyTo(QVariable<TQ> input)
+        public override QObject<TQ>[] ApplyTo(QObject<TQ> input)
         {
             return CreateParameter(input).ToArray();
         }

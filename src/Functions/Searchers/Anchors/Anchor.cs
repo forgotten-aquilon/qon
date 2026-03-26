@@ -7,9 +7,9 @@ namespace qon.Functions.Searchers.Anchors
     public class Anchor<TQ> : IAnchor<TQ> where TQ : notnull
     {
         public QPredicate<TQ> Predicate { get; set; }
-        public Func<QVariable<TQ>[], QVariable<TQ>, QVariable<TQ>[]> Func { get; set; }
+        public Func<QObject<TQ>[], QObject<TQ>, QObject<TQ>[]> Func { get; set; }
 
-        public Anchor(QPredicate<TQ> predicate, Func<QVariable<TQ>[], QVariable<TQ>, QVariable<TQ>[]> func)
+        public Anchor(QPredicate<TQ> predicate, Func<QObject<TQ>[], QObject<TQ>, QObject<TQ>[]> func)
         {
             Predicate = predicate;
             Func = func;
@@ -20,7 +20,7 @@ namespace qon.Functions.Searchers.Anchors
             return Predicate;
         }
 
-        public QVariable<TQ>[] GetAnchoredVariables(QVariable<TQ>[] field, QVariable<TQ> anchor)
+        public QObject<TQ>[] GetAnchoredVariables(QObject<TQ>[] field, QObject<TQ> anchor)
         {
             return Func(field, anchor);
         }

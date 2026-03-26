@@ -10,6 +10,6 @@ namespace qon.Functions
 {
     public interface IValidation<TQ> where TQ : notnull
     {
-        public bool Execute(QVariable<TQ>[] field, QMachine<TQ>? machine = null);
+        public bool Execute(QObject<TQ>[] field, QMachine<TQ>? machine = null);
     }
 }

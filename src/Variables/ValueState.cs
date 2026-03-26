@@ -1,22 +1,22 @@
 ﻿namespace qon.Variables
 {
     /// <summary>
-    /// Represents state of the variable's value
+    /// Represents state of the @object's value
     /// </summary>
     public enum ValueState
     {
         /// <summary>
-        /// Variable has a value, which was assigned before running Solution Machine
+        /// Object has a value, which was assigned before running Solution Machine
         /// </summary>
         Constant,
 
         /// <summary>
-        /// Variable has a value, which were assigned while running Solution Machine
+        /// Object has a value, which were assigned while running Solution Machine
         /// </summary>
         Defined,
 
         /// <summary>
-        /// Variable doesn't have a value
+        /// Object doesn't have a value
         /// </summary>
         Uncertain,
     }
