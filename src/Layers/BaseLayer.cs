@@ -29,7 +29,7 @@ namespace qon.Layers
     /// Generic parameter used for Curiously Recurring Template Pattern implementation
     /// </typeparam>
     /// <typeparam name="THolder">
-    /// Type, which can hold this layer, e.g. <see cref="QVariable{TQ}"/> or <see cref="MachineState{TQ}"/>
+    /// Type, which can hold this layer, e.g. <see cref="QObject{TQ}"/> or <see cref="MachineState{TQ}"/>
     /// </typeparam>
     public abstract class BaseLayer<TQ, TSelf, THolder> : BaseLayer, ILayer<TQ, THolder> where TQ : notnull
         where TSelf : BaseLayer<TQ, TSelf, THolder>, ILayer<TQ, THolder>, new()

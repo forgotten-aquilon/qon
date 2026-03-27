@@ -15,10 +15,10 @@ namespace qon
         private QPredicate<TQ>? _guard;
         private Filter<TQ>? _grouping;
         private QPredicate<TQ>? _selector;
-        private Func<QVariable<TQ>, QPredicate<TQ>>? _neighbourAggregation;
-        private Func<QVariable<TQ>, Result>? _neighbourConstraint;
+        private Func<QObject<TQ>, QPredicate<TQ>>? _neighbourAggregation;
+        private Func<QObject<TQ>, Result>? _neighbourConstraint;
         private Propagator<TQ>? _propagator;
-        private Func<QVariable<TQ>[], Result>? _customExecutor;
+        private Func<QObject<TQ>[], Result>? _customExecutor;
         private BindingConstraint<TQ>? _bindingConstraint;
         private List<QLink<TQ>>? _qLinks;
 
@@ -46,13 +46,13 @@ namespace qon
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Where(Func<QVariable<TQ>, QPredicate<TQ>> aggregationFactory)
+        public QSLConstraintsBuilder<TQ> Where(Func<QObject<TQ>, QPredicate<TQ>> aggregationFactory)
         {
             _neighbourAggregation = aggregationFactory;
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Where(Func<QVariable<TQ>, Result> neighbourConstraint)
+        public QSLConstraintsBuilder<TQ> Where(Func<QObject<TQ>, Result> neighbourConstraint)
         {
             _neighbourConstraint = neighbourConstraint;
             return this;
@@ -64,21 +64,21 @@ namespace qon
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Constraint(Func<QVariable<TQ>[], Result> executor)
+        public QSLConstraintsBuilder<TQ> Constraint(Func<QObject<TQ>[], Result> executor)
         {
             _customExecutor = executor;
             return this;
         }
 
-        public QSLConstraintsBuilder<TQ> Bind(Func<IReadOnlyList<TQ>, bool> bindingFunction, params QLink<TQ>[] qLinks)
-        {
-            return Bind(qLinks, bindingFunction);
-        }
-
-        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ>[] qLinks, Func<IReadOnlyList<TQ>, bool> bindingFunction)
+        public QSLConstraintsBuilder<TQ> Bind(IReadOnlyList<QLink<TQ>> qLinks, Func<IReadOnlyList<TQ>, bool> bindingFunction)
         {
             _bindingConstraint = new BindingConstraint<TQ>(qLinks, bindingFunction);
             return this;
+        }
+
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, Func<TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a }, values => bindingFunction(values[0]));
         }
 
         public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, Func<TQ, TQ, bool> bindingFunction)
@@ -116,11 +116,16 @@ namespace qon
             return Bind(new[] { a, b, c, d, e, f, g, h }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]));
         }
 
+        public QSLConstraintsBuilder<TQ> Bind(QLink<TQ> a, QLink<TQ> b, QLink<TQ> c, QLink<TQ> d, QLink<TQ> e, QLink<TQ> f, QLink<TQ> g, QLink<TQ> h, QLink<TQ> i, Func<TQ, TQ, TQ, TQ, TQ, TQ, TQ, TQ, TQ, bool> bindingFunction)
+        {
+            return Bind(new[] { a, b, c, d, e, f, g, h, i }, values => bindingFunction(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8]));
+        }
+
         public IPreparation<TQ> Build()
         {
             if (_customExecutor is not null)
             {
-                return new ConstraintBuilder<TQ>(_customExecutor);
+                return new CustomConstraint<TQ>(_customExecutor);
             }
 
             if (_bindingConstraint is not null)
@@ -154,7 +159,7 @@ namespace qon
             if (_guard is not null && _neighbourAggregation is not null)
             {
                 ExceptionHelper.ThrowIfFieldIsNull(_propagator);
-                return new RelativeConstraint<TQ>(_guard, _propagator!, _neighbourAggregation);
+                return new RelativeConstraint<TQ>(_guard, _propagator, _neighbourAggregation);
             }
 
             throw new InternalLogicException("Insufficient data to build constraint. Specify grouping/selecting or guard with neighbourhood details.");

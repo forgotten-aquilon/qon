@@ -15,7 +15,7 @@ namespace qon.Tests.Functions.Constraints
             var c = machine.Q().WithValue(3);
 
             var constraint = QSL.CreateConstraint<int>()
-                .Bind(values => values[0] + values[1] == values[2], a, b, c)
+                .Bind([a, b, c], values => values[0] + values[1] == values[2])
                 .Build();
 
             var result = constraint.Execute(machine.State.Field);

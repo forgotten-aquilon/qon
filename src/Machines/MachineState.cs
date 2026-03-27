@@ -49,20 +49,15 @@ namespace qon.Machines
         /// Updates variables of the current <see cref="Field"/>
         /// </summary>
         /// <param name="field"></param>
-        public void SetField(QVariable<TQ>[] field)
+        public void SetField(QObject<TQ>[] field)
         {
             Field.Update(field);
         }
 
-        public int AddToField(QVariable<TQ> variable)
+        public int AddToField(QObject<TQ> @object)
         {
-            return Field.Add(variable);
+            return Field.Add(@object);
         }
-
-        #region Queries
-
-
-        #endregion
 
         public override string ToString()
         {

@@ -6,18 +6,18 @@ using qon.Variables.Domains;
 
 namespace qon.Tests.VariableTests
 {
-    public class QVariableTests
+    public class QObjectTests
     {
         [Fact]
         public void BasicEqualityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            QVariable<char> original = QVariable<char>.Empty();
-            original.Machine = machine;
-            var copy = original.Copy();
+            var lnk = machine.Q();
 
-            Assert.True(original == copy);
+            var copy = lnk.Object.Copy();
+
+            Assert.True(lnk.Object == copy);
         }
 
         [Fact]
@@ -25,21 +25,21 @@ namespace qon.Tests.VariableTests
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            QVariable<char> original = QVariable<char>.Empty();
-            original.Machine = machine;
+            var lnk1 = machine.Q();
 
-            var newVariable = QVariable<char>.Empty();
-            newVariable.Machine = machine;
+            var lnk2 = machine.Q();
 
-            Assert.False(original == newVariable);
+            Assert.False(lnk1 == lnk2);
         }
 
         [Fact]
         public void PropertyEqualityTest()
         {
-            QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
+            QMachine<char> machine = QSL.Machine<char>();
 
-            QVariable<char> original = QVariable<char>.New('a')
+            var lnk = machine.Q();
+
+            QObject<char> original = lnk.Object
                 .AddProperty("int", 12)
                 .AddProperty("string", "some string")
                 .AddProperty("double", 12.5)
@@ -55,9 +55,11 @@ namespace qon.Tests.VariableTests
         [Fact]
         public void PropertyInequalityTest()
         {
-            QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
+            QMachine<char> machine = QSL.Machine<char>();
 
-            QVariable<char> original = QVariable<char>.New('a')
+            var lnk = machine.Q();
+
+            QObject<char> original = lnk.Object
                 .AddProperty("int", 12)
                 .AddProperty("string", "some string")
                 .AddProperty("double", 12.5)
@@ -75,14 +77,10 @@ namespace qon.Tests.VariableTests
         public void EuclideanLayerEqualityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
-            var stateLayer = EuclideanStateLayer<char>.GetOrCreate(machine.State);
-            stateLayer.UpdateSize(1,0,0);
 
-            QVariable<char> original = QVariable<char>.New('a');
-            EuclideanLayer<char>.GetOrCreate(original);
-            stateLayer.Coordinates[original.Id] = (0, 0, 0);
+            machine.GenerateField(null, (1, 1, 1));
 
-            original.Machine = machine;
+            var original = machine.At(0, 0, 0);
 
             var copy = original.Copy();
 
@@ -93,19 +91,11 @@ namespace qon.Tests.VariableTests
         public void EuclideanLayerInequalityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
-            var stateLayer = EuclideanStateLayer<char>.GetOrCreate(machine.State);
-            stateLayer.UpdateSize(2, 0, 0);
+            machine.GenerateField(null, (2, 1, 1));
 
-            QVariable<char> original = QVariable<char>.New('a');
-            EuclideanLayer<char>.GetOrCreate(original);
-            stateLayer.Coordinates[original.Id] = (0, 0, 0);
+            var original = machine.At(0, 0, 0);
 
-            original.Machine = machine;
-
-            var nonCopy = QVariable<char>.New('B');
-            EuclideanLayer<char>.GetOrCreate(nonCopy);
-            stateLayer.Coordinates[nonCopy.Id] = (1, 0, 0);
-
+            var nonCopy = machine.At(1, 0, 0);
 
             Assert.False(original == nonCopy);
         }

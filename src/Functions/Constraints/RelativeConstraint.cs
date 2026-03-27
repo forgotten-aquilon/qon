@@ -15,9 +15,9 @@ namespace qon.Functions.Constraints
     {
         protected QPredicate<TQ> Guard { get; set; }
         protected Propagator<TQ> Propagator { get; set; }
-        public Func<QVariable<TQ>, QPredicate<TQ>> AggregationFactory { get; set; }
+        public Func<QObject<TQ>, QPredicate<TQ>> AggregationFactory { get; set; }
 
-        public RelativeConstraint(QPredicate<TQ> guard, Propagator<TQ> propagator, Func<QVariable<TQ>, QPredicate<TQ>> aggregationFactory)
+        public RelativeConstraint(QPredicate<TQ> guard, Propagator<TQ> propagator, Func<QObject<TQ>, QPredicate<TQ>> aggregationFactory)
         {
             Guard = guard;
             Propagator = propagator;
@@ -26,11 +26,11 @@ namespace qon.Functions.Constraints
 
         public virtual Result Execute(Field<TQ> field)
         {
-            IEnumerable<QVariable<TQ>> anchoredVariables = field.Where(Guard.ApplyTo);
+            IEnumerable<QObject<TQ>> anchoredVariables = field.Where(Guard.ApplyTo);
 
-            HashSet<QVariable<TQ>> aggregation = new();
+            HashSet<QObject<TQ>> aggregation = new();
 
-            foreach (QVariable<TQ> anchor in anchoredVariables)
+            foreach (QObject<TQ> anchor in anchoredVariables)
             {
                 aggregation.UnionWith(field.Where(AggregationFactory(anchor).ApplyTo));
             }
@@ -38,7 +38,7 @@ namespace qon.Functions.Constraints
             return Propagator.ApplyTo(aggregation);
         }
 
-        public static Func<QVariable<TQ>, QPredicate<TQ>> WithLayer<TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TLayer : ILayer<TQ, QVariable<TQ>>
+        public static Func<QObject<TQ>, QPredicate<TQ>> WithLayer<TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TLayer : ILayer<TQ, QObject<TQ>>
         {
             return variable => predicate((TLayer)variable.LayerManager.GetLayer<TLayer>());
         }

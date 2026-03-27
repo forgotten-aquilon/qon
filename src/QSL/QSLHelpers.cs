@@ -251,7 +251,7 @@ namespace qon
 
         public static QLink<TQ> WithDomain<TQ>(this QLink<TQ> link, IDomain<TQ> domain) where TQ : notnull
         {
-            var d = DomainLayer<TQ>.GetOrCreate(link.Variable);
+            var d = DomainLayer<TQ>.GetOrCreate(link.Object);
             d.AssignDomain(domain);
 
             return link;
@@ -259,12 +259,12 @@ namespace qon
 
         public static QLink<TQ> WithValue<TQ>(this QLink<TQ> link, TQ value) where TQ : notnull
         {
-            link.Variable.Value = value;
+            link.Object.Value = value;
 
             return link;
         }
 
-        public static Action<QVariable<TQ>> WithDomain<TQ>(IDomain<TQ> domain) where TQ: notnull
+        public static Action<QObject<TQ>> WithDomain<TQ>(IDomain<TQ> domain) where TQ: notnull
         {
             return (variable) =>
             {

@@ -20,7 +20,7 @@ namespace qon.Functions.Mutations
                 _mutations = mutations;
             }
 
-            public void Mutate(List<QVariable<TQ>> variables)
+            public void Mutate(List<QObject<TQ>> variables)
             {
                 for (int i = 0; i < variables.Count; i++)
                 {
@@ -45,7 +45,7 @@ namespace qon.Functions.Mutations
                 _possibleValues = possibleValues.ToList();
             }
 
-            public void Mutate(List<QVariable<TQ>> variables)
+            public void Mutate(List<QObject<TQ>> variables)
             {
                 for (int i = 0; i < variables.Count; i++)
                 {

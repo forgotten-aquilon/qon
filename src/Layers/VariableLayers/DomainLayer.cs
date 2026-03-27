@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace qon.Layers.VariableLayers
 {
-    public class DomainLayer<TQ> : BaseLayer<TQ, DomainLayer<TQ>, QVariable<TQ>>, ILayer<TQ, QVariable<TQ>> where TQ : notnull
+    public class DomainLayer<TQ> : BaseLayer<TQ, DomainLayer<TQ>, QObject<TQ>>, ILayer<TQ, QObject<TQ>> where TQ : notnull
     {
         private IDomain<TQ> _domain;
 
@@ -125,9 +125,9 @@ namespace qon.Layers.VariableLayers
             _domain = domain;
         }
 
-        #region Overrides of BaseLayer<TQ,DomainLayer<TQ>,QVariable<TQ>>
+        #region Overrides of BaseLayer<TQ,DomainLayer<TQ>,QObject<TQ>>
 
-        public override ILayer<TQ, QVariable<TQ>> Copy()
+        public override ILayer<TQ, QObject<TQ>> Copy()
         {
             return new DomainLayer<TQ>(Domain.Copy())
             {
@@ -138,7 +138,7 @@ namespace qon.Layers.VariableLayers
         #endregion
 
         //TODO: Implement domain equality check
-        public override bool Equals(ILayer<TQ, QVariable<TQ>> other)
+        public override bool Equals(ILayer<TQ, QObject<TQ>> other)
         {
             return base.Equals(other);
         }

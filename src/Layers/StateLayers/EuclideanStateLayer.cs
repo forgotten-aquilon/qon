@@ -15,7 +15,7 @@ namespace qon.Layers.StateLayers
 
         public Dictionary<Guid, (int X, int Y, int Z)> Coordinates { get; private set; } = new();
 
-        public QVariable<TQ>? this[(int x, int y, int z) coordinate]
+        public QObject<TQ>? this[(int x, int y, int z) coordinate]
         {
             get
             {
@@ -33,7 +33,7 @@ namespace qon.Layers.StateLayers
             }
         }
 
-        public QVariable<TQ>? this[int x, int y, int z]
+        public QObject<TQ>? this[int x, int y, int z]
         {
             get
             {

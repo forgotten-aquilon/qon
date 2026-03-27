@@ -25,8 +25,11 @@ namespace Examples.Visual
             public const char WhitePixel = 'W';
             public const char GreyPixel = '_';
             public const char BluePixel = 'B';
+            public const char CyanPixel = 'C';
+            public const char YellowPixel = 'Y';
             public const char RedPixel = '*';
             public const char GreenPixel = 'G';
+            public const char DarkGreenPixel = 'F';
         }
 
         public static Raylib_cs.Color ResolveColor(char value)
@@ -37,8 +40,11 @@ namespace Examples.Visual
                 Pixel.WhitePixel => Raylib_cs.Color.White,
                 Pixel.GreyPixel => Raylib_cs.Color.Gray,
                 Pixel.BluePixel => Raylib_cs.Color.Blue,
+                Pixel.CyanPixel => new Raylib_cs.Color(88, 196, 221, 255),
+                Pixel.YellowPixel => new Raylib_cs.Color(232, 211, 125, 255),
                 Pixel.RedPixel => Raylib_cs.Color.Red,
                 Pixel.GreenPixel => Raylib_cs.Color.Green,
+                Pixel.DarkGreenPixel => new Raylib_cs.Color(37, 112, 74, 255),
                 _ => Raylib_cs.Color.Magenta
             };
         }

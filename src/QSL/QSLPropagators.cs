@@ -18,7 +18,7 @@ namespace qon
     {
         public static class Propagators
         {
-            public static Result AllDistinctPropagator<TQ>(IEnumerable<QVariable<TQ>> variables) where TQ : notnull
+            public static Result AllDistinctPropagator<TQ>(IEnumerable<QObject<TQ>> variables) where TQ : notnull
             {
                 int changes = 0;
                 var allVariables = variables.ToArray();

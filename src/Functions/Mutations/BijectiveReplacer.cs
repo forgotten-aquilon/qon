@@ -27,18 +27,18 @@ namespace qon.Functions.Mutations
 
         public override List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
-            List<List<QVariable<TQ>>> sequences = _searcher.Search(input);
+            List<List<QObject<TQ>>> sequences = _searcher.Search(input);
             List<Field<TQ>> samples = new List<Field<TQ>>();
 
-            foreach (List<QVariable<TQ>> sequence in sequences)
+            foreach (List<QObject<TQ>> sequence in sequences)
             {
                 Field<TQ> newField = input.ShallowCopy();
 
-                List<QVariable<TQ>> localSequence = new List<QVariable<TQ>>();
+                List<QObject<TQ>> localSequence = new List<QObject<TQ>>();
 
                 foreach (var mutationCandidate in sequence)
                 {
-                    QVariable<TQ> copy = mutationCandidate.Copy();
+                    QObject<TQ> copy = mutationCandidate.Copy();
                     newField[copy.Id] = copy;
                     localSequence.Add(copy);
                 }

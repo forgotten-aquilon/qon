@@ -2,7 +2,7 @@
 
 qon is a C# library for iterative backtracking-based problem solving. By default it provides functionality for constraint and genetic programming. Originally it was created as a base for implementation of the [Wave-Function Collapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm. Main idea for its usage is a procedural generation, but of course it can be applied for anything else.
 
-While developing I was additionally inspired by [MarkovJunior](github.com/mxgmn/MarkovJunior), another project of [Maxim Gumin](https://github.com/mxgmn/)(author of WFC), so I utilized some ideas from it. Besides my appreciation to both these projects and their author, I want to highlight that my goal is not to somehow compete or even replace them, but to create its own things. My library is very modular and tries to encompass several different approaches, which unfortunately leads to not-so-good performance — tools created for specific situations always will be better than jack-of-all-trades multitools.
+While developing I was additionally inspired by [MarkovJunior](https://github.com/mxgmn/MarkovJunior), another project of [Maxim Gumin](https://github.com/mxgmn/)(author of WFC), so I utilized some ideas from it. Besides my appreciation to both these projects and their author, I want to highlight that my goal is not to somehow compete or even replace them, but to create its own things. My library is very modular and tries to encompass several different approaches, which unfortunately leads to not-so-good performance — tools created for specific situations always will be better than jack-of-all-trades multitools.
 
 ## How to install
 

@@ -15,18 +15,14 @@ namespace qon.Tests.VariableTests.StateTests
         [Fact]
         public void DomainLayerEqualityTest()
         {
-            QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
+            QMachine<char> machine = QSL.Machine<char>();
 
-            QVariable<char> original = QVariable<char>.New('a');
+            var lnk = machine.Q().WithDomain(new DiscreteDomain<char>('a', 'b', 'c'));
 
-            DomainLayer<char> layer = DomainLayer<char>.GetOrCreate(original);
-            layer.AssignDomain(new DiscreteDomain<char>('a', 'b', 'c'));
 
-            original.Machine = machine;
+            var copy = lnk.Object.Copy();
 
-            var copy = original.Copy();
-
-            Assert.True(original == copy);
+            Assert.True(lnk.Object == copy);
         }
     }
 }

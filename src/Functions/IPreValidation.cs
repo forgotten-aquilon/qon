@@ -11,6 +11,6 @@ namespace qon.Functions
 {
     public interface IPreValidation<TQ> where TQ : notnull
     {
-        public PreValidationResult Execute(QVariable<TQ>[] field, QMachine<TQ>? machine = null);
+        public PreValidationResult Execute(QObject<TQ>[] field, QMachine<TQ>? machine = null);
     }
 }

@@ -45,7 +45,7 @@ namespace qon
             return this;
         }
 
-        public QSLMutationParameterBuilder<TQ> Into(Action<QVariable<TQ>> mutationFunction)
+        public QSLMutationParameterBuilder<TQ> Into(Action<QObject<TQ>> mutationFunction)
         {
             _mutation = new VariableMutation<TQ>(mutationFunction);
             return this;

@@ -70,7 +70,7 @@ namespace Examples.Visual
             {
                 SolverInit = QSL.DefaultSolver<char>(new()
                 {
-                    BackTrackingEnabled = false,
+                    BackTrackingEnabled = true,
                 })
             })
             .WithMutation(new MutationLayerParameter<char>

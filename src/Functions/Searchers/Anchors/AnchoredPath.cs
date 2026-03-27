@@ -8,21 +8,21 @@ namespace qon.Functions.Searchers.Anchors
 {
     public class AnchoredPath<TQ> where TQ : notnull
     {
-        public List<QVariable<TQ>> FixedPath { get; set; } = new List<QVariable<TQ>>();
-        public List<QVariable<TQ>> AlternativeEnds { get; set; } = new List<QVariable<TQ>>();
+        public List<QObject<TQ>> FixedPath { get; set; } = new List<QObject<TQ>>();
+        public List<QObject<TQ>> AlternativeEnds { get; set; } = new List<QObject<TQ>>();
 
-        private AnchoredPath(List<QVariable<TQ>> fixedPath, QVariable<TQ> end)
+        private AnchoredPath(List<QObject<TQ>> fixedPath, QObject<TQ> end)
         {
-            FixedPath = new List<QVariable<TQ>>(fixedPath);
+            FixedPath = new List<QObject<TQ>>(fixedPath);
             FixedPath.Add(end);
         }
 
-        public AnchoredPath(QVariable<TQ> initialValue)
+        public AnchoredPath(QObject<TQ> initialValue)
         {
             FixedPath.Add(initialValue);
         }
 
-        public AnchoredPath(QVariable<TQ>[] list)
+        public AnchoredPath(QObject<TQ>[] list)
         {
             AlternativeEnds = list.ToList();
         }
@@ -32,7 +32,7 @@ namespace qon.Functions.Searchers.Anchors
             AlternativeEnds = AlternativeEnds.Where(predicate.ApplyTo).ToList();
         }
 
-        public void Update(QVariable<TQ>[] ends)
+        public void Update(QObject<TQ>[] ends)
         {
             if (!AlternativeEnds.Any())
             {
@@ -42,7 +42,7 @@ namespace qon.Functions.Searchers.Anchors
             AlternativeEnds = ends.Where(e => !FixedPath.Contains(e)).ToList();
         }
 
-        public List<AnchoredPath<TQ>> Normalize(QVariable<TQ>[] field)
+        public List<AnchoredPath<TQ>> Normalize(QObject<TQ>[] field)
         {
             List<AnchoredPath<TQ>> result = new List<AnchoredPath<TQ>>();
 
