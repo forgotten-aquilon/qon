@@ -9,12 +9,11 @@ using qon.Variables;
 
 namespace qon.Functions.Constraints
 {
-    //TODO: Rename
-    public class ConstraintBuilder<TQ> : IPreparation<TQ> where TQ : notnull
+    public class CustomConstraint<TQ> : IPreparation<TQ> where TQ : notnull
     {
         public Func<QObject<TQ>[], Result> Constraint { get; }
 
-        public ConstraintBuilder(Func<QObject<TQ>[], Result> constraint)
+        public CustomConstraint(Func<QObject<TQ>[], Result> constraint)
         {
             Constraint = constraint;
         }

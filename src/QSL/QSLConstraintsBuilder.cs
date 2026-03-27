@@ -125,7 +125,7 @@ namespace qon
         {
             if (_customExecutor is not null)
             {
-                return new ConstraintBuilder<TQ>(_customExecutor);
+                return new CustomConstraint<TQ>(_customExecutor);
             }
 
             if (_bindingConstraint is not null)
@@ -159,7 +159,7 @@ namespace qon
             if (_guard is not null && _neighbourAggregation is not null)
             {
                 ExceptionHelper.ThrowIfFieldIsNull(_propagator);
-                return new RelativeConstraint<TQ>(_guard, _propagator!, _neighbourAggregation);
+                return new RelativeConstraint<TQ>(_guard, _propagator, _neighbourAggregation);
             }
 
             throw new InternalLogicException("Insufficient data to build constraint. Specify grouping/selecting or guard with neighbourhood details.");

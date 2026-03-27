@@ -1,14 +1,15 @@
 ﻿using qon.Exceptions;
 using qon.Functions;
-using qon.Functions.Propagators;
 using qon.Functions.Constraints;
 using qon.Functions.Filters;
+using qon.Functions.Propagators;
 using qon.Layers;
 using qon.Layers.StateLayers;
+using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.Variables;
 using System;
-using qon.Layers.VariableLayers;
+using System.Runtime.CompilerServices;
 
 namespace qon
 {
@@ -26,7 +27,6 @@ namespace qon
         {
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
-            //TODO: Propagators.Propagators????
             return variable => MooreFilter<TQ>.CreateParameter(variable)
                 .Then(Propagators.ToMoore(parameter));
         }
@@ -43,6 +43,7 @@ namespace qon
             {
                 var flayer = EuclideanLayer<TQ>.With(variable);
 
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 bool Aggregation(QObject<TQ> newObject)
                 {
                     var slayer = EuclideanLayer<TQ>.With(newObject);

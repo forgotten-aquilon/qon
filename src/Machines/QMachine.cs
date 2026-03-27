@@ -118,7 +118,6 @@ namespace qon.Machines
             @object.Machine = this;
             @object.IdResolver = () => id;
 
-
             Status = MachineStateType.Ready;
         }
 
