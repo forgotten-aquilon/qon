@@ -1,28 +1,58 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: .NET
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
+    tags: ["v*"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: 8.0.x
+  PROJECT_PATH: src/qon.csproj
+  TEST_PROJECT_PATH: Test/qon.Tests.csproj
+  CONFIGURATION: Release
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore qon.sln
+
+      - name: Build
+        run: dotnet build qon.sln --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Test
+        run: dotnet test ${{ env.TEST_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+
+  publish:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build package project
+        run: dotnet build ${{ env.PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Publish to NuGet.org
+        run: dotnet nuget push "./src/bin/${{ env.CONFIGURATION }}/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
