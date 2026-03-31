@@ -25,7 +25,7 @@ namespace Examples
                     MutationFunction = CreateMutation(),
                     Fitness = _ => random.Next()
                 })
-                .GenerateField(new DiscreteDomain<char>('@', '.'), (GridSize, GridSize, 1), '.');
+                .GenerateField((GridSize, GridSize, 1), new DiscreteDomain<char>('@', '.'), '.');
 
             var center = GridSize / 2;
             machine.At(center, center, 0).Value = '@';

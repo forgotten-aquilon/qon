@@ -131,7 +131,7 @@ namespace Examples.Visual
             {
                 GeneralConstraints = CreateTerrainConstraints()
             })
-            .GenerateField(domain, (Width, Height, 1));
+            .GenerateField((Width, Height, 1), domain);
 
             CollapseBorder(machine);
             SeedBiomeAnchors(machine);

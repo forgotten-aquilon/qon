@@ -69,7 +69,7 @@ namespace Examples
                 {
                     GeneralConstraints = mazeRules
                 })
-                .GenerateField(d, (25, 25, 1));
+                .GenerateField((25, 25, 1), d);
 
             foreach (var state in machine.States)
             {

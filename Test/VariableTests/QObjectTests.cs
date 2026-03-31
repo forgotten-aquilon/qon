@@ -78,7 +78,7 @@ namespace qon.Tests.VariableTests
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
-            machine.GenerateField(null, (1, 1, 1));
+            machine.GenerateField((1, 1, 1));
 
             var original = machine.At(0, 0, 0);
 
@@ -91,7 +91,7 @@ namespace qon.Tests.VariableTests
         public void EuclideanLayerInequalityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
-            machine.GenerateField(null, (2, 1, 1));
+            machine.GenerateField((2, 1, 1));
 
             var original = machine.At(0, 0, 0);
 

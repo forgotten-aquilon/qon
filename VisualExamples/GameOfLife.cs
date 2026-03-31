@@ -111,7 +111,7 @@ namespace Examples.Visual
                 .Build(),
                 Fitness = _ => random.Next()
             })
-            .GenerateField(null, (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.WhitePixel));
+            .GenerateField((Settings.GridSize, Settings.GridSize, 1), Pixel.WhitePixel);
 
             var center = Settings.GridSize / 2;
 

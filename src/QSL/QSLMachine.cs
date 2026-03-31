@@ -49,9 +49,11 @@ namespace qon
             return machine;
         }
 
-        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ>? domain, (int x, int y, int z) dimensions, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
+        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, (int x, int y, int z) dimensions, IDomain<TQ>? domain = null, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
         {
             List<QObject<TQ>> variables = new();
+
+            ExceptionHelper.ThrowIfPredicateTrue(dimensions, d => d.x < 1 || d.y < 1 || d.z < 1);
 
             if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
             {
@@ -84,14 +86,16 @@ namespace qon
 
                         layer.FieldGrid[x, y, z] = newObject.Id;
                         layer.Coordinates[newObject.Id] = (x, y, z);
-                        //variables.Add(newObject);
                     }
                 }
             }
 
-            //machine.InitializeField(variables);
-
             return machine;
+        }
+
+        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, (int x, int y, int z) dimensions, Optional<TQ> defaultValue) where TQ : notnull
+        {
+            return machine.GenerateField(dimensions, null, defaultValue);
         }
     }
 }

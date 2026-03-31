@@ -33,7 +33,7 @@ namespace Examples.Visual
                 })
             });
 
-            machine.GenerateField(null, (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.WhitePixel));
+            machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Pixel.WhitePixel);
 
             SeedInitialForest(machine.State, random);
 

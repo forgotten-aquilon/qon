@@ -37,7 +37,7 @@ namespace Examples
                             .Build(),
                     }
                 })
-                .GenerateField(domain, (9, 9, 1));
+                .GenerateField((9, 9, 1), domain);
 
             SeedField(machine);
 

@@ -34,7 +34,7 @@ namespace Examples
                             .Build(),
                     }
                 })
-                .GenerateField(numericalDomain, (4, 4, 1));
+                .GenerateField((4, 4, 1), numericalDomain);
 
             machine.At(0, 0, 0).Collapse(1, true);
 
