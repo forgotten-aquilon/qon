@@ -14,7 +14,7 @@ namespace qon.Tests
         public void BasicEqualityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
-            machine.GenerateField(new DiscreteDomain<char>('a', 'b'), (3, 3, 3));
+            machine.GenerateField((3, 3, 3), new DiscreteDomain<char>('a', 'b'));
 
             var original = machine.Solver.Current.Field;
 

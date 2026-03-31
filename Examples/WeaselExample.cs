@@ -17,10 +17,6 @@ namespace Examples
     {
         public static void Run()
         {
-            var domain = DomainHelper.SymbolicalDomain(new DomainHelper.CharDomainOptions()
-                    .WithAlphabet('A', 'Z')
-                    .WithOtherSymbols(' '));
-
             var target = "ME THINKS IT IS LIKE A WEASEL";
 
             var machine = QSL.Machine<char>()
@@ -36,7 +32,7 @@ namespace Examples
                         .Build(),
                     Fitness = (field) => Score(field, target)
                 })
-                .GenerateField(domain, (29, 1, 1), 'A');
+                .GenerateField((target.Length, 1, 1), 'A');
 
             foreach (var state in machine.States)
             {

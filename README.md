@@ -1,22 +1,31 @@
 <h1 align="center">「qon」</h1>
 
-qon is a C# library for iterative backtracking-based problem solving. By default it provides functionality for constraint and genetic programming. Originally it was created as a base for implementation of the [Wave-Function Collapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm. Main idea for its usage is a procedural generation, but of course it can be applied for anything else.
+[![NuGet](https://img.shields.io/nuget/v/qon.svg)](https://www.nuget.org/packages/qon/)
+
+「qon」 is aт Open Source C# library for iterative backtracking-based problem solving. 
+
+## What it is, what it isn't and what it can become
+
+**Application:**「qon」 provides API for solving tasks defined by a finite set of variables and rules, how these variables should be evaluated, changed, validated and etc. 
+Originally it was created as a base for implementation of the [Wave-Function Collapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm. Later I decided to implement more generic system.
+Despite that main focus of this library is the procedural generation, which means some kinds of tasks are not optimized at all. For example, any math or logic-kind tasks, such as [SEND+MORE=MONEY](https://github.com/forgotten-aquilon/qon/blob/master/Examples/SendMoreMoneyExample.cs), are solvable by 「qon」, but it can take a lot of time.
+
+**Functionality:** Out-of-the-box 「qon」provides functionality to solve tasks using constraint and/or genetic approach.
+
+**Opennes:** Whole library heavily utilizes Interfaces and is designed in such way, you can swap and reimplement almost all of provided classes.
+
+**Aim:** I develop 「qon」with Unity3D in mind, so I'm bound by available runtime. Until Unity embraces CoreCLR in its LTS version I'll not go beyond alpha state for the library. What I want to implement for beta at least: 
+
+- [ ] Proper Numerical Domains utilizing INumber&lt;T&gt;
+- [ ] User-side heuristics for optimization fine-tuning
+- [ ] Support for hexagonal spaces
+- [ ] Feature rich QSL
 
 While developing I was additionally inspired by [MarkovJunior](https://github.com/mxgmn/MarkovJunior), another project of [Maxim Gumin](https://github.com/mxgmn/)(author of WFC), so I utilized some ideas from it. Besides my appreciation to both these projects and their author, I want to highlight that my goal is not to somehow compete or even replace them, but to create its own things. My library is very modular and tries to encompass several different approaches, which unfortunately leads to not-so-good performance — tools created for specific situations always will be better than jack-of-all-trades multitools.
+    
+## Usage examples
 
-## How to install
-
-This library was created for usage in Unity3D but also doesn't have any specific dependencies, so it can be used anywhere you can run C# code.
-
-Unity3D still does not embraced CoreCLR **=>** it means it doesn't support the latest .NET versions **=>** therefore the latest C# versions, so I decided to target .NET 5.0 with a later update to a more relevant version in mind. At least until I create a proper stable version I don't want to manage nuget package, so if you want to use it, just download the project and copy [/src](https://github.com/forgotten-aquilon/qon/tree/master/src) project into your app folder and user **qon** namespace.
-
-## How to use
-
-I suggest to check the [Wiki](https://github.com/forgotten-aquilon/qon/wiki) to see all documentation, including all examples being explained line-by-line. Couple of specific examples you find below.
-
-### Usage examples
-
-#### Simplest Example. Generates 4 variables with different `char` values
+### Simplest Example. Generates 4 variables with different `char` values
 
 ```csharp
 var domain = DomainHelper.SymbolicalDomain(
@@ -44,7 +53,7 @@ foreach (var state in machine.States)
 
 
 
-#### Weasel genetic algorithm
+### Weasel genetic algorithm
 
 [Weasel program - Wikipedia](https://en.wikipedia.org/wiki/Weasel_program)
 
@@ -107,14 +116,14 @@ string FormatState(MachineState<char> state)
 
 I consider myself as a mild pro-ai person. I think AI (even LLMs) can be used on a par with other tools. But they should be used **only** with full transparency and its results should be treated with a caution.
 
-How different Ai instruments were used while developing this library:
+How different AI instruments were used while developing this library:
 
 - Core project
   
   0. All code which is pushed to GitHub repository was manually written by me.
-  1. In most cases I used Codex to review my code and to find bugs. It did a pretty good job. It was not asked to produce fixes, only to find particular issues and maybe suggest what can be done. At the end it was me, who wrote fixes.
+  1. In most cases I used Codex to review my code and to find bugs. It did a pretty good job. It was not asked to produce fixes, only to find particular issues and maybe suggest what can be done. At the end it was me, who wrote these fixes.
   2. In some cases I asked it to write some dummy code, which allowed me to focus on other parts. Later all AI-generated code was manually rewritten. 
-     1. For example, when I was rewriting [V1](https://github.com/forgotten-aquilon/qon/tree/V1) version I started 3 times from the scratch, because supposed changes were too big to implement at once, so I used Codex to do some fixes all across the project to let it be able to be compiled at least, then I focused on some particular things and rewrote everything.
+     1. For example, when I was rewriting [V1](https://github.com/forgotten-aquilon/qon/tree/V1) version I started 3 times from the scratch, because supposed changes were too big to implement at once, so I used Codex to do some fixes all across the project to let it be compiled at least, then I focused on some particular things and rewrote everything.
      2. Another example, when I was playing with [Rotation support](https://github.com/forgotten-aquilon/qon/blob/master/src/Functions/Constraints/EuclideanRotationHelper.cs) I was not sure about how to implement it, so I described the algorithm and asked Codex to produce the code. This code worked as a proof-of-concept for me, so I rewrote it on my own.
 
 - Examples
@@ -123,7 +132,7 @@ How different Ai instruments were used while developing this library:
 
 - Tests
   
-  - Writing tests is not my strong suit, so almost all of it was generated. By I tried to make this process as meaningful as possible. I manually pick some places to be tested, additionally asked AI to find everything else, what should be tested. Split it into separate classes for testing and only then asked Codex to generate tests. I manually checked all tests and fixed some issues. Also I use some tools like dotCover to help me with tests.
+  - Writing tests is not my strong suit, so most of them are generated. By I tried to make this process as meaningful as possible: I manually pick pieces of code to be tested, ask AI to search project for use cases of this functionality in my code, then I ask to generate tests covering existing functionality and deduce missing conditions, which should be tested to. Also I use some tools like dotCover to help me with tests.
 
 - Documentation and wiki
   

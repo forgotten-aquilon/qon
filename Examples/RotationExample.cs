@@ -58,7 +58,7 @@ namespace Examples
                 {
                     GeneralConstraints = rotationRules
                 })
-                .GenerateField(new DiscreteDomain<EuclideanBlock<string>>(domain), (size, size, 1));
+                .GenerateField((size, size, 1), new DiscreteDomain<EuclideanBlock<string>>(domain));
 
             int i = 0;
             foreach (var state in machine.States)

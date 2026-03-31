@@ -142,7 +142,7 @@ namespace Examples.Visual
             {
                 GeneralConstraints = CreateFortressConstraints()
             })
-            .GenerateField(domain, (Width, Height, 1));
+            .GenerateField((Width, Height, 1), domain);
 
             SeedKeep(machine);
             SeedTowers(machine);

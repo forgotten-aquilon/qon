@@ -73,7 +73,7 @@ namespace Examples.Visual
                 })
             });
 
-            machine.GenerateField(null, (Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
+            machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
 
             var center = Settings.GridSize / 2;
             var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];

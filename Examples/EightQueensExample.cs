@@ -42,7 +42,7 @@ namespace Examples
                             .Build(),
                     }
                 })
-                .GenerateField(domain, (8, 8, 1));
+                .GenerateField((8, 8, 1), domain);
 
 
             foreach (var state in machine.States)
