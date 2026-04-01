@@ -73,12 +73,6 @@ namespace qon.QSL
             return new QPredicate<TQ>(v => v.State != ValueState.Uncertain && v.Value.CheckValue(value));
         }
 
-        public static QPredicate<TQ> MooreFilter<TQ>(Func<QObject<TQ>[], bool> func) where TQ : notnull
-        {
-            var moore = new MooreFilter<TQ>() as IChain<QObject<TQ>, QObject<TQ>[]>;
-            return new QPredicate<TQ>(v => func(moore.ApplyTo(v)));
-        }
-
         public static QPredicate<TQ> FieldFilter<TQ>(Func<Field<TQ>, bool> func) where TQ : notnull
         {
             return new QPredicate<TQ>(v =>
@@ -86,29 +80,6 @@ namespace qon.QSL
                 var field = v.Machine.Solver.Current.Field;
                 return func(field);
             });
-        }
-    }
-
-    public static class EuclideanFilters
-    {
-        public static Filter<TQ> GroupByRectangle<TQ>(int width, int height) where TQ : notnull
-        {
-            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => $"{l.X / width}x{l.Y / height}");
-        }
-
-        public static Filter<TQ> GroupByX<TQ>() where TQ : notnull
-        {
-            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.X);
-        }
-
-        public static Filter<TQ> GroupByY<TQ>() where TQ : notnull
-        {
-            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.Y);
-        }
-
-        public static Filter<TQ> GroupByZ<TQ>() where TQ : notnull
-        {
-            return Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.Z);
         }
     }
 }

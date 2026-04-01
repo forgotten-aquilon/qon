@@ -20,7 +20,7 @@ namespace qon.QSL
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
             return variable => VonNeumannFilter<TQ>.CreateParameter(variable)
-                .Then(Propagators.ToVonNeumann(parameter));
+                .Then(EuclideanPropagators.ToVonNeumann(parameter));
         }
 
         public static Func<QObject<TQ>, Result> Moore<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull
@@ -28,7 +28,7 @@ namespace qon.QSL
             ExceptionHelper.ThrowIfArgumentIsNull(parameter, nameof(parameter));
 
             return variable => MooreFilter<TQ>.CreateParameter(variable)
-                .Then(Propagators.ToMoore(parameter));
+                .Then(EuclideanPropagators.ToMoore(parameter));
         }
 
         public static Func<QObject<TQ>, QPredicate<TQ>> OnLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull

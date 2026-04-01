@@ -12,10 +12,5 @@ namespace qon.QSL
         {
             return DomainLayer<TQ>.On(obj);
         }
-
-        public static EuclideanLayer<TQ> OnEuclideanLayer<TQ>(this QObject<TQ> obj) where TQ : notnull
-        {
-            return EuclideanLayer<TQ>.On(obj);
-        }
     }
 }

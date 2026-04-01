@@ -49,7 +49,7 @@ namespace Examples.Visual
                         .Build())
                     .AddMutation(Mutations.Mutation<char>()
                         .Frequency(1.0)
-                        .When(Filters.EqualsToValue(Pixel.GreenPixel) & Filters.MooreFilter<char>(neighbors =>
+                        .When(Filters.EqualsToValue(Pixel.GreenPixel) & EuclideanFilters.MooreFilter<char>(neighbors =>
                             neighbors.Any(Filters.EqualsToValue(Pixel.RedPixel).ApplyTo)))
                         .Into(Mutations.ToValue<char>(Pixel.RedPixel))
                         .Build())
