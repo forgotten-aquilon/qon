@@ -11,7 +11,6 @@ on:
 env:
   DOTNET_VERSION: 8.0.x
   TEST_PROJECT_PATH: Test/qon.Tests.csproj
-  PACKAGE_PROJECT_PATH: src/qon.csproj
   SPATIAL_PROJECT_PATH: qon.Spatial/qon.Spatial.csproj
   PACKAGE_OUTPUT_ROOT: ./artifacts/nuget
   CONFIGURATION: Release
@@ -54,14 +53,11 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore qon.sln
 
-      - name: Pack qon
-        run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore --output ${{ env.PACKAGE_OUTPUT_ROOT }}/qon
-
-      - name: Pack qon.Spatial
-        run: dotnet pack ${{ env.SPATIAL_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore --output ${{ env.PACKAGE_OUTPUT_ROOT }}/qon.Spatial
+      - name: Pack qon and qon.Spatial
+        run: dotnet pack ${{ env.SPATIAL_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore --output ${{ env.PACKAGE_OUTPUT_ROOT }}
 
       - name: Publish qon to NuGet.org
-        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/qon/qon.[0-9]*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
+        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/qon.[0-9]*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
 
       - name: Publish qon.Spatial to NuGet.org
-        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/qon.Spatial/qon.Spatial.[0-9]*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
+        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/qon.Spatial.[0-9]*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate

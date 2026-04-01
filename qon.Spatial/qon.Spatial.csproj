@@ -9,6 +9,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>9</LangVersion>
     <PackageId>qon.Spatial</PackageId>
+    <Description>Additional functionality for working with spatial-based tasks. Support for Cartesian coordinate system</Description>
     <RepositoryUrl>https://github.com/forgotten-aquilon/qon</RepositoryUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
