@@ -12,9 +12,9 @@ using qon.Machines;
 using qon.Variables;
 using qon.Variables.Domains;
 
-namespace qon
+namespace qon.QSL
 {
-    public static partial class QSL
+    public static partial class Helpers
     {
         #region Collection Extensions
 
@@ -257,20 +257,20 @@ namespace qon
             return link;
         }
 
-        public static QLink<TQ> WithValue<TQ>(this QLink<TQ> link, TQ value) where TQ : notnull
-        {
-            link.Object.Value = value;
-
-            return link;
-        }
-
-        public static Action<QObject<TQ>> WithDomain<TQ>(IDomain<TQ> domain) where TQ: notnull
+        public static Action<QObject<TQ>> WithDomain<TQ>(IDomain<TQ> domain) where TQ : notnull
         {
             return (variable) =>
             {
                 var d = DomainLayer<TQ>.GetOrCreate(variable);
                 d.AssignDomain(domain);
             };
+        }
+
+        public static QLink<TQ> WithValue<TQ>(this QLink<TQ> link, TQ value) where TQ : notnull
+        {
+            link.Object.Value = value;
+
+            return link;
         }
 
         #endregion

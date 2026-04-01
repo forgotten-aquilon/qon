@@ -153,7 +153,7 @@ namespace qon.Variables.Domains
 
         public static int DomainIntersectionWithHashSet(QObject<TQ> @object, HashSet<TQ> values)
         {
-            var layer = DomainLayer<TQ>.With(@object);
+            var layer = DomainLayer<TQ>.On(@object);
             var domain = layer.GetDomain();
 
             var result = TryGetHashSetIntersection(domain, out var handler) 
@@ -193,7 +193,7 @@ namespace qon.Variables.Domains
                 }
             }
 
-            var targetLayer = DomainLayer<TQ>.With(@object);
+            var targetLayer = DomainLayer<TQ>.On(@object);
 
             if (filtered.Count == 0)
             {

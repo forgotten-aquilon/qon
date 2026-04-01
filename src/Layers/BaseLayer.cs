@@ -67,7 +67,7 @@ namespace qon.Layers
         /// <param name="holder"></param>
         /// <returns></returns>
         /// <exception cref="InternalNullException"></exception>
-        public static TSelf With(THolder holder)
+        public static TSelf On(THolder holder)
         {
             holder.LayerManager.TryGetLayer<TSelf>(out var layer);
 

@@ -21,7 +21,7 @@ namespace qon.Functions.Propagators
                 return result;
             }
 
-            return input.Any(x => x.State == ValueState.Uncertain && DomainLayer<TQ>.With(x).IsEmpty())
+            return input.Any(x => x.State == ValueState.Uncertain && DomainLayer<TQ>.On(x).IsEmpty())
                 ? Result.HasErrors()
                 : result;
         }

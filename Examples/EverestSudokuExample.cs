@@ -5,6 +5,7 @@ using qon.Functions.Propagators;
 using qon.Machines;
 using System;
 using System.Threading.Tasks;
+using qon.QSL;
 using qon.Variables.Domains;
 
 namespace Examples
@@ -15,7 +16,7 @@ namespace Examples
         {
             var domain = DomainHelper.SimpleNumericalDomain(1, 9);
 
-            var machine = QSL.Machine<int>(new QMachineParameter<int>
+            var machine = QMachine<int>.Create(new QMachineParameter<int>
                 {
                     Random = new Random(2222)
                 })
@@ -23,17 +24,17 @@ namespace Examples
                 {
                     GeneralConstraints = new()
                     {
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByRectangle<int>(3, 3))
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(CartesianFilters.GroupByRectangle<int>(3, 3))
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByX<int>())
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(CartesianFilters.GroupByX<int>())
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByY<int>())
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(CartesianFilters.GroupByY<int>())
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
                     }
                 })

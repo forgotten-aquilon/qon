@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using qon.QSL;
 
 namespace qon.Tests.VariableTests.StateTests
 {
@@ -15,7 +16,7 @@ namespace qon.Tests.VariableTests.StateTests
         [Fact]
         public void DomainLayerEqualityTest()
         {
-            QMachine<char> machine = QSL.Machine<char>();
+            QMachine<char> machine = QMachine<char>.Create();
 
             var lnk = machine.Q().WithDomain(new DiscreteDomain<char>('a', 'b', 'c'));
 

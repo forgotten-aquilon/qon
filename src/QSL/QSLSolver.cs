@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace qon
+namespace qon.QSL
 {
-    public static partial class QSL
+    public static partial class QSLSolver
     {
         public static Func<QMachine<TQ>, ISolver<TQ>> DefaultSolver<TQ>(DefaultSolver<TQ>.SolverParameter parameter) where TQ: notnull
         {

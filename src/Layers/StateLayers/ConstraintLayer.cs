@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using qon.Exceptions;
+using qon.QSL;
 using qon.Solvers;
 
 namespace qon.Layers.StateLayers
@@ -68,7 +69,7 @@ namespace qon.Layers.StateLayers
         {
             foreach (var variable in field.Variables)
             {
-                if (DomainLayer<TQ>.With(variable).IsEmpty() && variable.State == ValueState.Uncertain)
+                if (DomainLayer<TQ>.On(variable).IsEmpty() && variable.State == ValueState.Uncertain)
                     return PreValidationResult.InvalidState;
 
                 if (variable.State == ValueState.Uncertain)
@@ -101,7 +102,7 @@ namespace qon.Layers.StateLayers
                 }
 
                 //TODO: add caching for domain entropy
-                DomainLayer<TQ> domain = DomainLayer<TQ>.With(variable);
+                DomainLayer<TQ> domain = DomainLayer<TQ>.On(variable);
                 double potentialEntropy = domain.Entropy;
 
                 if (potentialEntropy < entropy)
@@ -113,7 +114,7 @@ namespace qon.Layers.StateLayers
 
             ExceptionHelper.ThrowIfInternalValueIsNull(candidate, nameof(candidate));
 
-            DomainLayer<TQ> domainLayer = DomainLayer<TQ>.With(candidate);
+            DomainLayer<TQ> domainLayer = DomainLayer<TQ>.On(candidate);
             TQ value = domainLayer.GetRandomValue(currentField.Machine.Random);
 
             Collapse(candidate, value);
@@ -122,7 +123,7 @@ namespace qon.Layers.StateLayers
             {
                 QObject<TQ> previousCandidate = previousField[candidate.Name];
 
-                DomainLayer<TQ>.With(previousCandidate).RemoveValue(value);
+                DomainLayer<TQ>.On(previousCandidate).RemoveValue(value);
             }
         }
 
@@ -141,12 +142,12 @@ namespace qon.Layers.StateLayers
 
         public static void Collapse(QObject<TQ> @object, TQ value, bool isConstant = false)
         {
-            DomainLayer<TQ>.With(@object).Collapse(value, isConstant);
+            DomainLayer<TQ>.On(@object).Collapse(value, isConstant);
         }
 
         public static Optional<TQ> TryCollapseVariable(QObject<TQ> @object)
         {
-            var layer = DomainLayer<TQ>.With(@object);
+            var layer = DomainLayer<TQ>.On(@object);
             var value = layer.SingleOrEmptyValue();
 
             if (value.HasValue)

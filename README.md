@@ -29,15 +29,15 @@ While developing I was additionally inspired by [MarkovJunior](https://github.co
 
 ```csharp
 var domain = DomainHelper.SymbolicalDomain(
-                new DomainHelper.CharDomainOptions()
-                    .WithAlphabet('a', 'j'));
+    new DomainHelper.CharDomainOptions()
+        .WithAlphabet('a', 'j'));
 
-var machine = QSL.Machine<char>()
-    .WithConstraint(new()
+var machine = QMachine<char>.Create()
+    .WithConstraintLayer(new()
     {
         GeneralConstraints = new()
         {
-            QSL.CreateConstraint<char>()
+            Constraints.CreateConstraint<char>()
                 .Select(Filters.All<char>())
                 .Propagate(Propagators.AllDistinct<char>())
                 .Build()
@@ -60,26 +60,22 @@ foreach (var state in machine.States)
 [Evolutionary algorithm - Rosetta Code](https://rosettacode.org/wiki/Evolutionary_algorithm)
 
 ```csharp
-var domain = DomainHelper.SymbolicalDomain(new DomainHelper.CharDomainOptions()
-        .WithAlphabet('A', 'Z')
-        .WithOtherSymbols(' '));
-
 var target = "ME THINKS IT IS LIKE A WEASEL";
 
-var machine = QSL.Machine<char>()
+var machine = QMachine<char>.Create()
     .WithMutation(new MutationLayerParameter<char>
     {
-        MutationFunction = QSL.CreateMutation<char>()
+        MutationFunction = Mutations.CreateMutation<char>()
             .Sampling(100)
-            .AddMutation(QSL.Mutation<char>()
+            .AddMutation(Mutations.Mutation<char>()
                 .Frequency(0.1)
                 .When(Filters.All<char>())
-                .Into(Mutations<char>.RandomFromDomain)
+                .Into(Mutations.RandomFromDomain<char>())
                 .Build())
             .Build(),
         Fitness = (field) => Score(field, target)
     })
-    .GenerateField(domain, (29, 1, 1), 'A');
+    .GenerateField((target.Length, 1, 1), 'A');
 
 foreach (var state in machine.States)
 {

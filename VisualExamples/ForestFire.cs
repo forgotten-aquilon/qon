@@ -4,6 +4,7 @@ using qon.Functions.Mutations;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables;
 using Raylib_cs;
@@ -24,10 +25,10 @@ namespace Examples.Visual
 
         private static QMachine<char> CreateMachine(Random random)
         {
-            var machine = QSL.Machine<char>(new()
+            var machine = QMachine<char>.Create(new()
             {
                 Random = random,
-                SolverInit = QSL.DefaultSolver<char>(new()
+                SolverInit = QSLSolver.DefaultSolver<char>(new()
                 {
                     BackTrackingEnabled = false,
                 })
@@ -39,29 +40,29 @@ namespace Examples.Visual
 
             MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
             {
-                MutationFunction = QSL.CreateMutation<char>()
+                MutationFunction = Mutations.CreateMutation<char>()
                     .Sampling(1)
-                    .AddMutation(QSL.Mutation<char>()
+                    .AddMutation(Mutations.Mutation<char>()
                         .Frequency(1.0)
-                        .When(QSL.Filters.EqualsToValue(Pixel.RedPixel))
-                        .Into(QSL.Mutations<char>.ToValue(Pixel.WhitePixel))
+                        .When(Filters.EqualsToValue(Pixel.RedPixel))
+                        .Into(Mutations.ToValue<char>(Pixel.WhitePixel))
                         .Build())
-                    .AddMutation(QSL.Mutation<char>()
+                    .AddMutation(Mutations.Mutation<char>()
                         .Frequency(1.0)
-                        .When(QSL.Filters.EqualsToValue(Pixel.GreenPixel) & QSL.Filters.MooreFilter<char>(neighbors =>
-                            neighbors.Any(QSL.Filters.EqualsToValue(Pixel.RedPixel).ApplyTo)))
-                        .Into(QSL.Mutations<char>.ToValue(Pixel.RedPixel))
+                        .When(Filters.EqualsToValue(Pixel.GreenPixel) & CartesianFilters.MooreFilter<char>(neighbors =>
+                            neighbors.Any(Filters.EqualsToValue(Pixel.RedPixel).ApplyTo)))
+                        .Into(Mutations.ToValue<char>(Pixel.RedPixel))
                         .Build())
-                    .AddMutation(QSL.Mutation<char>()
+                    .AddMutation(Mutations.Mutation<char>()
                         .Frequency(0.0006)
-                        .When(QSL.Filters.EqualsToValue(Pixel.GreenPixel))
-                        .WhenField(f => f.Count(QSL.Filters.EqualsToValue(Pixel.RedPixel).ApplyTo) == 0)
-                        .Into(QSL.Mutations<char>.ToValue(Pixel.RedPixel))
+                        .When(Filters.EqualsToValue(Pixel.GreenPixel))
+                        .WhenField(f => f.Count(Filters.EqualsToValue(Pixel.RedPixel).ApplyTo) == 0)
+                        .Into(Mutations.ToValue<char>(Pixel.RedPixel))
                         .Build())
-                    .AddMutation(QSL.Mutation<char>()
+                    .AddMutation(Mutations.Mutation<char>()
                         .Frequency(0.02)
-                        .When(QSL.Filters.EqualsToValue(Pixel.WhitePixel))
-                        .Into(QSL.Mutations<char>.ToValue(Pixel.GreenPixel))
+                        .When(Filters.EqualsToValue(Pixel.WhitePixel))
+                        .Into(Mutations.ToValue<char>(Pixel.GreenPixel))
                         .Build())
                     .Build(),
                 Fitness = _ => random.Next(),
@@ -72,7 +73,7 @@ namespace Examples.Visual
 
         private static void SeedInitialForest(MachineState<char> state, Random random)
         {
-            var layer = EuclideanStateLayer<char>.With(state);
+            var layer = CartesianStateLayer<char>.On(state);
 
             for (int y = 0; y < Settings.GridSize; y++)
             {

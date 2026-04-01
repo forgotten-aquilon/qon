@@ -6,46 +6,46 @@ using qon.Functions.Mutations;
 using qon.Machines;
 using qon.Variables;
 
-namespace qon
+namespace qon.QSL
 {
-    public class QSLMutationParameterBuilder<TQ> where TQ : notnull
+    public class MutationParameterBuilder<TQ> where TQ : notnull
     {
         private QPredicate<TQ>? _guard;
         private double _frequency = 1.0;
         private VariableMutation<TQ>? _mutation;
         private Func<Field<TQ>, bool>? _fieldCheck;
 
-        public QSLMutationParameterBuilder<TQ> When(QPredicate<TQ> guard)
+        public MutationParameterBuilder<TQ> When(QPredicate<TQ> guard)
         {
             _guard = guard;
             return this;
         }
 
-        public QSLMutationParameterBuilder<TQ> WhenField(Func<Field<TQ>, bool> condition)
+        public MutationParameterBuilder<TQ> WhenField(Func<Field<TQ>, bool> condition)
         {
             _fieldCheck = condition;
             return this;
         }
 
-        public QSLMutationParameterBuilder<TQ> Frequency(double frequency)
+        public MutationParameterBuilder<TQ> Frequency(double frequency)
         {
             _frequency = frequency;
             return this;
         }
 
-        public QSLMutationParameterBuilder<TQ> Into(VariableMutation<TQ> mutation)
+        public MutationParameterBuilder<TQ> Into(VariableMutation<TQ> mutation)
         {
             _mutation = mutation;
             return this;
         }
 
-        public QSLMutationParameterBuilder<TQ> Into(TQ mutationValue)
+        public MutationParameterBuilder<TQ> Into(TQ mutationValue)
         {
             _mutation = VariableMutation<TQ>.FromValue(mutationValue);
             return this;
         }
 
-        public QSLMutationParameterBuilder<TQ> Into(Action<QObject<TQ>> mutationFunction)
+        public MutationParameterBuilder<TQ> Into(Action<QObject<TQ>> mutationFunction)
         {
             _mutation = new VariableMutation<TQ>(mutationFunction);
             return this;

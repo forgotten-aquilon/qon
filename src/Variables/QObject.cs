@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using qon.Layers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 
 namespace qon.Variables
 {
@@ -60,6 +61,7 @@ namespace qon.Variables
         /// </summary>
         public Optional<TQ> Value { get; set; } = Optional<TQ>.Empty;
 
+        //TODO: Move to the DomainLayer
         /// <summary>
         /// State of the @object
         /// </summary>

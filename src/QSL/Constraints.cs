@@ -2,19 +2,14 @@
 using qon.Layers.StateLayers;
 using qon.Machines;
 using qon.Variables;
-using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Text;
-using qon.Functions.Filters;
 
-namespace qon
+namespace qon.QSL
 {
-    public static partial class QSL
+    public static class Constraints
     {
-        public static QSLConstraintsBuilder<TQ> CreateConstraint<TQ>() where TQ : notnull
+        public static ConstraintsBuilder<TQ> CreateConstraint<TQ>() where TQ : notnull
         {
-            return new QSLConstraintsBuilder<TQ>();
+            return new ConstraintsBuilder<TQ>();
         }
 
         public static QMachine<TQ> WithConstraintLayer<TQ>(this QMachine<TQ> machine, ConstraintLayerParameter<TQ> parameter) where TQ : notnull

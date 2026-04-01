@@ -7,6 +7,7 @@ using qon.Functions.Searchers.Anchors;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Variables;
 using qon.Variables.Domains;
 
@@ -19,7 +20,7 @@ namespace Examples
         public static void Run()
         {
             var random = new Random(42);
-            var machine = QSL.Machine<char>(new QMachineParameter<char> { Random = random })
+            var machine = QMachine<char>.Create(new QMachineParameter<char> { Random = random })
                 .WithMutation(new MutationLayerParameter<char>
                 {
                     MutationFunction = CreateMutation(),
@@ -43,8 +44,8 @@ namespace Examples
         {
             var anchors = new List<IAnchor<char>>
             {
-                Anchors.VNA(QSL.Filters.EqualsToValue('@')),
-                Anchors.VNA(QSL.Filters.EqualsToValue('.'))
+                Anchors.VNA(Filters.EqualsToValue('@')),
+                Anchors.VNA(Filters.EqualsToValue('.'))
             };
 
             return new BijectiveReplacer<char>(

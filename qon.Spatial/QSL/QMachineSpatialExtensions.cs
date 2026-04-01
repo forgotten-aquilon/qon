@@ -9,46 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace qon
+namespace qon.QSL
 {
-    public static partial class QSL
+    public static class QMachineSpatialExtensions
     {
-        public static QMachine<TQ> Machine<TQ>(QMachineParameter<TQ>? parameter = null) where TQ : notnull
-        {
-            return new QMachine<TQ>(parameter.NewOrExisting());
-        }
-
-        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, int count) where TQ : notnull
-        {
-            var field = new List<QObject<TQ>>();
-            for (int i = 0; i < count; i++)
-            {
-                var variable = QObject<TQ>.Empty();
-                DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(domain);
-                //field.Add(variable);
-
-                machine.AddToField(variable);
-            }
-            //machine.InitializeField(field);
-
-            return machine;
-        }
-
-        public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, IEnumerable<string> names) where TQ : notnull
-        {
-            var field = new List<QObject<TQ>>();
-            foreach (var name in names)
-            {
-                var variable = QObject<TQ>.Empty(name);
-                DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(domain);
-                //field.Add(variable);
-                machine.AddToField(variable);
-            }
-            //machine.InitializeField(field);
-
-            return machine;
-        }
-
         public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, (int x, int y, int z) dimensions, IDomain<TQ>? domain = null, Optional<TQ> defaultValue = new Optional<TQ>()) where TQ : notnull
         {
             List<QObject<TQ>> variables = new();
@@ -60,7 +24,7 @@ namespace qon
                 throw new InternalLogicException("Dimension can't be a non-positive number");
             }
 
-            var layer = EuclideanStateLayer<TQ>.GetOrCreate(machine.State);
+            var layer = CartesianStateLayer<TQ>.GetOrCreate(machine.State);
             layer.UpdateSize(dimensions.x, dimensions.y, dimensions.z);
 
             for (int z = 0; z < dimensions.z; z++)
@@ -82,7 +46,7 @@ namespace qon
                             DomainLayer<TQ>.GetOrCreate(newObject).AssignDomain(d);
                         }
 
-                        EuclideanLayer<TQ>.GetOrCreate(newObject);
+                        CartesianLayer<TQ>.GetOrCreate(newObject);
 
                         layer.FieldGrid[x, y, z] = newObject.Id;
                         layer.Coordinates[newObject.Id] = (x, y, z);

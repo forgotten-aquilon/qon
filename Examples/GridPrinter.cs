@@ -3,6 +3,7 @@ using System.Linq;
 using qon;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Variables;
 
 namespace Examples

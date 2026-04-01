@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\qon.Spatial\qon.Spatial.csproj" />
     <ProjectReference Include="..\src\qon.csproj" />
   </ItemGroup>
 

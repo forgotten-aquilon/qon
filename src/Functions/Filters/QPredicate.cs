@@ -2,6 +2,7 @@
 using qon.Functions;
 using qon.Helpers;
 using qon.Layers;
+using qon.QSL;
 using qon.Variables;
 
 namespace qon.Functions.Filters
@@ -50,6 +51,11 @@ namespace qon.Functions.Filters
         public static implicit operator QPredicate<TQ>(Optional<TQ> value)
         {
             return new QPredicate<TQ>(variable => variable.Value == value);
+        }
+
+        public static implicit operator QPredicate<TQ>(Func<QObject<TQ>, bool> func)
+        {
+            return new QPredicate<TQ>(func);
         }
     }
 }
