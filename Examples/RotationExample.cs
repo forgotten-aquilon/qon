@@ -16,50 +16,50 @@ namespace Examples
     {
         public static void Run(int size)
         {
-            EuclideanBlockTemplate<string> tileGrassCube = new("Tile_Grass_cube");
+            CartesianBlockTemplate<string> tileGrassCube = new("Tile_Grass_cube");
             tileGrassCube.Add(Level.Middle, Side.Left, "Open");
             tileGrassCube.Add(Level.Middle, Side.Front, "Open");
             tileGrassCube.Add(Level.Middle, Side.Right, "Open");
             tileGrassCube.Add(Level.Middle, Side.Back, "Open");
 
-            EuclideanBlockTemplate<string> cliffCornerInside = new("Cliff_corner_inside");
+            CartesianBlockTemplate<string> cliffCornerInside = new("Cliff_corner_inside");
             cliffCornerInside.Add(Level.Middle, Side.Left, "Open");
             cliffCornerInside.Add(Level.Middle, Side.Front, "Open");
             cliffCornerInside.Add(Level.Middle, Side.Right, "Closed");
             cliffCornerInside.Add(Level.Middle, Side.Back, "Closed");
 
-            EuclideanBlockTemplate<string> cliffCornerOutside = new("Cliff_Corner_outside");
+            CartesianBlockTemplate<string> cliffCornerOutside = new("Cliff_Corner_outside");
             cliffCornerOutside.Add(Level.Middle, Side.Left, "Closed");
             cliffCornerOutside.Add(Level.Middle, Side.Front, "Closed");
             cliffCornerOutside.Add(Level.Middle, Side.Right, "Open");
             cliffCornerOutside.Add(Level.Middle, Side.Back, "Open");
 
-            var blocks = EuclideanRotationHelper.GenerateConnections<string>(new List<EuclideanBlockTemplate<string>>
+            var blocks = CartesianRotationHelper.GenerateConnections<string>(new List<CartesianBlockTemplate<string>>
             {
                 tileGrassCube,
                 cliffCornerInside,
                 cliffCornerOutside
             });
 
-            List<EuclideanBlock<string>> domain = new();
-            List<IPreparation<EuclideanBlock<string>>> rotationRules = new();
+            List<CartesianBlock<string>> domain = new();
+            List<IPreparation<CartesianBlock<string>>> rotationRules = new();
 
             foreach (var block in blocks)
             {
                 domain.Add(block.Key);
                 rotationRules.Add(
-                    Constraints.CreateConstraint<EuclideanBlock<string>>()
+                    Constraints.CreateConstraint<CartesianBlock<string>>()
                         .When(Filters.EqualsToValue(block.Key))
-                        .Where(Euclidean.VonNeumann(block.Value))
+                        .Where(Cartesian.VonNeumann(block.Value))
                         .Build());
             }
 
-            var machine = QMachine<EuclideanBlock<string>>.Create(new QMachineParameter<EuclideanBlock<string>>() { Random = new Random(100) })
+            var machine = QMachine<CartesianBlock<string>>.Create(new QMachineParameter<CartesianBlock<string>>() { Random = new Random(100) })
                 .WithConstraintLayer(new()
                 {
                     GeneralConstraints = rotationRules
                 })
-                .GenerateField((size, size, 1), new DiscreteDomain<EuclideanBlock<string>>(domain));
+                .GenerateField((size, size, 1), new DiscreteDomain<CartesianBlock<string>>(domain));
 
             int i = 0;
             foreach (var state in machine.States)

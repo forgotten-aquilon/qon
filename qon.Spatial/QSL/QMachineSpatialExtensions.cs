@@ -24,7 +24,7 @@ namespace qon.QSL
                 throw new InternalLogicException("Dimension can't be a non-positive number");
             }
 
-            var layer = EuclideanStateLayer<TQ>.GetOrCreate(machine.State);
+            var layer = CartesianStateLayer<TQ>.GetOrCreate(machine.State);
             layer.UpdateSize(dimensions.x, dimensions.y, dimensions.z);
 
             for (int z = 0; z < dimensions.z; z++)
@@ -46,7 +46,7 @@ namespace qon.QSL
                             DomainLayer<TQ>.GetOrCreate(newObject).AssignDomain(d);
                         }
 
-                        EuclideanLayer<TQ>.GetOrCreate(newObject);
+                        CartesianLayer<TQ>.GetOrCreate(newObject);
 
                         layer.FieldGrid[x, y, z] = newObject.Id;
                         layer.Coordinates[newObject.Id] = (x, y, z);

@@ -26,15 +26,15 @@ namespace Examples
                     GeneralConstraints = new()
                     {
                         Constraints.CreateConstraint<int>()
-                            .GroupBy(EuclideanFilters.GroupByRectangle<int>(3, 3))
+                            .GroupBy(CartesianFilters.GroupByRectangle<int>(3, 3))
                             .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
                         Constraints.CreateConstraint<int>()
-                            .GroupBy(EuclideanFilters.GroupByX<int>())
+                            .GroupBy(CartesianFilters.GroupByX<int>())
                             .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
                         Constraints.CreateConstraint<int>()
-                            .GroupBy(EuclideanFilters.GroupByY<int>())
+                            .GroupBy(CartesianFilters.GroupByY<int>())
                             .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
                     }

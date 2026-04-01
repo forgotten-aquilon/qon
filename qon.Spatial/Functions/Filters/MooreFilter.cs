@@ -90,14 +90,14 @@ namespace qon.Functions.Filters
     {
         public static MooreParameter<TQ> CreateParameter(QObject<TQ> input)
         {
-            var layer = EuclideanLayer<TQ>.On(input);
+            var layer = CartesianLayer<TQ>.On(input);
 
             var machine = layer.Machine;
 
-            var stateLayer = EuclideanStateLayer<TQ>.On(machine.State);
+            var stateLayer = CartesianStateLayer<TQ>.On(machine.State);
 
 
-            //TODO: Refactor this into separate euclidean layer
+            //TODO: Refactor this into separate Cartesian layer
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             QObject<TQ>? GetNeighbor(int dx, int dy, int dz)
             {

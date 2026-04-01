@@ -9,9 +9,9 @@ using System.Text;
 
 namespace qon.QSL
 {
-    public static class EuclideanPropagators
+    public static class CartesianPropagators
     {
-        public static DefaultPropagator<VonNeumannParameter<TQ>> ToVonNeumann<TQ>(EuclideanConstraintParameter<TQ> param) where TQ : notnull
+        public static DefaultPropagator<VonNeumannParameter<TQ>> ToVonNeumann<TQ>(CartesianConstraintParameter<TQ> param) where TQ : notnull
         {
             return new DefaultPropagator<VonNeumannParameter<TQ>>(vnp =>
             {
@@ -81,7 +81,7 @@ namespace qon.QSL
             });
         }
 
-        public static DefaultPropagator<MooreParameter<TQ>> ToMoore<TQ>(EuclideanConstraintParameter<TQ> param) where TQ : notnull
+        public static DefaultPropagator<MooreParameter<TQ>> ToMoore<TQ>(CartesianConstraintParameter<TQ> param) where TQ : notnull
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             bool TryReduce(in Result result, ref int changes)

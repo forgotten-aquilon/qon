@@ -154,7 +154,7 @@ namespace Examples.Visual
 
         private static void DrawTerrain(MachineState<char> state)
         {
-            var layer = EuclideanStateLayer<char>.On(state);
+            var layer = CartesianStateLayer<char>.On(state);
 
             for (int y = 0; y < Height; y++)
             {
@@ -195,7 +195,7 @@ namespace Examples.Visual
 
             return Constraints.CreateConstraint<char>()
                 .When(Filters.EqualsToValue(tile))
-                .Where(Euclidean.VonNeumann(new EuclideanConstraintParameter<char>
+                .Where(Cartesian.VonNeumann(new CartesianConstraintParameter<char>
                 {
                     CenterLevel =
                     {
@@ -225,7 +225,7 @@ namespace Examples.Visual
                             continue;
                         }
 
-                        var layer = EuclideanLayer<char>.On(variable);
+                        var layer = CartesianLayer<char>.On(variable);
                         var ring = Math.Max(Math.Abs(layer.X - centerX), Math.Abs(layer.Y - centerY));
 
                         var allowedTiles = ring switch

@@ -32,11 +32,11 @@ namespace Examples
                         //TODO: Add new QSL functions for layers
                         Constraints.CreateConstraint<char>()
                             .When(Filters.EqualsToValue('Q'))
-                            //.Where(Euclidean.OnLayer<char>((l1, l2) => l1.X == l2.X || l1.Y == l2.Y || Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y)))
+                            //.Where(Cartesian.OnLayer<char>((l1, l2) => l1.X == l2.X || l1.Y == l2.Y || Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y)))
                             .Where(v1 => new QPredicate<char>(v2 =>
                             {
-                                var v1e = v1.OnEuclideanLayer();
-                                var v2e = v2.OnEuclideanLayer();
+                                var v1e = v1.Cartesian();
+                                var v2e = v2.Cartesian();
 
                                 return v1e.X == v2e.X || v1e.Y == v2e.Y || Math.Abs(v1e.X - v2e.X) == Math.Abs(v1e.Y - v2e.Y);
                             }))

@@ -114,7 +114,7 @@ namespace qon.Functions.Constraints
         }
     }
 
-    public sealed class EuclideanBlockTemplate<TQ> where TQ : notnull
+    public sealed class CartesianBlockTemplate<TQ> where TQ : notnull
     {
         public TQ Value { get; }
 
@@ -124,7 +124,7 @@ namespace qon.Functions.Constraints
         public Dictionary<Level, LevelHandler> Levels { get; }
         public Dictionary<Slab, List<VerticalConnection>> VerticalPools { get; }
 
-        public EuclideanBlockTemplate(TQ value, Rotations rotations, bool selfConnection = true)
+        public CartesianBlockTemplate(TQ value, Rotations rotations, bool selfConnection = true)
         {
             Value = value;
 
@@ -146,53 +146,53 @@ namespace qon.Functions.Constraints
             Rotations = rotations;
         }
 
-        public EuclideanBlockTemplate(TQ value, bool selfConnection = true) : this(value, new Rotations(), selfConnection) { }
+        public CartesianBlockTemplate(TQ value, bool selfConnection = true) : this(value, new Rotations(), selfConnection) { }
 
-        public EuclideanBlockTemplate<TQ> Add(Level level, Side side, string connName, ConnectionDirection dir = ConnectionDirection.Both)
+        public CartesianBlockTemplate<TQ> Add(Level level, Side side, string connName, ConnectionDirection dir = ConnectionDirection.Both)
         {
             Levels[level].Pools[side].Add(new SideConnection(connName, dir));
             return this;
         }
 
-        public EuclideanBlockTemplate<TQ> Add(Level level, Corner corner, string connName, ConnectionDirection dir = ConnectionDirection.Both)
+        public CartesianBlockTemplate<TQ> Add(Level level, Corner corner, string connName, ConnectionDirection dir = ConnectionDirection.Both)
         {
             Levels[level].CornerPools[corner].Add(new CornerConnection(connName, dir));
             return this;
         }
 
-        public EuclideanBlockTemplate<TQ> Add(Slab slab, string connName, ConnectionDirection dir = ConnectionDirection.Both)
+        public CartesianBlockTemplate<TQ> Add(Slab slab, string connName, ConnectionDirection dir = ConnectionDirection.Both)
         {
             VerticalPools[slab].Add(new VerticalConnection(connName, dir));
             return this;
         }
 
-        public EuclideanBlock<TQ> ToEuclideanBlock(int rot)
+        public CartesianBlock<TQ> ToCartesianBlock(int rot)
         {
-            return new EuclideanBlock<TQ>(Value, rot);
+            return new CartesianBlock<TQ>(Value, rot);
         }
     }
 
-    public struct EuclideanBlock<TQ> where TQ : notnull
+    public struct CartesianBlock<TQ> where TQ : notnull
     {
         public TQ Value { private set; get; }
         public int Rotation { private set; get; }
 
-        public EuclideanBlock(TQ value, int rotation)
+        public CartesianBlock(TQ value, int rotation)
         {
             Value = value;
             Rotation = rotation;
         }
     }
 
-    public static class EuclideanRotationHelper
+    public static class CartesianRotationHelper
     {
-        public static Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> GenerateConnections<TQ>(List<EuclideanBlockTemplate<TQ>> blocks)
+        public static Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> GenerateConnections<TQ>(List<CartesianBlockTemplate<TQ>> blocks)
             where TQ : notnull
         {
-            Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> parameters = new();
+            Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> parameters = new();
 
-            EuclideanBlockTemplate<TQ> block1;
-            EuclideanBlockTemplate<TQ> block2;
+            CartesianBlockTemplate<TQ> block1;
+            CartesianBlockTemplate<TQ> block2;
 
             //Iterating first block of T value
             for (int b1 = 0; b1 < blocks.Count; b1++)
@@ -218,7 +218,7 @@ namespace qon.Functions.Constraints
                         foreach (var rot2 in block2.Rotations)
                         {
                             //Checking all horizontal levels of cubic connections
-                            foreach (var level in EuclideanExtensions.Levels)
+                            foreach (var level in CartesianExtensions.Levels)
                             {
                                 CheckSideCompatibility(parameters, level, (block1, rot1), (block2, rot2));
                                 CheckCornerCompatibility(parameters, level, (block1, rot1), (block2, rot2));
@@ -234,21 +234,21 @@ namespace qon.Functions.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckSideCompatibility<TQ>(Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> parameters, Level level,
-            (EuclideanBlockTemplate<TQ> block, int rot) item1, (EuclideanBlockTemplate<TQ> block, int rot) item2)
+        private static void CheckSideCompatibility<TQ>(Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> parameters, Level level,
+            (CartesianBlockTemplate<TQ> block, int rot) item1, (CartesianBlockTemplate<TQ> block, int rot) item2)
             where TQ : notnull
         {
             //Iterating over opposite sides of both blocks
             //"side" is the side of the first block
-            foreach (Side side in EuclideanExtensions.Sides)
+            foreach (Side side in CartesianExtensions.Sides)
             {
                 CheckSideConnection(parameters, level, side, item1, item2);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckSideConnection<TQ>(Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> parameters, Level level, Side side, 
-            (EuclideanBlockTemplate<TQ> block, int rot) item1, (EuclideanBlockTemplate<TQ> block, int rot) item2)
+        private static void CheckSideConnection<TQ>(Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> parameters, Level level, Side side, 
+            (CartesianBlockTemplate<TQ> block, int rot) item1, (CartesianBlockTemplate<TQ> block, int rot) item2)
             where TQ : notnull
         {
             //"oppositeSide" is the side of the second block, which can be potentially connected to the side of the first block
@@ -264,13 +264,13 @@ namespace qon.Functions.Constraints
                 {
                     if (conn1.Name == conn2.Name && IsDirectionsCompatible(conn1.Dir, conn2.Dir))
                     {
-                        EuclideanBlock<TQ> keyBlock1 = item1.block.ToEuclideanBlock(item1.rot);
-                        EuclideanBlock<TQ> keyBlock2 = item2.block.ToEuclideanBlock(item2.rot);
+                        CartesianBlock<TQ> keyBlock1 = item1.block.ToCartesianBlock(item1.rot);
+                        CartesianBlock<TQ> keyBlock2 = item2.block.ToCartesianBlock(item2.rot);
 
-                        EuclideanConstraintParameter<EuclideanBlock<TQ>> r1 = parameters.TryGetOrCreate(keyBlock1);
+                        CartesianConstraintParameter<CartesianBlock<TQ>> r1 = parameters.TryGetOrCreate(keyBlock1);
                         r1[level][side].Add(keyBlock2);
 
-                        EuclideanConstraintParameter<EuclideanBlock<TQ>> r2 = parameters.TryGetOrCreate(keyBlock2);
+                        CartesianConstraintParameter<CartesianBlock<TQ>> r2 = parameters.TryGetOrCreate(keyBlock2);
                         r2[level][oppositeSide].Add(keyBlock1);
                     }
                 }
@@ -278,21 +278,21 @@ namespace qon.Functions.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckCornerCompatibility<TQ>(Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> parameters, Level level,
-            (EuclideanBlockTemplate<TQ> block, int rot) item1, (EuclideanBlockTemplate<TQ> block, int rot) item2)
+        private static void CheckCornerCompatibility<TQ>(Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> parameters, Level level,
+            (CartesianBlockTemplate<TQ> block, int rot) item1, (CartesianBlockTemplate<TQ> block, int rot) item2)
             where TQ : notnull
         {
             //Iterating over opposite corners of both blocks
             //"corner" is the corner of the first block
-            foreach (Corner corner in EuclideanExtensions.Corners)
+            foreach (Corner corner in CartesianExtensions.Corners)
             {
                 CheckCornerConnection(parameters, level, corner, item1, item2);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckCornerConnection<TQ>(Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> parameters, Level level, Corner corner,
-            (EuclideanBlockTemplate<TQ> block, int rot) item1, (EuclideanBlockTemplate<TQ> block, int rot) item2)
+        private static void CheckCornerConnection<TQ>(Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> parameters, Level level, Corner corner,
+            (CartesianBlockTemplate<TQ> block, int rot) item1, (CartesianBlockTemplate<TQ> block, int rot) item2)
             where TQ : notnull
         {
             //"oppositeCorner" is the corner of the second block, which can be potentially connected to the corner of the first block
@@ -308,13 +308,13 @@ namespace qon.Functions.Constraints
                 {
                     if (corn1.Name == corn2.Name && IsDirectionsCompatible(corn1.Dir, corn2.Dir))
                     {
-                        EuclideanBlock<TQ> keyBlock1 = item1.block.ToEuclideanBlock(item1.rot);
-                        EuclideanBlock<TQ> keyBlock2 = item2.block.ToEuclideanBlock(item2.rot);
+                        CartesianBlock<TQ> keyBlock1 = item1.block.ToCartesianBlock(item1.rot);
+                        CartesianBlock<TQ> keyBlock2 = item2.block.ToCartesianBlock(item2.rot);
 
-                        EuclideanConstraintParameter<EuclideanBlock<TQ>> r1 = parameters.TryGetOrCreate(keyBlock1);
+                        CartesianConstraintParameter<CartesianBlock<TQ>> r1 = parameters.TryGetOrCreate(keyBlock1);
                         r1[level][corner].Add(keyBlock2);
 
-                        EuclideanConstraintParameter<EuclideanBlock<TQ>> r2 = parameters.TryGetOrCreate(keyBlock2);
+                        CartesianConstraintParameter<CartesianBlock<TQ>> r2 = parameters.TryGetOrCreate(keyBlock2);
                         r2[level][oppositeCorner].Add(keyBlock1);
                     }
                 }
@@ -322,19 +322,19 @@ namespace qon.Functions.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckVerticalCompatibility<TQ>(Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> parameters, 
-            (EuclideanBlockTemplate<TQ> block, int rot) item1, (EuclideanBlockTemplate<TQ> block, int rot) item2)
+        private static void CheckVerticalCompatibility<TQ>(Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> parameters, 
+            (CartesianBlockTemplate<TQ> block, int rot) item1, (CartesianBlockTemplate<TQ> block, int rot) item2)
             where TQ : notnull
         {
-            foreach (Slab slab in EuclideanExtensions.Slabs)
+            foreach (Slab slab in CartesianExtensions.Slabs)
             {
                 CheckVerticalConnection(parameters, slab, item1, item2);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckVerticalConnection<TQ>(Dictionary<EuclideanBlock<TQ>, EuclideanConstraintParameter<EuclideanBlock<TQ>>> parameters, Slab slab,
-            (EuclideanBlockTemplate<TQ> block, int rot) item1, (EuclideanBlockTemplate<TQ> block, int rot) item2)
+        private static void CheckVerticalConnection<TQ>(Dictionary<CartesianBlock<TQ>, CartesianConstraintParameter<CartesianBlock<TQ>>> parameters, Slab slab,
+            (CartesianBlockTemplate<TQ> block, int rot) item1, (CartesianBlockTemplate<TQ> block, int rot) item2)
             where TQ : notnull
         {
             int rotationDifference = item1.rot - item2.rot;
@@ -351,13 +351,13 @@ namespace qon.Functions.Constraints
                         && IsRotationsCompatible(vConn1.Rotations, vConn2.Rotations, rotationDifference)
                         && IsRotationsCompatible(vConn2.Rotations, vConn1.Rotations, -rotationDifference))
                     {
-                        EuclideanBlock<TQ> keyBlock1 = item1.block.ToEuclideanBlock(item1.rot);
-                        EuclideanBlock<TQ> keyBlock2 = item2.block.ToEuclideanBlock(item2.rot);
+                        CartesianBlock<TQ> keyBlock1 = item1.block.ToCartesianBlock(item1.rot);
+                        CartesianBlock<TQ> keyBlock2 = item2.block.ToCartesianBlock(item2.rot);
 
-                        EuclideanConstraintParameter<EuclideanBlock<TQ>> r1 = parameters.TryGetOrCreate(item1.block.ToEuclideanBlock(item1.rot));
+                        CartesianConstraintParameter<CartesianBlock<TQ>> r1 = parameters.TryGetOrCreate(item1.block.ToCartesianBlock(item1.rot));
                         r1[slab].Add(keyBlock2);
 
-                        EuclideanConstraintParameter<EuclideanBlock<TQ>> r2 = parameters.TryGetOrCreate(keyBlock2);
+                        CartesianConstraintParameter<CartesianBlock<TQ>> r2 = parameters.TryGetOrCreate(keyBlock2);
                         r2[oppositeSlab].Add(keyBlock1);
                     }
                 }
@@ -365,11 +365,11 @@ namespace qon.Functions.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Dictionary<Side, List<SideConnection>> RotateSides<TQ>(EuclideanBlockTemplate<TQ> b, int rot, Level level)
+        private static Dictionary<Side, List<SideConnection>> RotateSides<TQ>(CartesianBlockTemplate<TQ> b, int rot, Level level)
             where TQ : notnull
         {
             var d = new Dictionary<Side, List<SideConnection>>(4);
-            foreach (Side s in EuclideanExtensions.Sides)
+            foreach (Side s in CartesianExtensions.Sides)
                 d[s] = new List<SideConnection>(b.Levels[level].Pools[s.Rotate(4 - rot)]);   
                                                                            
                                                                            
@@ -377,11 +377,11 @@ namespace qon.Functions.Constraints
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Dictionary<Corner, List<CornerConnection>> RotateCorners<TQ>(EuclideanBlockTemplate<TQ> b, int rot, Level level)
+        private static Dictionary<Corner, List<CornerConnection>> RotateCorners<TQ>(CartesianBlockTemplate<TQ> b, int rot, Level level)
             where TQ : notnull
         {
             var d = new Dictionary<Corner, List<CornerConnection>>(4);
-            foreach (Corner c in EuclideanExtensions.Corners)
+            foreach (Corner c in CartesianExtensions.Corners)
                 d[c] = new List<CornerConnection>(b.Levels[level].CornerPools[c.Rotate(4 - rot)]);
 
 
@@ -409,7 +409,7 @@ namespace qon.Functions.Constraints
         }
     }
 
-    public static class EuclideanExtensions
+    public static class CartesianExtensions
     {
         public static List<Level> Levels { get; } = QSL.Helpers.ToList<Level>();
 

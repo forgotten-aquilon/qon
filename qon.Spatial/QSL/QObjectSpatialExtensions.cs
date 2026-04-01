@@ -8,9 +8,9 @@ namespace qon.QSL
 {
     public static class QObjectSpatialExtensions
     {
-        public static EuclideanLayer<TQ> OnEuclideanLayer<TQ>(this QObject<TQ> obj) where TQ : notnull
+        public static CartesianLayer<TQ> Cartesian<TQ>(this QObject<TQ> obj) where TQ : notnull
         {
-            return EuclideanLayer<TQ>.On(obj);
+            return CartesianLayer<TQ>.On(obj);
         }
     }
 }

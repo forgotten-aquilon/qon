@@ -75,7 +75,7 @@ namespace qon.Tests.VariableTests
         }
 
         [Fact]
-        public void EuclideanLayerEqualityTest()
+        public void CartesianLayerEqualityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
 
@@ -89,7 +89,7 @@ namespace qon.Tests.VariableTests
         }
 
         [Fact]
-        public void EuclideanLayerInequalityTest()
+        public void CartesianLayerInequalityTest()
         {
             QMachine<char> machine = new QMachine<char>(new QMachineParameter<char>());
             machine.GenerateField((2, 1, 1));

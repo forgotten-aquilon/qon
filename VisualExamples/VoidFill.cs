@@ -77,14 +77,14 @@ namespace Examples.Visual
             machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
 
             var center = Settings.GridSize / 2;
-            var centerVariable = EuclideanStateLayer<char>.On(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
+            var centerVariable = CartesianStateLayer<char>.On(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
 
             if (centerVariable is not null)
             {
                 centerVariable.Value = Optional<char>.Of(Pixel.RedPixel);
             }
 
-            var endVariable = EuclideanStateLayer<char>.On(machine.State)[(0, 0, 0)];
+            var endVariable = CartesianStateLayer<char>.On(machine.State)[(0, 0, 0)];
 
             if (endVariable is not null)
             {
@@ -94,12 +94,12 @@ namespace Examples.Visual
             MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
             {
                 MutationFunction = new FallbackMutation<char>(
-                    new EuclideanReplacer<char>(
-                        EuclideanReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.GreenPixel),
-                        EuclideanReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel)),
-                    new EuclideanReplacer<char>(
-                        EuclideanReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.BlackPixel),
-                        EuclideanReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel))),
+                    new CartesianReplacer<char>(
+                        CartesianReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.GreenPixel),
+                        CartesianReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel)),
+                    new CartesianReplacer<char>(
+                        CartesianReplacer<char>.CreatePatternFrom(Pixel.RedPixel, Pixel.BlackPixel, Pixel.BlackPixel),
+                        CartesianReplacer<char>.CreateMutationFrom(Pixel.WhitePixel, Pixel.WhitePixel, Pixel.RedPixel))),
                 Fitness = field =>
                 {
                     var v = field.FirstOrDefault(x => x.Value.CheckValue(Pixel.GreenPixel));

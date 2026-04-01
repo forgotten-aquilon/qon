@@ -53,7 +53,7 @@ namespace Examples.Visual
 
         public static void DrawField(MachineState<char> state, int xSize, int ySize)
         {
-            var layer = EuclideanStateLayer<char>.On(state);
+            var layer = CartesianStateLayer<char>.On(state);
 
             for (int y = 0; y < ySize; y++)
             {
@@ -70,7 +70,7 @@ namespace Examples.Visual
 
         private static void DrawField(MachineState<char> state)
         {
-            var layer = EuclideanStateLayer<char>.On(state);
+            var layer = CartesianStateLayer<char>.On(state);
 
             for (int y = 0; y < Settings.GridSize; y++)
             {

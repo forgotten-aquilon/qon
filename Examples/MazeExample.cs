@@ -42,7 +42,7 @@ namespace Examples
             {
                 return Constraints.CreateConstraint<string>()
                     .When(Filters.EqualsToValue(tile))
-                    .Where(Euclidean.VonNeumann(new EuclideanConstraintParameter<string>()
+                    .Where(Cartesian.VonNeumann(new CartesianConstraintParameter<string>()
                     {
                         CenterLevel = { Left = left, Right = right, Front = front, Back = back },
                     }))

@@ -81,17 +81,17 @@ namespace Examples.Visual
                 .Sampling(1)
                 .AddMutation(Mutations.Mutation<char>()
                     .Frequency(0.99)
-                    .When(Filters.EqualsToValue(Pixel.WhitePixel) & EuclideanFilters.MooreFilter<char>(neighbors => neighbors.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) == 3))
+                    .When(Filters.EqualsToValue(Pixel.WhitePixel) & CartesianFilters.MooreFilter<char>(neighbors => neighbors.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) == 3))
                     .Into(Mutations.ToValue<char>(Pixel.BlackPixel))
                     .Build())
                 .AddMutation(Mutations.Mutation<char>()
                     .Frequency(0.99)
-                    .When(Filters.EqualsToValue(Pixel.BlackPixel) & EuclideanFilters.MooreFilter<char>(neighbors => neighbors.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) > 3))
+                    .When(Filters.EqualsToValue(Pixel.BlackPixel) & CartesianFilters.MooreFilter<char>(neighbors => neighbors.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) > 3))
                     .Into(Mutations.ToValue<char>(Pixel.WhitePixel))
                     .Build())
                 .AddMutation(Mutations.Mutation<char>()
                     .Frequency(0.99)
-                    .When(Filters.EqualsToValue(Pixel.BlackPixel) & EuclideanFilters.MooreFilter<char>(neighbors => neighbors.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) < 2))
+                    .When(Filters.EqualsToValue(Pixel.BlackPixel) & CartesianFilters.MooreFilter<char>(neighbors => neighbors.Count(Filters.EqualsToValue(Pixel.BlackPixel).ApplyTo) < 2))
                     .Into(Mutations.ToValue<char>(Pixel.WhitePixel))
                     .Build())
                 .AddMutation(Mutations.Mutation<char>()
@@ -127,7 +127,7 @@ namespace Examples.Visual
 
         private static void DrawField(MachineState<char> state)
         {
-            var layer = EuclideanStateLayer<char>.On(state);
+            var layer = CartesianStateLayer<char>.On(state);
 
             for (int y = 0; y < Settings.GridSize; y++)
             {

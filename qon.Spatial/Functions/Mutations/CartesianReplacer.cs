@@ -11,7 +11,7 @@ using qon.Variables;
 
 namespace qon.Functions.Mutations
 {
-    public class EuclideanReplacer<TQ> : MutationFunction<TQ>  where TQ : notnull
+    public class CartesianReplacer<TQ> : MutationFunction<TQ>  where TQ : notnull
     {
         private readonly struct Dimension
         {
@@ -40,7 +40,7 @@ namespace qon.Functions.Mutations
         private readonly Dimension _dimension;
         private Dimension _fieldDimension;
 
-        public EuclideanReplacer(QPredicate<TQ>[,,] pattern, VariableMutation<TQ>[,,] mutation)
+        public CartesianReplacer(QPredicate<TQ>[,,] pattern, VariableMutation<TQ>[,,] mutation)
         {
             _pattern = pattern;
             _mutation = mutation;
@@ -59,7 +59,7 @@ namespace qon.Functions.Mutations
 
         public override List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
-            var layer = EuclideanStateLayer<TQ>.On(input.Machine.State);
+            var layer = CartesianStateLayer<TQ>.On(input.Machine.State);
 
             var grid = layer.FieldGrid;
 

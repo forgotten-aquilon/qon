@@ -66,7 +66,7 @@ namespace qon.Functions.Constraints
             };
     }
 
-    public class EuclideanConstraintParameter<TQ> where TQ : notnull
+    public class CartesianConstraintParameter<TQ> where TQ : notnull
     {
         public Dictionary<Level, LevelParameter<TQ>> Levels = new()
         {

@@ -8,26 +8,26 @@ using System.Text;
 
 namespace qon.QSL
 {
-    public static class EuclideanFilters
+    public static class CartesianFilters
     {
         public static Filter<TQ> GroupByRectangle<TQ>(int width, int height) where TQ : notnull
         {
-            return qon.QSL.Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => $"{l.X / width}x{l.Y / height}");
+            return qon.QSL.Filters.GroupWith<CartesianLayer<TQ>, TQ>(l => $"{l.X / width}x{l.Y / height}");
         }
 
         public static Filter<TQ> GroupByX<TQ>() where TQ : notnull
         {
-            return qon.QSL.Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.X);
+            return qon.QSL.Filters.GroupWith<CartesianLayer<TQ>, TQ>(l => l.X);
         }
 
         public static Filter<TQ> GroupByY<TQ>() where TQ : notnull
         {
-            return qon.QSL.Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.Y);
+            return qon.QSL.Filters.GroupWith<CartesianLayer<TQ>, TQ>(l => l.Y);
         }
 
         public static Filter<TQ> GroupByZ<TQ>() where TQ : notnull
         {
-            return qon.QSL.Filters.GroupWith<EuclideanLayer<TQ>, TQ>(l => l.Z);
+            return qon.QSL.Filters.GroupWith<CartesianLayer<TQ>, TQ>(l => l.Z);
         }
 
         public static QPredicate<TQ> MooreFilter<TQ>(Func<QObject<TQ>[], bool> func) where TQ : notnull

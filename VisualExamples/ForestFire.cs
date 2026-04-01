@@ -49,7 +49,7 @@ namespace Examples.Visual
                         .Build())
                     .AddMutation(Mutations.Mutation<char>()
                         .Frequency(1.0)
-                        .When(Filters.EqualsToValue(Pixel.GreenPixel) & EuclideanFilters.MooreFilter<char>(neighbors =>
+                        .When(Filters.EqualsToValue(Pixel.GreenPixel) & CartesianFilters.MooreFilter<char>(neighbors =>
                             neighbors.Any(Filters.EqualsToValue(Pixel.RedPixel).ApplyTo)))
                         .Into(Mutations.ToValue<char>(Pixel.RedPixel))
                         .Build())
@@ -73,7 +73,7 @@ namespace Examples.Visual
 
         private static void SeedInitialForest(MachineState<char> state, Random random)
         {
-            var layer = EuclideanStateLayer<char>.On(state);
+            var layer = CartesianStateLayer<char>.On(state);
 
             for (int y = 0; y < Settings.GridSize; y++)
             {
