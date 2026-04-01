@@ -56,8 +56,14 @@ jobs:
       - name: Pack qon and qon.Spatial
         run: dotnet pack ${{ env.SPATIAL_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore --output ${{ env.PACKAGE_OUTPUT_ROOT }}
 
+      - name: Resolve package filenames
+        id: package_files
+        run: |
+          echo "qon_package=qon.$(grep -oPm1 '(?<=<PackageVersion>)[^<]+' src/qon.csproj).nupkg" >> "$GITHUB_OUTPUT"
+          echo "spatial_package=qon.Spatial.$(grep -oPm1 '(?<=<PackageVersion>)[^<]+' ${{ env.SPATIAL_PROJECT_PATH }}).nupkg" >> "$GITHUB_OUTPUT"
+
       - name: Publish qon to NuGet.org
-        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/qon.[0-9]*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
+        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/${{ steps.package_files.outputs.qon_package }}" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
 
       - name: Publish qon.Spatial to NuGet.org
-        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/qon.Spatial.[0-9]*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
+        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_ROOT }}/${{ steps.package_files.outputs.spatial_package }}" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET }}" --skip-duplicate
