@@ -135,7 +135,7 @@ namespace qon.Machines
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Variables.Select(v =>
-                v.State != ValueState.Uncertain ? $"{v.Value}" : $"{v.Name}:[{DomainLayer<TQ>.With(v).DescribeDomain()}]");
+                v.State != ValueState.Uncertain ? $"{v.Value}" : $"{v.Name}:[{DomainLayer<TQ>.On(v).DescribeDomain()}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

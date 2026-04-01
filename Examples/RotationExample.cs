@@ -8,6 +8,7 @@ using qon.Variables;
 using qon.Variables.Domains;
 using System;
 using System.Collections.Generic;
+using qon.QSL;
 
 namespace Examples
 {
@@ -47,13 +48,13 @@ namespace Examples
             {
                 domain.Add(block.Key);
                 rotationRules.Add(
-                    QSL.CreateConstraint<EuclideanBlock<string>>()
-                        .When(QSL.Filters.EqualsToValue(block.Key))
-                        .Where(QSL.VonNeumann(block.Value))
+                    Constraints.CreateConstraint<EuclideanBlock<string>>()
+                        .When(Filters.EqualsToValue(block.Key))
+                        .Where(Euclidean.VonNeumann(block.Value))
                         .Build());
             }
 
-            var machine = QSL.Machine<EuclideanBlock<string>>(new QMachineParameter<EuclideanBlock<string>>() { Random = new Random(100) })
+            var machine = QMachine<EuclideanBlock<string>>.Create(new QMachineParameter<EuclideanBlock<string>>() { Random = new Random(100) })
                 .WithConstraintLayer(new()
                 {
                     GeneralConstraints = rotationRules

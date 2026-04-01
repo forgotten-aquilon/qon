@@ -6,6 +6,7 @@ using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables.Domains;
 using Raylib_cs;
@@ -63,27 +64,27 @@ namespace Examples.Visual
 
         private static QMachine<char> CreateMachine(Random random)
         {
-            var machine = QSL.Machine<char>(new()
+            var machine = QMachine<char>.Create(new()
             {
                 Random = random,
-                SolverInit = QSL.DefaultSolver<char>(new()
+                SolverInit = QSLSolver.DefaultSolver<char>(new()
                 {
                     BackTrackingEnabled = true,
-                    BackTrackingStrategy = QSL.Decimation
+                    BackTrackingStrategy = Helpers.Decimation
                 })
             });
 
             machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
 
             var center = Settings.GridSize / 2;
-            var centerVariable = EuclideanStateLayer<char>.With(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
+            var centerVariable = EuclideanStateLayer<char>.On(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
 
             if (centerVariable is not null)
             {
                 centerVariable.Value = Optional<char>.Of(Pixel.RedPixel);
             }
 
-            var endVariable = EuclideanStateLayer<char>.With(machine.State)[(0, 0, 0)];
+            var endVariable = EuclideanStateLayer<char>.On(machine.State)[(0, 0, 0)];
 
             if (endVariable is not null)
             {

@@ -11,9 +11,9 @@ using qon.Variables;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace qon
+namespace qon.QSL
 {
-    public static partial class QSL
+    public static partial class Euclidean
     {
         public static Func<QObject<TQ>, Result> VonNeumann<TQ>(EuclideanConstraintParameter<TQ> parameter) where TQ : notnull
         {
@@ -37,16 +37,16 @@ namespace qon
             return RelativeConstraint<TQ>.WithLayer(predicate);
         }
 
-        public static Func<QObject<TQ>, QPredicate<TQ>> Euclidean<TQ>(Func<EuclideanLayer<TQ>, EuclideanLayer<TQ>, bool> func) where TQ : notnull
+        public static Func<QObject<TQ>, QPredicate<TQ>> OnLayer<TQ>(Func<EuclideanLayer<TQ>, EuclideanLayer<TQ>, bool> func) where TQ : notnull
         {
             return variable =>
             {
-                var flayer = EuclideanLayer<TQ>.With(variable);
+                var flayer = EuclideanLayer<TQ>.On(variable);
 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 bool Aggregation(QObject<TQ> newObject)
                 {
-                    var slayer = EuclideanLayer<TQ>.With(newObject);
+                    var slayer = EuclideanLayer<TQ>.On(newObject);
 
                     return func(flayer, slayer);
                 }
@@ -57,7 +57,7 @@ namespace qon
 
         public static QObject<TQ> At<TQ>(this QMachine<TQ> machine, int x, int y, int z) where TQ : notnull
         {
-            return ExceptionHelper.ThrowIfInternalValueIsNull(EuclideanStateLayer<TQ>.With(machine.State)[x, y, z]);
+            return ExceptionHelper.ThrowIfInternalValueIsNull(EuclideanStateLayer<TQ>.On(machine.State)[x, y, z]);
         }
     }
 }

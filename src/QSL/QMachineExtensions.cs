@@ -9,15 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace qon
+namespace qon.QSL
 {
-    public static partial class QSL
+    public static partial class QMachineExtensions
     {
-        public static QMachine<TQ> Machine<TQ>(QMachineParameter<TQ>? parameter = null) where TQ : notnull
-        {
-            return new QMachine<TQ>(parameter.NewOrExisting());
-        }
-
         public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, IDomain<TQ> domain, int count) where TQ : notnull
         {
             var field = new List<QObject<TQ>>();

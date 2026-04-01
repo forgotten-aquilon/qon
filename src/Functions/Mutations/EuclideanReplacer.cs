@@ -59,7 +59,7 @@ namespace qon.Functions.Mutations
 
         public override List<Field<TQ>> ApplyTo(Field<TQ> input)
         {
-            var layer = EuclideanStateLayer<TQ>.With(input.Machine.State);
+            var layer = EuclideanStateLayer<TQ>.On(input.Machine.State);
 
             var grid = layer.FieldGrid;
 

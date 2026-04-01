@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Machines;
+using qon.QSL;
 
 namespace Examples
 {
@@ -12,7 +14,7 @@ namespace Examples
     {
         public static void Run()
         {
-            var machine = QSL.Machine<int>();
+            var machine = QMachine<int>.Create();
 
             var domain = DomainHelper.NumericalDomain((0, 9));
 
@@ -25,12 +27,12 @@ namespace Examples
             var r = machine.Q().WithDomain(domain);
             var y = machine.Q().WithDomain(domain);
 
-            machine.AddConstraint(QSL.CreateConstraint<int>()
-                .Select(QSL.Filters.All<int>())
-                .Propagate(QSL.Propagators.AllDistinct<int>())
+            machine.AddConstraint(Constraints.CreateConstraint<int>()
+                .Select(Filters.All<int>())
+                .Propagate(Propagators.AllDistinct<int>())
                 .Build());
 
-            machine.AddConstraint(QSL.CreateConstraint<int>()
+            machine.AddConstraint(Constraints.CreateConstraint<int>()
                 .Bind(s, e, n, d, m, o, r, y, (_s, _e, _n, _d, _m, _o, _r, _y) =>
                     (_s * 1000 + _e * 100 + _n * 10 + _d) + (_m * 1000 + _o * 100 + _r * 10 + _e) == _m * 10000 + _o * 1000 + _n * 100 + _e * 10 + _y)
                 .Build());

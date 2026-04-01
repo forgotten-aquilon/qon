@@ -7,6 +7,7 @@ using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables;
 using qon.Variables.Domains;
@@ -19,15 +20,15 @@ namespace Examples
         {
             var target = "ME THINKS IT IS LIKE A WEASEL";
 
-            var machine = QSL.Machine<char>()
+            var machine = QMachine<char>.Create()
                 .WithMutation(new MutationLayerParameter<char>
                 {
-                    MutationFunction = QSL.CreateMutation<char>()
+                    MutationFunction = Mutations.CreateMutation<char>()
                         .Sampling(100)
-                        .AddMutation(QSL.Mutation<char>()
+                        .AddMutation(Mutations.Mutation<char>()
                             .Frequency(0.1)
-                            .When(QSL.Filters.All<char>())
-                            .Into(QSL.Mutations<char>.RandomFromDomain)
+                            .When(Filters.All<char>())
+                            .Into(Mutations.RandomFromDomain<char>())
                             .Build())
                         .Build(),
                     Fitness = (field) => Score(field, target)

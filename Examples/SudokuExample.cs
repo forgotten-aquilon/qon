@@ -7,6 +7,7 @@ using qon.Machines;
 using qon.Variables.Domains;
 using System;
 using System.Collections.Generic;
+using qon.QSL;
 
 namespace Examples
 {
@@ -16,7 +17,7 @@ namespace Examples
         {
             var numericalDomain = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 9) });
 
-            var machine = QSL.Machine<int>(new QMachineParameter<int>()
+            var machine = QMachine<int>.Create(new QMachineParameter<int>()
                 {
                     Random = new Random(1),
                 })
@@ -24,17 +25,17 @@ namespace Examples
                 {
                     GeneralConstraints = new()
                     {
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByRectangle<int>(3, 3))
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(EuclideanFilters.GroupByRectangle<int>(3, 3))
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByX<int>())
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(EuclideanFilters.GroupByX<int>())
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByY<int>())
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(EuclideanFilters.GroupByY<int>())
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
                     }
                 })

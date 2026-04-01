@@ -90,11 +90,11 @@ namespace qon.Functions.Filters
     {
         public static MooreParameter<TQ> CreateParameter(QObject<TQ> input)
         {
-            var layer = EuclideanLayer<TQ>.With(input);
+            var layer = EuclideanLayer<TQ>.On(input);
 
             var machine = layer.Machine;
 
-            var stateLayer = EuclideanStateLayer<TQ>.With(machine.State);
+            var stateLayer = EuclideanStateLayer<TQ>.On(machine.State);
 
 
             //TODO: Refactor this into separate euclidean layer

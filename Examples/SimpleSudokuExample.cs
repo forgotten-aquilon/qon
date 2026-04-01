@@ -7,6 +7,7 @@ using qon.Machines;
 using qon.Variables.Domains;
 using System;
 using System.Collections.Generic;
+using qon.QSL;
 
 namespace Examples
 {
@@ -15,22 +16,22 @@ namespace Examples
         public static void Run()
         {
             var numericalDomain = new NumericalDomain<int>(new List<Interval<int>>() { new Interval<int>(1, 4) });
-            var machine = QSL.Machine<int>(new QMachineParameter<int>() { Random = new Random() })
+            var machine = QMachine<int>.Create(new QMachineParameter<int>() { Random = new Random() })
                 .WithConstraintLayer(new()
                 {
                     GeneralConstraints = new()
                     {
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByRectangle<int>(2, 2))
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(EuclideanFilters.GroupByRectangle<int>(2, 2))
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByX<int>())
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(EuclideanFilters.GroupByX<int>())
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
-                        QSL.CreateConstraint<int>()
-                            .GroupBy(QSL.EuclideanFilters.GroupByY<int>())
-                            .Propagate(QSL.Propagators.AllDistinct<int>())
+                        Constraints.CreateConstraint<int>()
+                            .GroupBy(EuclideanFilters.GroupByY<int>())
+                            .Propagate(Propagators.AllDistinct<int>())
                             .Build(),
                     }
                 })

@@ -7,6 +7,7 @@ using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Variables;
 using qon.Variables.Domains;
 
@@ -39,9 +40,9 @@ namespace Examples
                 HashSet<string> front,
                 HashSet<string> back)
             {
-                return QSL.CreateConstraint<string>()
-                    .When(QSL.Filters.EqualsToValue(tile))
-                    .Where(QSL.VonNeumann(new EuclideanConstraintParameter<string>()
+                return Constraints.CreateConstraint<string>()
+                    .When(Filters.EqualsToValue(tile))
+                    .Where(Euclidean.VonNeumann(new EuclideanConstraintParameter<string>()
                     {
                         CenterLevel = { Left = left, Right = right, Front = front, Back = back },
                     }))
@@ -64,7 +65,7 @@ namespace Examples
             var d = new DiscreteDomain<string>(domain);
             d.SetWeight(" ", 21).SetWeight("═", 51);
 
-            var machine = QSL.Machine<string>(new QMachineParameter<string>() { Random = new Random(10) })
+            var machine = QMachine<string>.Create(new QMachineParameter<string>() { Random = new Random(10) })
                 .WithConstraintLayer(new()
                 {
                     GeneralConstraints = mazeRules

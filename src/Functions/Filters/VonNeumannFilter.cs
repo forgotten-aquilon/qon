@@ -40,11 +40,11 @@ namespace qon.Functions.Filters
 
         public static VonNeumannParameter<TQ> CreateParameter(QObject<TQ> input)
         {
-            var layer = EuclideanLayer<TQ>.With(input);
+            var layer = EuclideanLayer<TQ>.On(input);
             ExceptionHelper.ThrowIfFieldIsNull(layer, nameof(layer));
 
             var machine = ExceptionHelper.ThrowIfFieldIsNull(input.Machine, nameof(input.Machine));
-            var stateLayer = EuclideanStateLayer<TQ>.With(machine.State);
+            var stateLayer = EuclideanStateLayer<TQ>.On(machine.State);
 
             VonNeumannParameter<TQ> result = new VonNeumannParameter<TQ>
             {

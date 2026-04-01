@@ -8,6 +8,7 @@ using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables;
 using qon.Variables.Domains;
@@ -20,7 +21,7 @@ namespace Examples
         {
             var domain = new DiscreteDomain<char>(new List<char>() { 'Q', '.' });
 
-            var machine = QSL.Machine<char>(new()
+            var machine = QMachine<char>.Create(new()
             {
                 Random = new Random(2),  
             })
@@ -29,16 +30,23 @@ namespace Examples
                     GeneralConstraints = new()
                     {
                         //TODO: Add new QSL functions for layers
-                        QSL.CreateConstraint<char>()
-                            .When(QSL.Filters.EqualsToValue('Q'))
-                            .Where(QSL.Euclidean<char>((l1, l2) => l1.X == l2.X || l1.Y == l2.Y || Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y)))
-                            .Propagate(QSL.Propagators.ReduceDomainTo(new HashSet<char> { '.' }))
+                        Constraints.CreateConstraint<char>()
+                            .When(Filters.EqualsToValue('Q'))
+                            //.Where(Euclidean.OnLayer<char>((l1, l2) => l1.X == l2.X || l1.Y == l2.Y || Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y)))
+                            .Where(v1 => new QPredicate<char>(v2 =>
+                            {
+                                var v1e = v1.OnEuclideanLayer();
+                                var v2e = v2.OnEuclideanLayer();
+
+                                return v1e.X == v2e.X || v1e.Y == v2e.Y || Math.Abs(v1e.X - v2e.X) == Math.Abs(v1e.Y - v2e.Y);
+                            }))
+                            .Propagate(Propagators.ReduceDomainTo(new HashSet<char> { '.' }))
                             .Build()
                     },
                     ValidationConstraints = new()
                     {
-                        QSL.CreateConstraint<char>()
-                            .Constraint(field => (field.Count(QSL.Filters.EqualsToValue('Q')) == 8).Then(QSL.Propagators.FromBool(true)))
+                        Constraints.CreateConstraint<char>()
+                            .Constraint(field => (field.Count(Filters.EqualsToValue('Q')) == 8).Then(Propagators.FromBool(true)))
                             .Build(),
                     }
                 })

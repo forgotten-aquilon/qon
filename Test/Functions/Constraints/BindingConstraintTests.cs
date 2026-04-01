@@ -1,5 +1,6 @@
 using qon;
 using qon.Machines;
+using qon.QSL;
 
 namespace qon.Tests.Functions.Constraints
 {
@@ -8,13 +9,13 @@ namespace qon.Tests.Functions.Constraints
         [Fact]
         public void BindWithVariableListChecksAssignedValues()
         {
-            QMachine<int> machine = QSL.Machine<int>();
+            QMachine<int> machine = QMachine<int>.Create();
 
             var a = machine.Q().WithValue(1);
             var b = machine.Q().WithValue(2);
             var c = machine.Q().WithValue(3);
 
-            var constraint = QSL.CreateConstraint<int>()
+            var constraint = QSL.Constraints.CreateConstraint<int>()
                 .Bind([a, b, c], values => values[0] + values[1] == values[2])
                 .Build();
 
@@ -26,7 +27,7 @@ namespace qon.Tests.Functions.Constraints
         [Fact]
         public void BindWithManyArgumentsUsesTypedOverload()
         {
-            QMachine<int> machine = QSL.Machine<int>();
+            QMachine<int> machine = QMachine<int>.Create();
 
             var a = machine.Q().WithValue(1);
             var b = machine.Q().WithValue(2);
@@ -37,7 +38,7 @@ namespace qon.Tests.Functions.Constraints
             var g = machine.Q().WithValue(7);
             var h = machine.Q().WithValue(8);
 
-            var constraint = QSL.CreateConstraint<int>()
+            var constraint = QSL.Constraints.CreateConstraint<int>()
                 .Bind(a, b, c, d, e, f, g, h, (v1, v2, v3, v4, v5, v6, v7, v8) => v1 + v2 + v3 + v4 + v5 + v6 + v7 == v8 + 20)
                 .Build();
 
@@ -49,12 +50,12 @@ namespace qon.Tests.Functions.Constraints
         [Fact]
         public void BindSkipsValidationUntilAllVariablesHaveValues()
         {
-            QMachine<int> machine = QSL.Machine<int>();
+            QMachine<int> machine = QMachine<int>.Create();
 
             var a = machine.Q().WithValue(10);
             var b = machine.Q();
 
-            var constraint = QSL.CreateConstraint<int>()
+            var constraint = QSL.Constraints.CreateConstraint<int>()
                 .Bind(a, b, (left, right) => left > right)
                 .Build();
 

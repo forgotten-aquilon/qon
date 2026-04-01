@@ -10,6 +10,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using qon.QSL;
 
 namespace qon.Machines
 {
@@ -133,6 +134,11 @@ namespace qon.Machines
         public void Clear()
         {
             //TODO: Add clearing functions
+        }
+
+        public static QMachine<TQ> Create(QMachineParameter<TQ>? parameter = null)
+        {
+            return new QMachine<TQ>(parameter.NewOrExisting());
         }
     }
 }

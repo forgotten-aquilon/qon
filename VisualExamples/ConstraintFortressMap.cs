@@ -5,6 +5,7 @@ using qon.Functions.Propagators;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables;
 using qon.Variables.Domains;
@@ -130,10 +131,10 @@ namespace Examples.Visual
                 .SetWeight(Tile.Tower, 4)
                 .SetWeight(Tile.Keep, 7);
 
-            var machine = QSL.Machine<char>(new()
+            var machine = QMachine<char>.Create(new()
             {
                 Random = random ?? new Random(),
-                SolverInit = QSL.DefaultSolver<char>(new DefaultSolver<char>.SolverParameter
+                SolverInit = QSLSolver.DefaultSolver<char>(new DefaultSolver<char>.SolverParameter
                 {
                     BackTrackingEnabled = true
                 })
@@ -153,7 +154,7 @@ namespace Examples.Visual
 
         private static void DrawTerrain(MachineState<char> state)
         {
-            var layer = EuclideanStateLayer<char>.With(state);
+            var layer = EuclideanStateLayer<char>.On(state);
 
             for (int y = 0; y < Height; y++)
             {
@@ -192,9 +193,9 @@ namespace Examples.Visual
             var front = new HashSet<char>(allowedNeighbors);
             var back = new HashSet<char>(allowedNeighbors);
 
-            return QSL.CreateConstraint<char>()
-                .When(QSL.Filters.EqualsToValue(tile))
-                .Where(QSL.VonNeumann(new EuclideanConstraintParameter<char>
+            return Constraints.CreateConstraint<char>()
+                .When(Filters.EqualsToValue(tile))
+                .Where(Euclidean.VonNeumann(new EuclideanConstraintParameter<char>
                 {
                     CenterLevel =
                     {
@@ -209,8 +210,8 @@ namespace Examples.Visual
 
         private static IPreparation<char> CreateRingConstraint()
         {
-            return QSL.CreateConstraint<char>()
-                .Select(QSL.Filters.All<char>())
+            return Constraints.CreateConstraint<char>()
+                .Select(Filters.All<char>())
                 .Propagate(new Propagator<char>(variables =>
                 {
                     var changes = 0;
@@ -224,7 +225,7 @@ namespace Examples.Visual
                             continue;
                         }
 
-                        var layer = EuclideanLayer<char>.With(variable);
+                        var layer = EuclideanLayer<char>.On(variable);
                         var ring = Math.Max(Math.Abs(layer.X - centerX), Math.Abs(layer.Y - centerY));
 
                         var allowedTiles = ring switch

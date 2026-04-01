@@ -1,6 +1,7 @@
 ﻿using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Variables;
 using qon.Variables.Domains;
 
@@ -35,7 +36,7 @@ namespace qon.Tests.VariableTests
         [Fact]
         public void PropertyEqualityTest()
         {
-            QMachine<char> machine = QSL.Machine<char>();
+            QMachine<char> machine = QMachine<char>.Create();
 
             var lnk = machine.Q();
 
@@ -55,7 +56,7 @@ namespace qon.Tests.VariableTests
         [Fact]
         public void PropertyInequalityTest()
         {
-            QMachine<char> machine = QSL.Machine<char>();
+            QMachine<char> machine = QMachine<char>.Create();
 
             var lnk = machine.Q();
 

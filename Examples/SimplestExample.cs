@@ -5,6 +5,7 @@ using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Layers.StateLayers;
 using qon.Machines;
+using qon.QSL;
 using qon.Solvers;
 using qon.Variables.Domains;
 
@@ -18,14 +19,14 @@ namespace Examples
                 new DomainHelper.CharDomainOptions()
                     .WithAlphabet('a', 'j'));
 
-            var machine = QSL.Machine<char>()
+            var machine = QMachine<char>.Create()
                 .WithConstraintLayer(new()
                 {
                     GeneralConstraints = new()
                     {
-                        QSL.CreateConstraint<char>()
-                            .Select(QSL.Filters.All<char>())
-                            .Propagate(QSL.Propagators.AllDistinct<char>())
+                        Constraints.CreateConstraint<char>()
+                            .Select(Filters.All<char>())
+                            .Propagate(Propagators.AllDistinct<char>())
                             .Build()
                     }
                 })

@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace qon
+namespace qon.QSL
 {
-    public static partial class QSLDomains
+    public static partial class Domains
     {
         public static TSelf SetWeight<TQ, TSelf>(this IWeightedDomain<TQ> domain, TQ value, int weight) where TQ: notnull where TSelf: IWeightedDomain<TQ>
         {

@@ -9,6 +9,7 @@ using qon.Solvers;
 using qon.Variables.Domains;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
+using qon.QSL;
 using qon.Variables;
 
 namespace Examples
@@ -17,7 +18,7 @@ namespace Examples
     {
         public static void Run()
         {
-            var machine = QSL.Machine<int>();
+            var machine = QMachine<int>.Create();
 
             var domain = DomainHelper.NumericalDomain((0, 9));
 
@@ -25,11 +26,11 @@ namespace Examples
             var b = machine.Q().WithDomain(domain);
             var c = machine.Q().WithDomain(domain);
 
-            machine.AddConstraint(QSL.CreateConstraint<int>()
+            machine.AddConstraint(Constraints.CreateConstraint<int>()
                 .Bind(a, b, (_a, _b) => _a * _a + 1 == 2 * _b * _b)
                 .Build());
 
-            machine.AddConstraint(QSL.CreateConstraint<int>()
+            machine.AddConstraint(Constraints.CreateConstraint<int>()
                 .Bind(a, c, (_a, _c) => _a + 1 == 2 * _c * _c)
                 .Build());
 
