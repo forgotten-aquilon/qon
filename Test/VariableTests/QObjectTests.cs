@@ -2,6 +2,7 @@
 using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.QSL;
+using qon.Helpers;
 using qon.Variables;
 using qon.Variables.Domains;
 
@@ -99,6 +100,41 @@ namespace qon.Tests.VariableTests
             var nonCopy = machine.At(1, 0, 0);
 
             Assert.False(original == nonCopy);
+        }
+
+        [Fact]
+        public void ValueChangedEventIsRaisedWhenValueChanges()
+        {
+            var obj = QObject<char>.Empty("value");
+            QObject<char>.ValueChangedEventArgs? capturedArgs = null;
+            var raisedCount = 0;
+
+            obj.ValueChanged += (_, args) =>
+            {
+                raisedCount++;
+                capturedArgs = args;
+            };
+
+            obj.Value = Optional<char>.Of('x');
+
+            Assert.Equal(1, raisedCount);
+            Assert.NotNull(capturedArgs);
+            Assert.False(capturedArgs.PreviousValue.HasValue);
+            Assert.True(capturedArgs.NewValue.CheckValue('x'));
+        }
+
+        [Fact]
+        public void ValueChangedEventIsNotRaisedWhenValueStaysTheSame()
+        {
+            var obj = QObject<char>.Empty("value");
+            obj.Value = Optional<char>.Of('x');
+
+            var raised = false;
+            obj.ValueChanged += (_, _) => raised = true;
+
+            obj.Value = Optional<char>.Of('x');
+
+            Assert.False(raised);
         }
     }
 }

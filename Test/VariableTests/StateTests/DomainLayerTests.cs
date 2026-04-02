@@ -25,5 +25,19 @@ namespace qon.Tests.VariableTests.StateTests
 
             Assert.True(lnk.Object == copy);
         }
+
+        [Fact]
+        public void AttachedDomainLayerClearsDomainWhenHolderGetsValue()
+        {
+            var obj = QObject<int>.Empty("value");
+            var layer = DomainLayer<int>.GetOrCreate(obj);
+
+            layer.AssignDomain(new DiscreteDomain<int>(1, 2, 3));
+
+            obj.WithValue(2, ValueState.Defined);
+
+            Assert.True(layer.IsEmpty());
+            Assert.Equal(ValueState.Defined, layer.State);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using qon.Exceptions;
 using qon.Helpers;
+using qon.Machines;
 using qon.Variables;
 using qon.Variables.Domains;
 using System;
@@ -11,6 +12,8 @@ namespace qon.Layers.VariableLayers
     public class DomainLayer<TQ> : BaseLayer<TQ, DomainLayer<TQ>, QObject<TQ>>, ILayer<TQ, QObject<TQ>> where TQ : notnull
     {
         private IDomain<TQ> _domain;
+
+        public ValueState State { get; set; } = ValueState.Uncertain;
 
         public IDomain<TQ> Domain
         {
@@ -131,8 +134,16 @@ namespace qon.Layers.VariableLayers
         {
             return new DomainLayer<TQ>(Domain.Copy())
             {
-                NullableManager = NullableManager
+                NullableManager = NullableManager,
+                State = State
             };
+        }
+
+        public override void AttachManager(LayersManager<TQ, QObject<TQ>> manager)
+        {
+            base.AttachManager(manager);
+
+            Holder.ValueChanged += OnHolderValueChanged;
         }
 
         #endregion
@@ -141,6 +152,19 @@ namespace qon.Layers.VariableLayers
         public override bool Equals(ILayer<TQ, QObject<TQ>> other)
         {
             return base.Equals(other);
+        }
+
+        private void OnHolderValueChanged(object? sender, QObject<TQ>.ValueChangedEventArgs e)
+        {
+            if (e.NewValue == Optional<TQ>.Empty)
+            {
+                State = ValueState.Uncertain;
+                return;
+            }
+
+            State = Holder.Machine.Status < MachineStateType.IsSolving ? ValueState.Constant : ValueState.Defined;
+
+            AssignEmptyDomain();
         }
     }
 }

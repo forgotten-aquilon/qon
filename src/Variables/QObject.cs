@@ -22,12 +22,27 @@ namespace qon.Variables
     /// </typeparam>
     public class QObject<TQ> : ICopy<QObject<TQ>>, ILayerHolder<TQ, QObject<TQ>>, IEquatable<QObject<TQ>> where TQ : notnull
     {
+        public sealed class ValueChangedEventArgs : EventArgs
+        {
+            public Optional<TQ> PreviousValue { get; }
+
+            public Optional<TQ> NewValue { get; }
+
+            public ValueChangedEventArgs(Optional<TQ> previousValue, Optional<TQ> newValue)
+            {
+                PreviousValue = previousValue;
+                NewValue = newValue;
+            }
+        }
+
         private Func<Guid>? _idResolver;
 
         /// <summary>
         /// Nullable reference to Solution Machine. Allows late binding to actual instance of machine.
         /// </summary>
         private QMachine<TQ>? _machine;
+
+        private Optional<TQ> _value = Optional<TQ>.Empty;
 
         public Func<Guid> IdResolver 
         { 
@@ -59,7 +74,24 @@ namespace qon.Variables
         /// <summary>
         /// Actual value of the @object
         /// </summary>
-        public Optional<TQ> Value { get; set; } = Optional<TQ>.Empty;
+        public Optional<TQ> Value
+        {
+            get => _value;
+            set
+            {
+                if (_value == value)
+                {
+                    return;
+                }
+
+                var previousValue = _value;
+                _value = value;
+
+                ValueChanged?.Invoke(this, new ValueChangedEventArgs(previousValue, value));
+            }
+        }
+
+        public event EventHandler<ValueChangedEventArgs>? ValueChanged;
 
         //TODO: Move to the DomainLayer
         /// <summary>
@@ -92,8 +124,8 @@ namespace qon.Variables
         /// <returns>Instance of the same @object</returns>
         public QObject<TQ> WithValue(TQ value, ValueState state = ValueState.Constant)
         {
-            Value = Optional<TQ>.Of(value);
             State = state;
+            Value = Optional<TQ>.Of(value);
 
             return this;
         }
