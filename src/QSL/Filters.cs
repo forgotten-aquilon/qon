@@ -52,25 +52,25 @@ namespace qon.QSL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<TQ> Unassigned<TQ>() where TQ : notnull
         {
-            return new QPredicate<TQ>(v => v.State == ValueState.Uncertain);
+            return new QPredicate<TQ>(v => v.OnDomainLayer().State == ValueState.Uncertain);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<TQ> Assigned<TQ>() where TQ : notnull
         {
-            return new QPredicate<TQ>(v => v.State != ValueState.Uncertain);
+            return new QPredicate<TQ>(v => v.OnDomainLayer().State != ValueState.Uncertain);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<TQ> DomainContains<TQ>(TQ value) where TQ : notnull
         {
-            return new QPredicate<TQ>(v => DomainLayer<TQ>.On(v).ContainsValue(value));
+            return new QPredicate<TQ>(v => v.OnDomainLayer().ContainsValue(value));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<TQ> EqualsToValue<TQ>(TQ value) where TQ : notnull
         {
-            return new QPredicate<TQ>(v => v.State != ValueState.Uncertain && v.Value.CheckValue(value));
+            return new QPredicate<TQ>(v => v.OnDomainLayer().State != ValueState.Uncertain && v.Value.CheckValue(value));
         }
 
         public static QPredicate<TQ> FieldFilter<TQ>(Func<Field<TQ>, bool> func) where TQ : notnull

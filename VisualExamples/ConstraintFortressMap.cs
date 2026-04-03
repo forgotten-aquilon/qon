@@ -220,7 +220,7 @@ namespace Examples.Visual
 
                     foreach (var variable in variables)
                     {
-                        if (variable.State != ValueState.Uncertain)
+                        if (variable.OnDomainLayer().State != ValueState.Uncertain)
                         {
                             continue;
                         }
@@ -255,7 +255,7 @@ namespace Examples.Visual
             {
                 for (int x = centerX - 1; x <= centerX + 1; x++)
                 {
-                    machine.At(x, y, 0).Collapse(Tile.Keep, true);
+                    machine.At(x, y, 0).Value = Tile.Keep;
                 }
             }
         }
@@ -266,10 +266,10 @@ namespace Examples.Visual
             var centerY = Height / 2;
             var towerOffset = 6;
 
-            machine.At(centerX - towerOffset, centerY - towerOffset, 0).Collapse(Tile.Tower, true);
-            machine.At(centerX + towerOffset, centerY - towerOffset, 0).Collapse(Tile.Tower, true);
-            machine.At(centerX - towerOffset, centerY + towerOffset, 0).Collapse(Tile.Tower, true);
-            machine.At(centerX + towerOffset, centerY + towerOffset, 0).Collapse(Tile.Tower, true);
+            machine.At(centerX - towerOffset, centerY - towerOffset, 0).Value = Tile.Tower;
+            machine.At(centerX + towerOffset, centerY - towerOffset, 0).Value = Tile.Tower;
+            machine.At(centerX - towerOffset, centerY + towerOffset, 0).Value = Tile.Tower;
+            machine.At(centerX + towerOffset, centerY + towerOffset, 0).Value = Tile.Tower;
         }
 
         private static void SeedRoadsAndBridges(QMachine<char> machine)
@@ -301,7 +301,7 @@ namespace Examples.Visual
                 _ => Tile.Keep
             };
 
-            machine.At(x, y, 0).Collapse(tile, true);
+            machine.At(x, y, 0).Value = tile;
         }
     }
 }

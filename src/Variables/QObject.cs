@@ -93,12 +93,6 @@ namespace qon.Variables
 
         public event EventHandler<ValueChangedEventArgs>? ValueChanged;
 
-        //TODO: Move to the DomainLayer
-        /// <summary>
-        /// State of the @object
-        /// </summary>
-        public ValueState State { get; set; } = ValueState.Uncertain;
-
         /// <summary>
         /// Non-nullable reference to Solution Machine, which is checked in runtime. Allows late binding to actual
         /// instance of machine.
@@ -124,7 +118,6 @@ namespace qon.Variables
         /// <returns>Instance of the same @object</returns>
         public QObject<TQ> WithValue(TQ value, ValueState state = ValueState.Constant)
         {
-            State = state;
             Value = Optional<TQ>.Of(value);
 
             return this;
@@ -139,7 +132,6 @@ namespace qon.Variables
                 Name = Name,
                 Properties = new Dictionary<string, IConvertible>(Properties),
                 Value = Value,
-                State = State,
                 Machine = Machine,
                 LayerManager = { LayerManager }
             };
@@ -275,9 +267,6 @@ namespace qon.Variables
             if (Value != other.Value)
                 return false;
 
-            if (State != other.State) 
-                return false;
-
             if (!Properties.SequenceEqual(other.Properties))
                 return false;
 
@@ -299,7 +288,7 @@ namespace qon.Variables
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
-            return HashCode.Combine(_machine, Id, Name, Properties, LayerManager, Value, (int)State);
+            return HashCode.Combine(_machine, Id, Name, Properties, LayerManager, Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

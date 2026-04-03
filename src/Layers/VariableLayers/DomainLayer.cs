@@ -72,23 +72,17 @@ namespace qon.Layers.VariableLayers
             return Domain.SingleOrEmptyValue();
         }
 
-        public void Collapse(TQ value, bool isConstant = false)
-        {
-            Holder.WithValue(value, isConstant ? ValueState.Constant : ValueState.Defined);
-            AssignEmptyDomain();
-        }
+        //public bool MatchesDomain(Func<IDomain<TQ>, bool> predicate)
+        //{
+        //    ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
+        //    return predicate(Domain);
+        //}
 
-        public bool MatchesDomain(Func<IDomain<TQ>, bool> predicate)
-        {
-            ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-            return predicate(Domain);
-        }
-
-        public bool DomainSizeSatisfies(Func<int, bool> predicate)
-        {
-            ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
-            return predicate(Size());
-        }
+        //public bool DomainSizeSatisfies(Func<int, bool> predicate)
+        //{
+        //    ExceptionHelper.ThrowIfArgumentIsNull(predicate, nameof(predicate));
+        //    return predicate(Size());
+        //}
 
         public TResult WithDomain<TResult>(Func<IDomain<TQ>, TResult> selector)
         {
@@ -151,6 +145,16 @@ namespace qon.Layers.VariableLayers
         //TODO: Implement domain equality check
         public override bool Equals(ILayer<TQ, QObject<TQ>> other)
         {
+            if (other is not DomainLayer<TQ> otherLayer)
+            {
+                return false;
+            }
+
+            if (otherLayer.State == State)
+            {
+                return false;
+            }
+
             return base.Equals(other);
         }
 

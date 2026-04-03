@@ -207,7 +207,7 @@ namespace Examples.Visual
 
                     foreach (var variable in variables)
                     {
-                        if (variable.State != ValueState.Uncertain)
+                        if (variable.OnDomainLayer().State != ValueState.Uncertain)
                         {
                             continue;
                         }
@@ -236,14 +236,14 @@ namespace Examples.Visual
         {
             for (int x = 0; x < Width; x++)
             {
-                machine.At(x, 0, 0).Collapse(Tile.DeepWater, true);
-                machine.At(x, Height - 1, 0).Collapse(Tile.DeepWater, true);
+                machine.At(x, 0, 0).Value = Tile.DeepWater;
+                machine.At(x, Height - 1, 0).Value = Tile.DeepWater;
             }
 
             for (int y = 0; y < Height; y++)
             {
-                machine.At(0, y, 0).Collapse(Tile.DeepWater, true);
-                machine.At(Width - 1, y, 0).Collapse(Tile.DeepWater, true);
+                machine.At(0, y, 0).Value = Tile.DeepWater;
+                machine.At(Width - 1, y, 0).Value = Tile.DeepWater;
             }
         }
 
@@ -252,9 +252,9 @@ namespace Examples.Visual
             var centerX = Width / 2;
             var centerY = Height / 2;
 
-            machine.At(centerX, centerY, 0).Collapse(Tile.Peak, true);
-            machine.At(centerX - 3, centerY + 2, 0).Collapse(Tile.Forest, true);
-            machine.At(centerX + 4, centerY - 1, 0).Collapse(Tile.Grass, true);
+            machine.At(centerX, centerY, 0).Value = Tile.Peak;
+            machine.At(centerX - 3, centerY + 2, 0).Value = Tile.Forest;
+            machine.At(centerX + 4, centerY - 1, 0).Value = Tile.Grass;
         }
     }
 }

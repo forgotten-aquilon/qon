@@ -20,7 +20,7 @@ namespace qon.QSL
         {
             int changes = 0;
             var allVariables = variables.ToArray();
-            var decided = allVariables.Where(x => x.State != ValueState.Uncertain).Select(y => y.Value.Value).ToList();
+            var decided = allVariables.Where(x => x.OnDomainLayer().State != ValueState.Uncertain).Select(y => y.Value.Value).ToList();
 
             var certainVariablesCount = decided.Count;
             var distinctVariables = decided.ToHashSet();
@@ -30,7 +30,7 @@ namespace qon.QSL
                 return Result.HasErrors();
             }
 
-            foreach (var variable in allVariables) if (variable.State == ValueState.Uncertain)
+            foreach (var variable in allVariables) if (variable.OnDomainLayer().State == ValueState.Uncertain)
             {
                 changes += DomainLayer<TQ>.On(variable).RemoveValues(distinctVariables);
                 changes += ConstraintLayer<TQ>.TryCollapseVariable(variable).HasValue ? 1 : 0;
@@ -52,7 +52,7 @@ namespace qon.QSL
 
                 foreach (var variable in variables)
                 {
-                    if (variable.State != ValueState.Uncertain)
+                    if (variable.OnDomainLayer().State != ValueState.Uncertain)
                     {
                         continue;
                     }

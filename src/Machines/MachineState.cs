@@ -1,11 +1,12 @@
-﻿using System;
+﻿using qon.Exceptions;
+using qon.Layers;
+using qon.Layers.VariableLayers;
+using qon.QSL;
+using qon.Variables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using qon.Exceptions;
-using qon.Layers;
-using qon.Layers.VariableLayers;
-using qon.Variables;
 
 namespace qon.Machines
 {
@@ -56,7 +57,7 @@ namespace qon.Machines
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Field.Select(v =>
-                v.State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{DomainLayer<TQ>.On(v).DescribeDomain()}]");
+                v.OnDomainLayer().State != ValueState.Uncertain ? $"{v.Name}:[{v.Value}]" : $"{v.Name}:[{v.OnDomainLayer().DescribeDomain()}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

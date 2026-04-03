@@ -69,10 +69,10 @@ namespace qon.Layers.StateLayers
         {
             foreach (var variable in field.Variables)
             {
-                if (DomainLayer<TQ>.On(variable).IsEmpty() && variable.State == ValueState.Uncertain)
+                if (variable.OnDomainLayer().IsEmpty() && variable.OnDomainLayer().State == ValueState.Uncertain)
                     return PreValidationResult.InvalidState;
 
-                if (variable.State == ValueState.Uncertain)
+                if (variable.OnDomainLayer().State == ValueState.Uncertain)
                     return PreValidationResult.NotValidated;
             }
 
@@ -96,7 +96,7 @@ namespace qon.Layers.StateLayers
 
             foreach (QObject<TQ> variable in currentField)
             {
-                if (variable.State != ValueState.Uncertain)
+                if (variable.OnDomainLayer().State != ValueState.Uncertain)
                 {
                     continue;
                 }
@@ -117,7 +117,7 @@ namespace qon.Layers.StateLayers
             DomainLayer<TQ> domainLayer = DomainLayer<TQ>.On(candidate);
             TQ value = domainLayer.GetRandomValue(currentField.Machine.Random);
 
-            Collapse(candidate, value);
+            candidate.Value = value;
 
             if (!previousField.IsNullOrEmpty())
             {
@@ -140,10 +140,6 @@ namespace qon.Layers.StateLayers
             return layer;
         }
 
-        public static void Collapse(QObject<TQ> @object, TQ value, bool isConstant = false)
-        {
-            DomainLayer<TQ>.On(@object).Collapse(value, isConstant);
-        }
 
         public static Optional<TQ> TryCollapseVariable(QObject<TQ> @object)
         {
@@ -152,7 +148,7 @@ namespace qon.Layers.StateLayers
 
             if (value.HasValue)
             {
-                Collapse(@object, value.Value);
+                @object.Value = value;
             }
 
             return value;
@@ -180,12 +176,12 @@ namespace qon.Layers.StateLayers
         {
             int changes = 0;
 
-            foreach (var v in field)
+            foreach (var variable in field)
             {
-                if (v.State != ValueState.Uncertain)
+                if (variable.OnDomainLayer().State != ValueState.Uncertain)
                     continue;
 
-                if (TryCollapseVariable(v).HasValue)
+                if (TryCollapseVariable(variable).HasValue)
                 {
                     changes++;
                 }
