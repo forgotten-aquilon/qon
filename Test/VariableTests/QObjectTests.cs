@@ -5,6 +5,7 @@ using qon.QSL;
 using qon.Helpers;
 using qon.Variables;
 using qon.Variables.Domains;
+using qon.Variables.Events;
 
 namespace qon.Tests.VariableTests
 {
@@ -105,8 +106,8 @@ namespace qon.Tests.VariableTests
         [Fact]
         public void ValueChangedEventIsRaisedWhenValueChanges()
         {
-            var obj = QObject<char>.Empty("value");
-            QObject<char>.ValueChangedEventArgs? capturedArgs = null;
+            var obj = QObject<char>.Empty();
+            ValueChangedEventArgs<Optional<char>>? capturedArgs = null;
             var raisedCount = 0;
 
             obj.ValueChanged += (_, args) =>
@@ -126,7 +127,7 @@ namespace qon.Tests.VariableTests
         [Fact]
         public void ValueChangedEventIsNotRaisedWhenValueStaysTheSame()
         {
-            var obj = QObject<char>.Empty("value");
+            var obj = QObject<char>.Empty();
             obj.Value = Optional<char>.Of('x');
 
             var raised = false;

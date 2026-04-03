@@ -29,16 +29,15 @@ namespace Examples
                 {
                     GeneralConstraints = new()
                     {
-                        //TODO: Add new QSL functions for layers
                         Constraints.CreateConstraint<char>()
                             .When(Filters.EqualsToValue('Q'))
                             //.Where(Cartesian.OnLayer<char>((l1, l2) => l1.X == l2.X || l1.Y == l2.Y || Math.Abs(l1.X - l2.X) == Math.Abs(l1.Y - l2.Y)))
                             .Where(v1 => new QPredicate<char>(v2 =>
                             {
-                                var v1e = v1.Cartesian();
-                                var v2e = v2.Cartesian();
+                                var v1c = v1.Cartesian();
+                                var v2c = v2.Cartesian();
 
-                                return v1e.X == v2e.X || v1e.Y == v2e.Y || Math.Abs(v1e.X - v2e.X) == Math.Abs(v1e.Y - v2e.Y);
+                                return v1c.X == v2c.X || v1c.Y == v2c.Y || Math.Abs(v1c.X - v2c.X) == Math.Abs(v1c.Y - v2c.Y);
                             }))
                             .Propagate(Propagators.ReduceDomainTo(new HashSet<char> { '.' }))
                             .Build()

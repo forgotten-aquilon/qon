@@ -34,10 +34,10 @@ namespace qon.QSL
             var field = new List<QObject<TQ>>();
             foreach (var name in names)
             {
-                var variable = QObject<TQ>.Empty(name);
+                var variable = QObject<TQ>.Empty();
                 DomainLayer<TQ>.GetOrCreate(variable).AssignDomain(domain);
                 //field.Add(variable);
-                machine.AddToField(variable);
+                machine.AddToField(variable, name);
             }
             //machine.InitializeField(field);
 

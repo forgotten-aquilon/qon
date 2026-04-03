@@ -133,7 +133,7 @@ namespace Examples.Visual
 
             var machine = QMachine<char>.Create(new()
             {
-                Random = random ?? new Random(),
+                Random = random ?? new Random(123),
                 SolverInit = QSLSolver.DefaultSolver<char>(new DefaultSolver<char>.SolverParameter
                 {
                     BackTrackingEnabled = true

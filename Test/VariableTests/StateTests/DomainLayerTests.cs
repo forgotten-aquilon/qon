@@ -29,15 +29,17 @@ namespace qon.Tests.VariableTests.StateTests
         [Fact]
         public void AttachedDomainLayerClearsDomainWhenHolderGetsValue()
         {
-            var obj = QObject<int>.Empty("value");
+            QMachine<int> machine = QMachine<int>.Create();
+            
+            var obj = QObject<int>.Empty();
             var layer = DomainLayer<int>.GetOrCreate(obj);
 
             layer.AssignDomain(new DiscreteDomain<int>(1, 2, 3));
-
-            obj.WithValue(2, ValueState.Defined);
+            machine.AddToField(obj);
+            obj.WithValue(2);
 
             Assert.True(layer.IsEmpty());
-            Assert.Equal(ValueState.Defined, layer.State);
+            Assert.Equal(ValueState.Constant, layer.State);
         }
     }
 }

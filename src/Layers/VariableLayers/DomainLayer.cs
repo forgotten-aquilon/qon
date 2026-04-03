@@ -6,6 +6,7 @@ using qon.Variables.Domains;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using qon.Variables.Events;
 
 namespace qon.Layers.VariableLayers
 {
@@ -150,7 +151,7 @@ namespace qon.Layers.VariableLayers
                 return false;
             }
 
-            if (otherLayer.State == State)
+            if (otherLayer.State != State)
             {
                 return false;
             }
@@ -158,7 +159,7 @@ namespace qon.Layers.VariableLayers
             return base.Equals(other);
         }
 
-        private void OnHolderValueChanged(object? sender, QObject<TQ>.ValueChangedEventArgs e)
+        private void OnHolderValueChanged(object? sender, ValueChangedEventArgs<Optional<TQ>> e)
         {
             if (e.NewValue == Optional<TQ>.Empty)
             {
