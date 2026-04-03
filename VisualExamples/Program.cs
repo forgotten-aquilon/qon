@@ -15,7 +15,7 @@ namespace Examples.Visual
                     ? parsedExampleNumber
                     : DefaultExampleNumber;
 
-            switch (1)
+            switch (exampleNumber)
             {
                 case 1:
                     ConstraintFortressMap.Run();

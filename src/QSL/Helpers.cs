@@ -246,33 +246,5 @@ namespace qon.QSL
         }
 
         #endregion
-
-        #region Variables Extensions
-
-        public static QLink<TQ> WithDomain<TQ>(this QLink<TQ> link, IDomain<TQ> domain) where TQ : notnull
-        {
-            var d = DomainLayer<TQ>.GetOrCreate(link.Object);
-            d.AssignDomain(domain);
-
-            return link;
-        }
-
-        public static Action<QObject<TQ>> WithDomain<TQ>(IDomain<TQ> domain) where TQ : notnull
-        {
-            return (variable) =>
-            {
-                var d = DomainLayer<TQ>.GetOrCreate(variable);
-                d.AssignDomain(domain);
-            };
-        }
-
-        public static QLink<TQ> WithValue<TQ>(this QLink<TQ> link, TQ value) where TQ : notnull
-        {
-            link.Object.Value = value;
-
-            return link;
-        }
-
-        #endregion
     }
 }

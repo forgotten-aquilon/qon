@@ -113,7 +113,7 @@ namespace qon.Variables
         /// <returns>Instance of the same @object</returns>
         public QObject<TQ> WithValue(TQ value)
         {
-            Value = Optional<TQ>.Of(value);
+            Value = value;
 
             return this;
         }

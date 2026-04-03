@@ -123,7 +123,7 @@ namespace qon.Exceptions
                 return Optional<TOut>.Empty;
             }
 
-            return Optional<TOut>.Of((TOut)variable);
+            return (TOut)variable;
         }
     }
 }

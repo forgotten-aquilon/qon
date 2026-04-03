@@ -135,7 +135,7 @@ namespace qon.Variables.Domains
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Optional<TQ> SingleOrEmptyValue()
         {
-            if (Domain.Count == 1) return Optional<TQ>.Of(Domain.First().Key);
+            if (Domain.Count == 1) return Domain.First().Key;
 
             return Optional<TQ>.Empty;
         }

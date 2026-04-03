@@ -16,7 +16,7 @@ namespace Examples
                     ? parsedExampleNumber
                     : DefaultExampleNumber;
 
-            switch (DefaultExampleNumber)
+            switch (9)
             {
                 case 1:
                     NumberExample.Run();

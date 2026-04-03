@@ -12,7 +12,7 @@ namespace qon.QSL
         {
             return new(v =>
             {
-                v.Value = Optional<TQ>.Of(DomainLayer<TQ>.On(v).GetRandomValue(v.Machine.Random));
+                v.Value = DomainLayer<TQ>.On(v).GetRandomValue(v.Machine.Random);
             });
         }
 
@@ -20,7 +20,7 @@ namespace qon.QSL
         {
             return new VariableMutation<TQ>(v =>
             {
-                v.Value = Optional<TQ>.Of(value);
+                v.Value = value;
             });
         }
 

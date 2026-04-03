@@ -67,7 +67,7 @@ namespace qon.Variables.Domains
         {
             if (Size() == 1)
             {
-                return Optional<TQ>.Of(Domain.First());
+                return Domain.First();
             }
 
             return Optional<TQ>.Empty;

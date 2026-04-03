@@ -110,7 +110,7 @@ namespace qon.Machines
         {
             int newPos = State.AddToField(@object);
 
-            Guid id = Guid.NewGuid();
+            Guid id = Random.GetRandomGuid();
             name ??= id.ToString();
 
 

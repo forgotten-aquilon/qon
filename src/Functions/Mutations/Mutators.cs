@@ -49,7 +49,7 @@ namespace qon.Functions.Mutations
             {
                 for (int i = 0; i < variables.Count; i++)
                 {
-                    variables[i].Value = Optional<TQ>.Of(_possibleValues[i]);
+                    variables[i].Value = _possibleValues[i];
                 }
             }
         }

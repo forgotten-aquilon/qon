@@ -19,7 +19,7 @@ namespace Examples
                 new DomainHelper.CharDomainOptions()
                     .WithAlphabet('a', 'j'));
 
-            var machine = QMachine<char>.Create()
+            var machine = QMachine<char>.Create(new QMachineParameter<char>(){Random = new Random(1)})
                 .WithConstraintLayer(new()
                 {
                     GeneralConstraints = new()
@@ -31,6 +31,11 @@ namespace Examples
                     }
                 })
                 .GenerateField(domain, 10);
+
+            foreach (var obj in machine.State.Field)
+            {
+                Console.WriteLine($"{obj.Id}");
+            }
 
             foreach (var state in machine.States)
             {
