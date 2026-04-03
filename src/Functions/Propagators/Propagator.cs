@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using qon.Layers.VariableLayers;
+using qon.QSL;
 using qon.Variables;
 
 namespace qon.Functions.Propagators
@@ -21,7 +22,7 @@ namespace qon.Functions.Propagators
                 return result;
             }
 
-            return input.Any(x => x.State == ValueState.Uncertain && DomainLayer<TQ>.On(x).IsEmpty())
+            return input.Any(x => x.OnDomainLayer().State == ValueState.Uncertain && x.OnDomainLayer().IsEmpty())
                 ? Result.HasErrors()
                 : result;
         }

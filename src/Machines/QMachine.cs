@@ -106,29 +106,31 @@ namespace qon.Machines
             States = new States<TQ>(this);
         }
 
-        public void AddToField(QObject<TQ> @object)
+        public QObject<TQ> AddToField(QObject<TQ> @object, string? name = null)
         {
             int newPos = State.AddToField(@object);
 
-            _namedIndexer.Add(@object.Name, newPos);
+            Guid id = Random.GetRandomGuid();
+            name ??= id.ToString();
 
-            Guid id = Guid.NewGuid();
 
             _guidIndexer.Add(id, newPos);
+            _namedIndexer.Add(name, newPos);
 
             @object.Machine = this;
             @object.IdResolver = () => id;
+            @object.NameResolver = () => name;
 
             Status = MachineStateType.Ready;
+
+            return @object;
         }
 
         public QLink<TQ> Q(string? name = null)
         {
-            var q = name.IsNullOrEmpty() ? QObject<TQ>.Empty() : QObject<TQ>.Empty(name);
+            AddToField(QObject<TQ>.Empty(), name);
 
-            AddToField(q);
-
-            return q.ToLink();
+            return AddToField(QObject<TQ>.Empty(), name).GetLink();
         }
 
         public void Clear()

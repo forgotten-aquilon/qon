@@ -33,9 +33,9 @@ namespace qon.QSL
             return machine;
         }
 
-        public static QObject<TQ> Collapse<TQ>(this QObject<TQ> @object, TQ value, bool isConstant = false) where TQ : notnull
+        public static QObject<TQ> Collapse<TQ>(this QObject<TQ> @object, TQ value) where TQ : notnull
         {
-            ConstraintLayer<TQ>.Collapse(@object, value, isConstant);
+            @object.Value = value;
 
             return @object;
         }

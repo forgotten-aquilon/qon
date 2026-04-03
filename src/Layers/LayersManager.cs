@@ -148,7 +148,7 @@ namespace qon.Layers
             foreach (var layer in layers)
             {
                 var newLayer = layer.Copy();
-                newLayer.UpdateManager(this);
+                newLayer.AttachManager(this);
                 this.Add(newLayer);
             }
         }

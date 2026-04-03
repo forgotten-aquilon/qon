@@ -56,40 +56,40 @@ namespace Examples
 
         private static void SeedField(QMachine<int> machine)
         {
-            machine.At(0, 0, 0).Collapse(9, true);
-            machine.At(1, 0, 0).Collapse(5, true);
-            machine.At(3, 0, 0).Collapse(2, true);
-            machine.At(6, 0, 0).Collapse(7, true);
+            machine.At(0, 0, 0).Value = 9;
+            machine.At(1, 0, 0).Value = 5;
+            machine.At(3, 0, 0).Value = 2;
+            machine.At(6, 0, 0).Value = 7;
 
-            machine.At(4, 1, 0).Collapse(6, true);
-            machine.At(5, 1, 0).Collapse(5, true);
+            machine.At(4, 1, 0).Value = 6;
+            machine.At(5, 1, 0).Value = 5;
 
-            machine.At(1, 2, 0).Collapse(6, true);
-            machine.At(5, 2, 0).Collapse(9, true);
-            machine.At(6, 2, 0).Collapse(2, true);
+            machine.At(1, 2, 0).Value = 6;
+            machine.At(5, 2, 0).Value = 9;
+            machine.At(6, 2, 0).Value = 2;
 
-            machine.At(3, 3, 0).Collapse(4, true);
-            machine.At(5, 3, 0).Collapse(7, true);
-            machine.At(7, 3, 0).Collapse(6, true);
-            machine.At(8, 3, 0).Collapse(3, true);
+            machine.At(3, 3, 0).Value = 4;
+            machine.At(5, 3, 0).Value = 7;
+            machine.At(7, 3, 0).Value = 6;
+            machine.At(8, 3, 0).Value = 3;
 
-            machine.At(0, 4, 0).Collapse(2, true);
-            machine.At(7, 4, 0).Collapse(7, true);
+            machine.At(0, 4, 0).Value = 2;
+            machine.At(7, 4, 0).Value = 7;
 
-            machine.At(2, 5, 0).Collapse(3, true);
+            machine.At(2, 5, 0).Value = 3;
 
-            machine.At(0, 6, 0).Collapse(7, true);
-            machine.At(1, 6, 0).Collapse(3, true);
-            machine.At(3, 6, 0).Collapse(5, true);
-            machine.At(8, 6, 0).Collapse(1, true);
+            machine.At(0, 6, 0).Value = 7;
+            machine.At(1, 6, 0).Value = 3;
+            machine.At(3, 6, 0).Value = 5;
+            machine.At(8, 6, 0).Value = 1;
 
-            machine.At(0, 7, 0).Collapse(8, true);
-            machine.At(5, 7, 0).Collapse(6, true);
+            machine.At(0, 7, 0).Value = 8;
+            machine.At(5, 7, 0).Value = 6;
 
-            machine.At(0, 8, 0).Collapse(1, true);
-            machine.At(2, 8, 0).Collapse(6, true);
-            machine.At(4, 8, 0).Collapse(4, true);
-            machine.At(8, 8, 0).Collapse(8, true);
+            machine.At(0, 8, 0).Value = 1;
+            machine.At(2, 8, 0).Value = 6;
+            machine.At(4, 8, 0).Value = 4;
+            machine.At(8, 8, 0).Value = 8;
         }
     }
 }

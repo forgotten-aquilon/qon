@@ -1,8 +1,21 @@
 <h1 align="center">「qon」</h1>
 
 [![NuGet](https://img.shields.io/nuget/v/qon.svg)](https://www.nuget.org/packages/qon/)
+[![netstandard 2.1](https://img.shields.io/badge/netstandard-2.1-blue)](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-1)
 
 「qon」 is aт Open Source C# library for iterative backtracking-based problem solving. 
+
+## Installation
+
+#### NuGet
+```
+dotnet add package qon
+dotnet add package qon.Spatial
+```
+
+#### Unity3D
+Install [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity) and use packages listed above.
+
 
 ## What it is, what it isn't and what it can become
 
@@ -120,7 +133,7 @@ How different AI instruments were used while developing this library:
   1. In most cases I used Codex to review my code and to find bugs. It did a pretty good job. It was not asked to produce fixes, only to find particular issues and maybe suggest what can be done. At the end it was me, who wrote these fixes.
   2. In some cases I asked it to write some dummy code, which allowed me to focus on other parts. Later all AI-generated code was manually rewritten. 
      1. For example, when I was rewriting [V1](https://github.com/forgotten-aquilon/qon/tree/V1) version I started 3 times from the scratch, because supposed changes were too big to implement at once, so I used Codex to do some fixes all across the project to let it be compiled at least, then I focused on some particular things and rewrote everything.
-     2. Another example, when I was playing with [Rotation support](https://github.com/forgotten-aquilon/qon/blob/master/src/Functions/Constraints/EuclideanRotationHelper.cs) I was not sure about how to implement it, so I described the algorithm and asked Codex to produce the code. This code worked as a proof-of-concept for me, so I rewrote it on my own.
+     2. Another example, when I was playing with [Rotation support](https://github.com/forgotten-aquilon/qon/blob/master/qon.Spatial/Functions/Constraints/CartesianRotationHelper.cs) I was not sure about how to implement it, so I described the algorithm and asked Codex to produce the code. This code worked as a proof-of-concept for me, so I rewrote it on my own.
 
 - Examples
   

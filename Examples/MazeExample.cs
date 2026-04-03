@@ -63,7 +63,7 @@ namespace Examples
             mazeRules.Add(CreateRule(" ", leftWall, rightWall, frontWall, backWall));
 
             var d = new DiscreteDomain<string>(domain);
-            d.SetWeight(" ", 21).SetWeight("═", 51);
+            d.SetWeight("╠", 251).SetWeight("╝", 51);
 
             var machine = QMachine<string>.Create(new QMachineParameter<string>() { Random = new Random(10) })
                 .WithConstraintLayer(new()

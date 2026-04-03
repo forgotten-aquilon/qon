@@ -36,10 +36,10 @@ namespace qon.QSL
                         string name = $"{x}x{y}x{z}";
 
                         QObject<TQ> newObject = defaultValue.HasValue
-                            ? QObject<TQ>.New(name, defaultValue.Value)
-                            : QObject<TQ>.Empty(name);
+                            ? QObject<TQ>.New(defaultValue.Value)
+                            : QObject<TQ>.Empty();
 
-                        machine.AddToField(newObject);
+                        machine.AddToField(newObject, name);
 
                         if (domain is { } d)
                         {
@@ -60,6 +60,11 @@ namespace qon.QSL
         public static QMachine<TQ> GenerateField<TQ>(this QMachine<TQ> machine, (int x, int y, int z) dimensions, Optional<TQ> defaultValue) where TQ : notnull
         {
             return machine.GenerateField(dimensions, null, defaultValue);
+        }
+
+        public static QObject<TQ> At<TQ>(this QMachine<TQ> machine, int x, int y, int z) where TQ : notnull
+        {
+            return ExceptionHelper.ThrowIfInternalValueIsNull(CartesianStateLayer<TQ>.On(machine.State)[x, y, z]);
         }
     }
 }

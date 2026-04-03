@@ -87,7 +87,7 @@ namespace Examples.Visual
                     }
 
                     var isTree = random.NextDouble() < 0.62;
-                    cell.Value = Optional<char>.Of(isTree ? Pixel.GreenPixel : Pixel.WhitePixel);
+                    cell.Value = isTree ? Pixel.GreenPixel : Pixel.WhitePixel;
                 }
             }
 
@@ -99,7 +99,7 @@ namespace Examples.Visual
 
                 if (spark is not null)
                 {
-                    spark.Value = Optional<char>.Of(Pixel.RedPixel);
+                    spark.Value = Pixel.RedPixel;
                 }
             }
         }

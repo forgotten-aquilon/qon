@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using qon.QSL;
 
 namespace qon.Machines
 {
@@ -135,7 +136,7 @@ namespace qon.Machines
             StringBuilder result = new StringBuilder("{ ");
 
             var fieldRepresentation = Variables.Select(v =>
-                v.State != ValueState.Uncertain ? $"{v.Value}" : $"{v.Name}:[{DomainLayer<TQ>.On(v).DescribeDomain()}]");
+                v.OnDomainLayer().State != ValueState.Uncertain ? $"{v.Value}" : $"{v.Name}:[{v.OnDomainLayer().DescribeDomain()}]");
 
             result.AppendJoin(" ", fieldRepresentation);
             result.Append("}");

@@ -37,7 +37,7 @@ namespace Examples
                 })
                 .GenerateField((4, 4, 1), numericalDomain);
 
-            machine.At(0, 0, 0).Collapse(1, true);
+            machine.At(0, 0, 0).Value = 1;
 
             foreach (var state in machine.States)
             {

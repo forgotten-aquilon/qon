@@ -74,21 +74,21 @@ namespace Examples.Visual
                 })
             });
 
-            machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Optional<char>.Of(Pixel.BlackPixel));
+            machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Pixel.BlackPixel);
 
             var center = Settings.GridSize / 2;
             var centerVariable = CartesianStateLayer<char>.On(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
 
             if (centerVariable is not null)
             {
-                centerVariable.Value = Optional<char>.Of(Pixel.RedPixel);
+                centerVariable.Value = Pixel.RedPixel;
             }
 
             var endVariable = CartesianStateLayer<char>.On(machine.State)[(0, 0, 0)];
 
             if (endVariable is not null)
             {
-                endVariable.Value = Optional<char>.Of(Pixel.GreenPixel);
+                endVariable.Value = Pixel.GreenPixel;
             }
 
             MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>

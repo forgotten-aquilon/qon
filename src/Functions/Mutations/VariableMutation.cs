@@ -27,7 +27,7 @@ namespace qon.Functions.Mutations
 
         public static VariableMutation<TQ> FromValue(TQ value)
         {
-            return new VariableMutation<TQ>(v => v.Value = Optional<TQ>.Of(value));
+            return new VariableMutation<TQ>(v => v.Value = value);
         }
     }
 }

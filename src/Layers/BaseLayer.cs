@@ -98,7 +98,7 @@ namespace qon.Layers
             {
                 layer = new TSelf();
                 holder.LayerManager.Add(layer);
-                layer.NullableManager = holder.LayerManager;
+                layer.AttachManager(holder.LayerManager);
             }
 
             return layer;
@@ -116,7 +116,7 @@ namespace qon.Layers
         /// Changes instance of <see cref="LayersManager{TQ,THolder}"/>.
         /// </summary>
         /// <param name="manager"></param>
-        public void UpdateManager(LayersManager<TQ, THolder> manager)
+        public virtual void AttachManager(LayersManager<TQ, THolder> manager)
         {
             NullableManager = manager;
         }

@@ -275,7 +275,7 @@ namespace qon.Variables.Domains
         {
             if (Size() == 1)
             {
-                return Optional<TQ>.Of(Domain[0].Start);
+                return Domain[0].Start;
             }
 
             return Optional<TQ>.Empty;

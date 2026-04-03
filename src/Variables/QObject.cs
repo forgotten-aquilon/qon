@@ -11,6 +11,7 @@ using qon.Layers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.QSL;
+using qon.Variables.Events;
 
 namespace qon.Variables
 {
@@ -23,16 +24,27 @@ namespace qon.Variables
     public class QObject<TQ> : ICopy<QObject<TQ>>, ILayerHolder<TQ, QObject<TQ>>, IEquatable<QObject<TQ>> where TQ : notnull
     {
         private Func<Guid>? _idResolver;
+        private Func<string>? _nameResolver;
 
         /// <summary>
         /// Nullable reference to Solution Machine. Allows late binding to actual instance of machine.
         /// </summary>
         private QMachine<TQ>? _machine;
 
+        private string _name = string.Empty;
+
+        private Optional<TQ> _value = Optional<TQ>.Empty;
+
         public Func<Guid> IdResolver 
         { 
             get => ExceptionHelper.ThrowIfFieldIsNull(_idResolver);
             set => _idResolver ??= value;
+        }
+
+        public Func<string> NameResolver
+        {
+            get => ExceptionHelper.ThrowIfFieldIsNull(_nameResolver);
+            set => _nameResolver ??= value;
         }
 
         /// <summary>
@@ -43,7 +55,7 @@ namespace qon.Variables
         /// <summary>
         /// Human-defined name of the @object
         /// </summary>
-        public string Name { get; protected set; }
+        public string Name => NameResolver();
 
         //NOTE: Still not sure about general properties, when layers exist
         /// <summary>
@@ -59,13 +71,24 @@ namespace qon.Variables
         /// <summary>
         /// Actual value of the @object
         /// </summary>
-        public Optional<TQ> Value { get; set; } = Optional<TQ>.Empty;
+        public Optional<TQ> Value
+        {
+            get => _value;
+            set
+            {
+                if (_value == value)
+                {
+                    return;
+                }
 
-        //TODO: Move to the DomainLayer
-        /// <summary>
-        /// State of the @object
-        /// </summary>
-        public ValueState State { get; set; } = ValueState.Uncertain;
+                var previousValue = _value;
+                _value = value;
+
+                ValueChanged?.Invoke(this, new ValueChangedEventArgs<Optional<TQ>>(previousValue, value));
+            }
+        }
+
+        public event EventHandler<ValueChangedEventArgs<Optional<TQ>>>? ValueChanged;
 
         /// <summary>
         /// Non-nullable reference to Solution Machine, which is checked in runtime. Allows late binding to actual
@@ -80,8 +103,6 @@ namespace qon.Variables
         protected QObject()
         {
             LayerManager = new LayersManager<TQ, QObject<TQ>>(this);
-
-            Name = "";
         }
 
         /// <summary>
@@ -90,10 +111,9 @@ namespace qon.Variables
         /// <param name="value"></param>
         /// <param name="state"></param>
         /// <returns>Instance of the same @object</returns>
-        public QObject<TQ> WithValue(TQ value, ValueState state = ValueState.Constant)
+        public QObject<TQ> WithValue(TQ value)
         {
-            Value = Optional<TQ>.Of(value);
-            State = state;
+            Value = value;
 
             return this;
         }
@@ -104,16 +124,15 @@ namespace qon.Variables
             return new QObject<TQ>()
             {
                 IdResolver = IdResolver,
-                Name = Name,
+                NameResolver = NameResolver,
                 Properties = new Dictionary<string, IConvertible>(Properties),
                 Value = Value,
-                State = State,
                 Machine = Machine,
                 LayerManager = { LayerManager }
             };
         }
 
-        public QLink<TQ> ToLink()
+        public QLink<TQ> GetLink()
         {
             return new QLink<TQ>((machine) => machine[this.Id], Machine);
         }
@@ -124,27 +143,7 @@ namespace qon.Variables
         /// <returns></returns>
         public static QObject<TQ> Empty()
         {
-            var newId = Guid.NewGuid();
-            var newVariable = new QObject<TQ>()
-            {
-                Name = newId.ToString()
-            };
-
-            return newVariable;
-        }
-
-        /// <summary>
-        /// Creates Object without value with specified Name
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static QObject<TQ> Empty(string name)
-        {
-            QObject<TQ> newObject = new()
-            {
-                Name = name,
-            };
-            return newObject;
+            return new QObject<TQ>();
         }
 
         /// <summary>
@@ -153,21 +152,9 @@ namespace qon.Variables
         /// <param name="value"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public static QObject<TQ> New(TQ value, ValueState state = ValueState.Constant)
+        public static QObject<TQ> New(TQ value)
         {
-            return Empty().WithValue(value, state);
-        }
-
-        /// <summary>
-        /// Creates Object with specified Name, Value and its State
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        public static QObject<TQ> New(string name, TQ value, ValueState state = ValueState.Constant)
-        {
-            return Empty(name).WithValue(value, state);
+            return Empty().WithValue(value);
         }
 
         #region Property's methods
@@ -243,9 +230,6 @@ namespace qon.Variables
             if (Value != other.Value)
                 return false;
 
-            if (State != other.State) 
-                return false;
-
             if (!Properties.SequenceEqual(other.Properties))
                 return false;
 
@@ -267,7 +251,7 @@ namespace qon.Variables
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
-            return HashCode.Combine(_machine, Id, Name, Properties, LayerManager, Value, (int)State);
+            return HashCode.Combine(_machine, Id, Name, Properties, LayerManager, Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -31,12 +31,6 @@ namespace qon.QSL
                 .Then(CartesianPropagators.ToMoore(parameter));
         }
 
-        public static Func<QObject<TQ>, QPredicate<TQ>> OnLayer<TQ, TLayer>(Func<TLayer, QPredicate<TQ>> predicate) where TQ : notnull
-            where TLayer : ILayer<TQ, QObject<TQ>>
-        {
-            return RelativeConstraint<TQ>.WithLayer(predicate);
-        }
-
         public static Func<QObject<TQ>, QPredicate<TQ>> OnLayer<TQ>(Func<CartesianLayer<TQ>, CartesianLayer<TQ>, bool> func) where TQ : notnull
         {
             return variable =>
@@ -53,11 +47,6 @@ namespace qon.QSL
 
                 return new QPredicate<TQ>(Aggregation);
             };
-        }
-
-        public static QObject<TQ> At<TQ>(this QMachine<TQ> machine, int x, int y, int z) where TQ : notnull
-        {
-            return ExceptionHelper.ThrowIfInternalValueIsNull(CartesianStateLayer<TQ>.On(machine.State)[x, y, z]);
         }
     }
 }

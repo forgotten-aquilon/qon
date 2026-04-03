@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using qon.Exceptions;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
+using qon.QSL;
 using qon.Variables;
 
 namespace qon.Functions.Filters
@@ -40,20 +41,14 @@ namespace qon.Functions.Filters
 
         public static VonNeumannParameter<TQ> CreateParameter(QObject<TQ> input)
         {
-            var layer = CartesianLayer<TQ>.On(input);
-            ExceptionHelper.ThrowIfFieldIsNull(layer, nameof(layer));
-
-            var machine = ExceptionHelper.ThrowIfFieldIsNull(input.Machine, nameof(input.Machine));
-            var stateLayer = CartesianStateLayer<TQ>.On(machine.State);
-
             VonNeumannParameter<TQ> result = new VonNeumannParameter<TQ>
             {
-                Left = stateLayer[(layer.X - 1, layer.Y, layer.Z)],
-                Right = stateLayer[(layer.X + 1, layer.Y, layer.Z)],
-                Back = stateLayer[(layer.X, layer.Y - 1, layer.Z)],
-                Front = stateLayer[(layer.X, layer.Y + 1, layer.Z)],
-                Bottom = stateLayer[(layer.X, layer.Y, layer.Z - 1)],
-                Top = stateLayer[(layer.X, layer.Y, layer.Z + 1)],
+                Left = input.GetNeighbor(-1, 0, 0),
+                Right = input.GetNeighbor(1, 0, 0),
+                Back = input.GetNeighbor(0, -1, 0),
+                Front = input.GetNeighbor(0, 1, 0),
+                Bottom = input.GetNeighbor(0, 0, -1),
+                Top = input.GetNeighbor(0, 0, 1),
             };
 
             return result;

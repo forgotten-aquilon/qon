@@ -19,7 +19,7 @@ namespace Examples
                 {
                     var variable = state.Machine.At(x, y, 0);
 
-                    var value = variable?.State != ValueState.Uncertain
+                    var value = variable.OnDomainLayer().State != ValueState.Uncertain
                         ? variable?.Value.Value.ToString()
                         : "@";
 
