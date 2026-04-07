@@ -128,8 +128,6 @@ namespace qon.Machines
 
         public QLink<TQ> Q(string? name = null)
         {
-            AddToField(QObject<TQ>.Empty(), name);
-
             return AddToField(QObject<TQ>.Empty(), name).GetLink();
         }
 

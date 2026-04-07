@@ -354,7 +354,7 @@ namespace qon.Functions.Constraints
                         CartesianBlock<TQ> keyBlock1 = item1.block.ToCartesianBlock(item1.rot);
                         CartesianBlock<TQ> keyBlock2 = item2.block.ToCartesianBlock(item2.rot);
 
-                        CartesianConstraintParameter<CartesianBlock<TQ>> r1 = parameters.TryGetOrCreate(item1.block.ToCartesianBlock(item1.rot));
+                        CartesianConstraintParameter<CartesianBlock<TQ>> r1 = parameters.TryGetOrCreate(keyBlock1);
                         r1[slab].Add(keyBlock2);
 
                         CartesianConstraintParameter<CartesianBlock<TQ>> r2 = parameters.TryGetOrCreate(keyBlock2);

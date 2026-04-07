@@ -92,7 +92,7 @@ namespace Examples.Visual
             }
         }
 
-        public static void Draw(QMachine<char> machine)
+        public static void Draw(QMachine<char> machine, int delay = 0)
         {
             using var solver = machine.Solver;
             bool simulationFinished = !solver.MoveNext();
@@ -115,7 +115,7 @@ namespace Examples.Visual
 
                     Task.Run(async () =>
                     {
-                        await Task.Delay(45);
+                        await Task.Delay(delay);
                     }).GetAwaiter().GetResult();
 
                     if (simulationFinished)

@@ -17,12 +17,7 @@ namespace qon.QSL
         {
             List<QObject<TQ>> variables = new();
 
-            ExceptionHelper.ThrowIfPredicateTrue(dimensions, d => d.x < 1 || d.y < 1 || d.z < 1);
-
-            if (dimensions.x < 1 || dimensions.y < 1 || dimensions.z < 1)
-            {
-                throw new InternalLogicException("Dimension can't be a non-positive number");
-            }
+            ExceptionHelper.ThrowIfPredicateTrue(dimensions, d => d.x < 1 || d.y < 1 || d.z < 1, "Dimension can't be a non-positive number");
 
             var layer = CartesianStateLayer<TQ>.GetOrCreate(machine.State);
             layer.UpdateSize(dimensions.x, dimensions.y, dimensions.z);

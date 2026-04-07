@@ -19,7 +19,7 @@ namespace Examples
         public static void Run()
         {
             var target = "ME THINKS IT IS LIKE A WEASEL";
-
+            var domain = DomainHelper.SymbolicalDomain(new DomainHelper.CharDomainOptions().WithAlphabet('A', 'Z').WithOtherSymbols(' '));
             var machine = QMachine<char>.Create()
                 .WithMutation(new MutationLayerParameter<char>
                 {
@@ -28,7 +28,7 @@ namespace Examples
                         .AddMutation(Mutations.Mutation<char>()
                             .Frequency(0.1)
                             .When(Filters.All<char>())
-                            .Into(Mutations.RandomFromDomain<char>())
+                            .Into(Mutations.RandomFromDomain<char>(domain))
                             .Build())
                         .Build(),
                     Fitness = (field) => Score(field, target)

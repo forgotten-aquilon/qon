@@ -20,7 +20,7 @@ namespace qon.QSL
         private Propagator<TQ>? _propagator;
         private Func<QObject<TQ>[], Result>? _customExecutor;
         private BindingConstraint<TQ>? _bindingConstraint;
-        private List<QLink<TQ>>? _qLinks;
+        private QLink<TQ>[]? _qLinks;
 
         public ConstraintsBuilder<TQ> When(QPredicate<TQ> guard)
         {
@@ -42,7 +42,7 @@ namespace qon.QSL
 
         public ConstraintsBuilder<TQ> Select(params QLink<TQ>[] links)
         {
-            _qLinks = links.ToList();
+            _qLinks = links;
             return this;
         }
 
@@ -137,20 +137,20 @@ namespace qon.QSL
             if (_grouping is not null)
             {
                 ExceptionHelper.ThrowIfFieldIsNull(_propagator);
-                return new Constraint<TQ>(_grouping, _propagator!);
+                return new GroupingConstraint<TQ>(_grouping, _propagator);
             }
 
             if (_selector is not null)
             {
                 ExceptionHelper.ThrowIfFieldIsNull(_propagator);
-                return new Constraint<TQ>(_selector, _propagator!);
+                return new SelectingConstraint<TQ>(_selector, _propagator);
             }
 
-            //if (_qLinks is not null)
-            //{
-            //    ExceptionHelper.ThrowIfFieldIsNull(_propagator);
-            //    return new Constraint<TQ>(_selector, _propagator!);
-            //}
+            if (_qLinks is not null)
+            {
+                ExceptionHelper.ThrowIfFieldIsNull(_propagator);
+                return new Constraint<TQ>(_qLinks, _propagator);
+            }
 
             if (_guard is not null && _neighbourConstraint is not null)
             {
