@@ -99,7 +99,7 @@ namespace qon.QSL
 
             foreach (var pair in d1)
             {
-                if (!d2.TryGetValue(pair.Key, out var value2) || object.Equals(pair.Value, value2))
+                if (!d2.TryGetValue(pair.Key, out var value2) || !object.Equals(pair.Value, value2))
                 {
                     return false;
                 }

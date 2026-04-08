@@ -123,9 +123,7 @@ namespace qon.Tests.VariableTests.Domains
         [Fact]
         public void GetEntropyThrowsForEmptyDomain()
         {
-            var domain = new NumericalDomain<int>(Array.Empty<Interval<int>>());
-
-            Assert.Throws<InternalLogicException>(() => domain.GetEntropy());
+            Assert.Throws<InternalLogicException>(() => new NumericalDomain<int>([]));
         }
 
         private sealed class FixedBytesRandom : Random
