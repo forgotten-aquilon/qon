@@ -29,7 +29,7 @@ namespace qon.Layers.StateLayers
     {
         private Field<TQ>? _bestSample;
 
-        //TODO: Add collision protection
+        //OBSOLETE: TODO: Add collision protection
         private Dictionary<Field<TQ>, HashSet<Field<TQ>>> _sampleHistory = new Dictionary<Field<TQ>, HashSet<Field<TQ>>>();
 
         public MutationLayerParameter<TQ> Parameter = new();

@@ -21,7 +21,6 @@ namespace Examples
                 {
                     GeneralConstraints = new()
                     {
-                        //TODO: Add All similar
                         Constraints.CreateConstraint<int>()
                             .GroupBy(CartesianFilters.GroupByRectangle<int>(2, 2))
                             .Propagate(Propagators.AllDistinct<int>())

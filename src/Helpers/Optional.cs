@@ -52,7 +52,7 @@ namespace qon.Helpers
         }
 
         /// <summary>
-        /// TODO: write
+        /// Check if stored value is equal to specified
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

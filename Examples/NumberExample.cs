@@ -22,7 +22,7 @@ namespace Examples
                 {
                     Constraints.CreateConstraint<int>()
                         .Select(Filters.All<int>())
-                        .Propagate(Propagators.AllDistinct<int>())
+                        .Propagate(Propagators.AllEqual<int>())
                         .Build()
                 }
             });

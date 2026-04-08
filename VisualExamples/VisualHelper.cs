@@ -49,25 +49,6 @@ namespace Examples.Visual
             };
         }
 
-
-
-        public static void DrawField(MachineState<char> state, int xSize, int ySize)
-        {
-            var layer = CartesianStateLayer<char>.On(state);
-
-            for (int y = 0; y < ySize; y++)
-            {
-                for (int x = 0; x < xSize; x++)
-                {
-                    var cell = layer[(x, y, 0)];
-
-                    var color = ResolveColor(cell?.Value.HasValue ?? false ? cell.Value.Value : char.MaxValue);
-
-                    Raylib.DrawRectangle(x * Settings.PixelSize, y * Settings.PixelSize, Settings.PixelSize, Settings.PixelSize, color);
-                }
-            }
-        }
-
         private static void DrawField(MachineState<char> state)
         {
             var layer = CartesianStateLayer<char>.On(state);

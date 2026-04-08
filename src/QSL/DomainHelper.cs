@@ -1,15 +1,15 @@
-﻿using qon.Exceptions;
-using qon.Layers.VariableLayers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+using qon.Exceptions;
+using qon.Layers.VariableLayers;
+using qon.Variables;
+using qon.Variables.Domains;
 
-namespace qon.Variables.Domains
+namespace qon.QSL
 {
-    //TODO: Move to QSL
     public static class DomainHelper
     {
         #region Pre-built Domains
@@ -36,9 +36,7 @@ namespace qon.Variables.Domains
                     throw new ValidationException($"Symbols '{validatedLeftSymbol}' and '{validatedRightSymbol}' should be of the same case");
                 }
 
-                var diff = ExceptionHelper.ThrowIfPredicateFalse(validatedRightSymbol - validatedLeftSymbol, diff => diff > 0);
-
-                Symbols.UnionWith(Enumerable.Range(validatedLeftSymbol, diff + 1).Select(n => (char)n));
+                Symbols.UnionWith(Helpers.GetCharRange(validatedLeftSymbol, validatedRightSymbol));
 
                 return this;
             }
@@ -65,6 +63,11 @@ namespace qon.Variables.Domains
         public static PrimitiveDomain<char> SymbolicalDomain(CharDomainOptions options)
         {
             return new PrimitiveDomain<char>(options.Symbols);
+        }
+
+        public static PrimitiveDomain<char> SymbolicalDomain(char leftSymbol, char rightSymbol)
+        {
+            return new PrimitiveDomain<char>(new CharDomainOptions().WithAlphabet(leftSymbol, rightSymbol).Symbols);
         }
 
         public static PrimitiveDomain<int> SimpleNumericalDomain(int fromInclusive, int toInclusive)

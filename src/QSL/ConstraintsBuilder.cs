@@ -70,7 +70,6 @@ namespace qon.QSL
             return this;
         }
 
-        //TODO: Add QObject Function binding
         public ConstraintsBuilder<TQ> Bind(IReadOnlyList<QLink<TQ>> qLinks, Func<IReadOnlyList<TQ>, bool> bindingFunction)
         {
             _bindingConstraint = new BindingConstraint<TQ>(qLinks, bindingFunction);

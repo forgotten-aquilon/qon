@@ -108,6 +108,13 @@ namespace qon.QSL
             return true;
         }
 
+        public static IEnumerable<char> GetCharRange(char leftSymbol, char rightSymbol)
+        {
+            var diff = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol - leftSymbol, diff => diff > 0);
+
+            return Enumerable.Range(leftSymbol, diff + 1).Select(n => (char)n);
+        }
+
         #endregion
 
         #region Functional Extensions

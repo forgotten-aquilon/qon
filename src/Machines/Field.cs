@@ -167,7 +167,7 @@ namespace qon.Machines
                 return this.SequenceEqual(other);
             }
 
-            return base.Equals(obj);
+            return false;
         }
 
         public IEnumerator<QObject<TQ>> GetEnumerator()

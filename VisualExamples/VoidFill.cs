@@ -20,46 +20,11 @@ namespace Examples.Visual
 
         public static void Run()
         {
-            var random = new Random(104);
+            var random = new Random();
 
             var machine = CreateMachine(random);
 
-            using var solver = machine.Solver;
-            bool simulationFinished = !solver.MoveNext();
-
-            Raylib.InitWindow(Settings.CanvasSize, Settings.CanvasSize + Settings.InfoPanelHeight, "Anchor Expansion Visual");
-
-            try
-            {
-                while (!Raylib.WindowShouldClose())
-                {
-                    Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.White);
-
-                    DrawField(machine.State, Settings.GridSize, Settings.GridSize);
-
-                    var statusText = simulationFinished ? "Finished" : "Running";
-                    Raylib.DrawText($"{statusText} · Iteration {solver.StepCounter}", 10, Settings.CanvasSize + 8, 20, Color.Black);
-
-                    Raylib.EndDrawing();
-
-                    if (simulationFinished)
-                    {
-                        continue;
-                    }
-
-                    var moved = solver.MoveNext();
-
-                    if (!moved)
-                    {
-                        simulationFinished = true;
-                    }
-                }
-            }
-            finally
-            {
-                Raylib.CloseWindow();
-            }
+            Draw(machine,0);
         }
 
         private static QMachine<char> CreateMachine(Random random)
@@ -72,26 +37,8 @@ namespace Examples.Visual
                     BackTrackingEnabled = true,
                     BackTrackingStrategy = Helpers.Decimation
                 })
-            });
-
-            machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Pixel.BlackPixel);
-
-            var center = Settings.GridSize / 2;
-            var centerVariable = CartesianStateLayer<char>.On(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
-
-            if (centerVariable is not null)
-            {
-                centerVariable.Value = Pixel.RedPixel;
-            }
-
-            var endVariable = CartesianStateLayer<char>.On(machine.State)[(0, 0, 0)];
-
-            if (endVariable is not null)
-            {
-                endVariable.Value = Pixel.GreenPixel;
-            }
-
-            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
+            })
+            .WithMutation(new MutationLayerParameter<char>
             {
                 MutationFunction = new FallbackMutation<char>(
                     new CartesianReplacer<char>(
@@ -115,14 +62,30 @@ namespace Examples.Visual
                 {
                     var v = field.FirstOrDefault(x => x.Value.CheckValue(Pixel.GreenPixel));
 
-                    if (v is {} greenVariable)
+                    if (v is { } greenVariable)
                     {
                         return false;
                     }
 
                     return true;
                 }
-            };
+            })
+            .GenerateField((Settings.GridSize, Settings.GridSize, 1), Pixel.BlackPixel); ;
+
+            var center = Settings.GridSize / 2;
+            var centerVariable = CartesianStateLayer<char>.On(machine.State)[(Settings.GridSize-1, Settings.GridSize-1, 0)];
+
+            if (centerVariable is not null)
+            {
+                centerVariable.Value = Pixel.RedPixel;
+            }
+
+            var endVariable = CartesianStateLayer<char>.On(machine.State)[(0, 0, 0)];
+
+            if (endVariable is not null)
+            {
+                endVariable.Value = Pixel.GreenPixel;
+            }
 
             return machine;
         }
