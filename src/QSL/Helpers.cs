@@ -90,6 +90,24 @@ namespace qon.QSL
             return value;
         }
 
+        public static bool DictionaryEquality<TKey, TValue>(Dictionary<TKey, TValue> d1, Dictionary<TKey, TValue> d2)
+        {
+            if (d1.Count != d2.Count)
+            {
+                return false;
+            }
+
+            foreach (var pair in d1)
+            {
+                if (!d2.TryGetValue(pair.Key, out var value2) || object.Equals(pair.Value, value2))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         #endregion
 
         #region Functional Extensions

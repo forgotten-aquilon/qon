@@ -4,7 +4,7 @@ using qon.Helpers;
 
 namespace qon.Variables.Domains
 {
-    public interface IDomain<TQ> : ICopy<IDomain<TQ>> where TQ : notnull
+    public interface IDomain<TQ> : ICopy<IDomain<TQ>>, IEquatable<IDomain<TQ>> where TQ : notnull
     {
         int Size();
         bool IsEmpty();

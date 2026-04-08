@@ -143,9 +143,13 @@ namespace qon.Layers.VariableLayers
 
         #endregion
 
-        //TODO: Implement domain equality check
         public override bool Equals(ILayer<TQ, QObject<TQ>> other)
         {
+            if (base.Equals(other))
+            {
+                return true;
+            }
+
             if (other is not DomainLayer<TQ> otherLayer)
             {
                 return false;
@@ -156,7 +160,7 @@ namespace qon.Layers.VariableLayers
                 return false;
             }
 
-            return base.Equals(other);
+            return Domain.Equals(otherLayer.Domain);
         }
 
         private void OnHolderValueChanged(object? sender, ValueChangedEventArgs<Optional<TQ>> e)

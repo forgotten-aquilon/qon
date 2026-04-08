@@ -163,5 +163,15 @@ namespace qon.Variables.Domains
         {
             return string.Join(", ", Domain.Select(v => $"{v.Key}:{v.Value}"));
         }
+
+        public bool Equals(IDomain<TQ> other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return other is DiscreteDomain<TQ> otherDomain && QSL.Helpers.DictionaryEquality(Domain, otherDomain.Domain);
+        }
     }
 }

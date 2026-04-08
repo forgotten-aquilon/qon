@@ -1,6 +1,7 @@
 #pragma warning disable
 
 using System;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Examples
 {

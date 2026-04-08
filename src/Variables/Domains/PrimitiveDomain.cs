@@ -89,6 +89,16 @@ namespace qon.Variables.Domains
 
         #endregion
 
+        public bool Equals(IDomain<TQ> other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return other is PrimitiveDomain<TQ> otherDomain && Domain.SetEquals(otherDomain.Domain);
+        }
+
         #region Overrides of Object
 
         public override string ToString()
@@ -97,5 +107,6 @@ namespace qon.Variables.Domains
         }
 
         #endregion
+
     }
 }
