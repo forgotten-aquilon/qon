@@ -18,7 +18,7 @@ namespace Examples
 
             var machine = QMachine<int>.Create(new QMachineParameter<int>
                 {
-                    Random = new Random(2222)
+                    Random = new Random()
                 })
                 .WithConstraintLayer(new()
                 {

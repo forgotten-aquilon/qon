@@ -1,34 +1,42 @@
-﻿using System;
+﻿using qon.Events;
+using qon.Exceptions;
+using qon.Functions;
+using qon.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using qon.Exceptions;
-using qon.Helpers;
 
 namespace qon.Variables.Domains
 {
     public class DiscreteDomain<TQ> : IWeightedDomain<TQ> where TQ : notnull
     {
+        private readonly Cache<double> _entropy;
+
         public Dictionary<TQ, int> Domain { get; protected set; }
 
         public DiscreteDomain()
         {
             Domain = new Dictionary<TQ, int>();
+            _entropy = new Cache<double>(CalculateEntropy);
         }
 
         public DiscreteDomain(Dictionary<TQ, int> d)
         {
             Domain = d;
+            _entropy = new Cache<double>(CalculateEntropy);
         }
 
         public DiscreteDomain(IEnumerable<TQ> d)
         {
             Domain = d.ToDictionary(x => x, _ => 1);
+            _entropy = new Cache<double>(CalculateEntropy);
         }
 
         public DiscreteDomain(params TQ[] values)
         {
             Domain = values.ToDictionary(x => x, _ => 1);
+            _entropy = new Cache<double>(CalculateEntropy);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,7 +60,14 @@ namespace qon.Variables.Domains
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Remove(TQ item)
         {
-            return Domain.Remove(item) ? 1 : 0;
+            var result = Domain.Remove(item) ? 1 : 0;
+
+            if (result == 1)
+            {
+                _entropy.Changed();
+            }
+
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,6 +77,11 @@ namespace qon.Variables.Domains
 
             foreach (var item in items) changeCount += Domain.Remove(item) ? 1 : 0;
 
+            if (changeCount > 0)
+            {
+                _entropy.Changed();
+            }
+
             return changeCount;
         }
 
@@ -69,26 +89,13 @@ namespace qon.Variables.Domains
         public void Clear()
         {
             Domain.Clear();
+            _entropy.Changed();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double GetEntropy()
         {
-            var entropy = 0.0;
-            double sum = Domain.Sum(x => x.Value);
-
-            if (IsEmpty() || sum == 0)
-                throw new InternalLogicException("Should not be called in this case");
-
-
-            foreach (var value in Domain)
-                if (value.Value != 0)
-                {
-                    var e = value.Value / sum;
-                    entropy -= e * Math.Log(e, 2);
-                }
-
-            return entropy;
+            return _entropy;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,6 +110,9 @@ namespace qon.Variables.Domains
             if (!Domain.ContainsKey(value)) return false;
 
             Domain[value] = weight;
+
+            _entropy.Changed();
+
             return true;
         }
 
@@ -141,12 +151,6 @@ namespace qon.Variables.Domains
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDomain<TQ> Copy()
-        {
-            return new DiscreteDomain<TQ>(new Dictionary<TQ, int>(Domain));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<TQ> GetValues()
         {
             return Domain.Select(x => x.Key);
@@ -156,6 +160,12 @@ namespace qon.Variables.Domains
         public IEnumerable<KeyValuePair<TQ, int>> GetValuesWithWeights()
         {
             return Domain;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDomain<TQ> Copy()
+        {
+            return new DiscreteDomain<TQ>(new Dictionary<TQ, int>(Domain));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -172,6 +182,25 @@ namespace qon.Variables.Domains
             }
 
             return other is DiscreteDomain<TQ> otherDomain && QSL.Helpers.DictionaryEquality(Domain, otherDomain.Domain);
+        }
+
+        private double CalculateEntropy()
+        {
+            var entropy = 0.0;
+            double sum = Domain.Sum(x => x.Value);
+
+            if (IsEmpty() || sum == 0)
+                throw new InternalLogicException("Should not be called in this case");
+
+
+            foreach (var value in Domain)
+                if (value.Value != 0)
+                {
+                    var e = value.Value / sum;
+                    entropy -= e * Math.Log(e, 2);
+                }
+
+            return entropy;
         }
     }
 }

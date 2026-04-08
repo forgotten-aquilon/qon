@@ -126,6 +126,7 @@ namespace qon.Variables.Domains
     {
         private readonly bool _isSigned = true;
         private readonly Type _type = typeof(TQ);
+        private readonly Cache<double> _entropy;
 
         public List<Interval<TQ>> Domain { get; private set; } = new();
 
@@ -145,6 +146,7 @@ namespace qon.Variables.Domains
             }
 
             Domain.Add(new Interval<TQ>(GetLimits()));
+            _entropy = new(CalculateEntropy);
         }
 
         public NumericalDomain(IEnumerable<Interval<TQ>> intervals)
@@ -163,6 +165,7 @@ namespace qon.Variables.Domains
             }
 
             Domain = intervals.Select(x => x).ToList();
+            _entropy = new(CalculateEntropy);
         }
 
         #region IDomain<TQ> interface
@@ -249,6 +252,8 @@ namespace qon.Variables.Domains
                 Domain.Insert(position + 1, rightInterval);
             }
 
+            _entropy.Changed();
+
             return 1;
         }
 
@@ -260,6 +265,11 @@ namespace qon.Variables.Domains
             foreach (var v in items.Distinct().OrderBy(x => x))
                 changeCount += Remove(v);
 
+            if (changeCount > 0)
+            {
+                _entropy.Changed();
+            }
+
             return changeCount;
         }
 
@@ -267,15 +277,13 @@ namespace qon.Variables.Domains
         public void Clear()
         {
             Domain.Clear();
+            _entropy.Changed();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double GetEntropy()
         {
-            if (IsEmpty())
-                throw new InternalLogicException("Should not be called in this case");
-
-            return Math.Log(TrueSize(), 2);
+            return _entropy;
         }
 
         //FUTURE: C# 10 supports random long
@@ -472,6 +480,14 @@ namespace qon.Variables.Domains
         public static TQ Max(TQ obj1, TQ obj2)
         {
             return (Interval<TQ>.Comparer.Compare(obj1, obj2) > 0) ? obj1 : obj2;
+        }
+
+        private double CalculateEntropy()
+        {
+            if (IsEmpty())
+                throw new InternalLogicException("Should not be called in this case");
+
+            return Math.Log(TrueSize(), 2);
         }
     }
 }

@@ -1,20 +1,23 @@
-﻿using System;
+﻿using qon.Exceptions;
+using qon.Helpers;
+using qon.QSL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using qon.Helpers;
-using qon.QSL;
 
 namespace qon.Variables.Domains
 {
     public class PrimitiveDomain<TQ> :IDomain<TQ> where TQ : notnull
     {
+        private readonly Cache<double> _entropy;
         public HashSet<TQ> Domain { get; protected set; }
 
         public PrimitiveDomain(HashSet<TQ> domain)
         {
             Domain = domain;
+            _entropy = new Cache<double>(CalculateEntropy);
         }
 
         #region IDomain<TQ>
@@ -36,7 +39,14 @@ namespace qon.Variables.Domains
 
         public int Remove(TQ item)
         {
-            return Domain.Remove(item) ? 1 : 0;
+            var result = Domain.Remove(item) ? 1 : 0;
+
+            if (result == 1)
+            {
+                _entropy.Changed();
+            }
+
+            return result;
         }
 
         public int Remove(IEnumerable<TQ> items)
@@ -45,17 +55,25 @@ namespace qon.Variables.Domains
             Domain.ExceptWith(items);
             int postRemoveCount = Domain.Count;
 
-            return preRemoveCount - postRemoveCount;
+            int result = preRemoveCount - postRemoveCount;
+
+            if (result > 0)
+            {
+                _entropy.Changed();
+            }
+
+            return result;
         }
 
         public void Clear()
         {
             Domain.Clear();
+            _entropy.Changed();
         }
 
         public double GetEntropy()
         {
-            return Math.Log(Size(), 2);
+            return _entropy;
         }
 
         public TQ GetRandomValue(Random random)
@@ -108,5 +126,12 @@ namespace qon.Variables.Domains
 
         #endregion
 
+        private double CalculateEntropy()
+        {
+            if (IsEmpty())
+                throw new InternalLogicException("Should not be called in this case");
+
+            return Math.Log(Size(), 2);
+        }
     }
 }

@@ -7,11 +7,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Events;
 using qon.Layers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.QSL;
-using qon.Variables.Events;
 
 namespace qon.Variables
 {

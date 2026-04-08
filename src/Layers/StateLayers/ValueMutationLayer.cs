@@ -18,7 +18,6 @@ namespace qon.Layers.StateLayers
     {
         private Optional<TQ>[]? _bestSample;
 
-        //TODO: Add collision protection
         private Dictionary<Optional<TQ>[], HashSet<Optional<TQ>[]>> _sampleHistory = new();
 
         public MutationLayerParameter<TQ> Parameter = new();
