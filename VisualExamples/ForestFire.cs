@@ -17,10 +17,10 @@ namespace Examples.Visual
     {
         public static void Run()
         {
-            var random = new Random(2026);
+            var random = new Random();
             var machine = CreateMachine(random);
 
-            Draw(machine);
+            Draw(machine, 20);
         }
 
         private static QMachine<char> CreateMachine(Random random)
@@ -32,13 +32,8 @@ namespace Examples.Visual
                 {
                     BackTrackingEnabled = false,
                 })
-            });
-
-            machine.GenerateField((Settings.GridSize, Settings.GridSize, 1), Pixel.WhitePixel);
-
-            SeedInitialForest(machine.State, random);
-
-            MutationLayer<char>.GetOrCreate(machine.State).Parameter = new MutationLayerParameter<char>
+            })
+                .WithMutation(new()
             {
                 MutationFunction = Mutations.CreateMutation<char>()
                     .Sampling(1)
@@ -66,7 +61,10 @@ namespace Examples.Visual
                         .Build())
                     .Build(),
                 Fitness = _ => random.Next(),
-            };
+            })
+                .GenerateField((Settings.GridSize, Settings.GridSize, 1), Pixel.WhitePixel);
+
+            SeedInitialForest(machine.State, random);
 
             return machine;
         }

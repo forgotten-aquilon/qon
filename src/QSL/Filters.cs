@@ -70,7 +70,7 @@ namespace qon.QSL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static QPredicate<TQ> EqualsToValue<TQ>(TQ value) where TQ : notnull
         {
-            return new QPredicate<TQ>(v => v.OnDomainLayer().State != ValueState.Uncertain && v.Value.CheckValue(value));
+            return new QPredicate<TQ>(v => v.Value.CheckValue(value));
         }
 
         public static QPredicate<TQ> FieldFilter<TQ>(Func<Field<TQ>, bool> func) where TQ : notnull

@@ -22,47 +22,7 @@ namespace Examples.Visual
             var random = new Random(42);
             var machine = CreateMachine(random);
 
-            using var solver = machine.Solver;
-            bool simulationFinished = !solver.MoveNext();
-
-            Raylib.InitWindow(Settings.CanvasSize, Settings.CanvasSize + Settings.InfoPanelHeight, "Anchor Expansion Visual");
-
-            try
-            {
-                while (!Raylib.WindowShouldClose())
-                {
-                    Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.White);
-
-                    DrawField(machine.State);
-
-                    var statusText = simulationFinished ? "Finished" : "Running";
-                    Raylib.DrawText($"{statusText} · Iteration {solver.StepCounter}", 10, Settings.CanvasSize + 8, 20, Color.Black);
-
-                    Raylib.EndDrawing();
-
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(50);
-                    }).GetAwaiter().GetResult();
-
-                    if (simulationFinished)
-                    {
-                        continue;
-                    }
-
-                    var moved = solver.MoveNext();
-
-                    if (!moved)
-                    {
-                        simulationFinished = true;
-                    }
-                }
-            }
-            finally
-            {
-                Raylib.CloseWindow();
-            }
+            Draw(machine, 20);
         }
 
         private static QMachine<char> CreateMachine(Random random)
@@ -71,12 +31,11 @@ namespace Examples.Visual
             {
                 SolverInit = QSLSolver.DefaultSolver<char>(new()
                 {
-                    BackTrackingEnabled = true,
+                    BackTrackingEnabled = false,
                 })
             })
             .WithMutation(new MutationLayerParameter<char>
             {
-                //TODO: Replace Filters.EqualsToValue with direct use of Value
                 MutationFunction = Mutations.CreateMutation<char>()
                 .Sampling(1)
                 .AddMutation(Mutations.Mutation<char>()

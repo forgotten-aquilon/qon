@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using qon.Events;
 using qon.Helpers;
+using System;
+using System.Collections.Generic;
 
 namespace qon.Variables.Domains
 {
-    public interface IDomain<TQ> : ICopy<IDomain<TQ>> where TQ : notnull
+    public interface IDomain<TQ> : ICopy<IDomain<TQ>>, IEquatable<IDomain<TQ>> where TQ : notnull
     {
         int Size();
         bool IsEmpty();

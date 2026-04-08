@@ -134,7 +134,7 @@ namespace qon.Layers
 
             if (this.GetType() != other.GetType()) return false;
 
-            return true;
+            return false;
         }
     }
 }

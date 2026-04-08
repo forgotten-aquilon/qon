@@ -101,7 +101,6 @@ namespace qon.Layers.StateLayers
                     continue;
                 }
 
-                //TODO: add caching for domain entropy
                 DomainLayer<TQ> domain = DomainLayer<TQ>.On(variable);
                 double potentialEntropy = domain.Entropy;
 

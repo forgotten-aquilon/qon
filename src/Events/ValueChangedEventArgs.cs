@@ -1,9 +1,6 @@
-﻿using qon.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 
-namespace qon.Variables.Events
+namespace qon.Events
 {
     public class ValueChangedEventArgs<TValue> : EventArgs
     {

@@ -7,11 +7,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using qon.Events;
 using qon.Layers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.QSL;
-using qon.Variables.Events;
 
 namespace qon.Variables
 {
@@ -109,7 +109,6 @@ namespace qon.Variables
         /// Chaining method for easy setup of Object's value
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="state"></param>
         /// <returns>Instance of the same @object</returns>
         public QObject<TQ> WithValue(TQ value)
         {
@@ -150,7 +149,6 @@ namespace qon.Variables
         /// Creates Object with specified Value and its State
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="state"></param>
         /// <returns></returns>
         public static QObject<TQ> New(TQ value)
         {
@@ -251,7 +249,7 @@ namespace qon.Variables
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
-            return HashCode.Combine(_machine, Id, Name, Properties, LayerManager, Value);
+            return HashCode.Combine(Id, Name, Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

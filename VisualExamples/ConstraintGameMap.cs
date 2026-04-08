@@ -17,9 +17,6 @@ namespace Examples.Visual
 {
     internal static class ConstraintGameMap
     {
-        private const int Width = 25;
-        private const int Height = 25;
-
         private static class Tile
         {
             public const char DeepWater = Pixel.BluePixel;
@@ -60,46 +57,7 @@ namespace Examples.Visual
             var machine = CreateMachine();
             using var solver = machine.Solver;
 
-            var simulationFinished = !solver.MoveNext();
-            var canvasWidth = Width * Settings.PixelSize;
-            var canvasHeight = Height * Settings.PixelSize;
-
-            Raylib.InitWindow(canvasWidth, canvasHeight + Settings.InfoPanelHeight, "Constraint Game Map");
-
-            try
-            {
-                while (!Raylib.WindowShouldClose())
-                {
-                    Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.White);
-
-                    DrawTerrain(machine.State);
-
-                    var statusText = simulationFinished ? "Finished" : "Running";
-                    Raylib.DrawText($"{statusText} | Iteration {solver.StepCounter}", 10, canvasHeight + 8, 20, Color.Black);
-
-                    Raylib.EndDrawing();
-
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(5);
-                    }).GetAwaiter().GetResult();
-
-                    if (simulationFinished)
-                    {
-                        continue;
-                    }
-
-                    if (!solver.MoveNext())
-                    {
-                        simulationFinished = true;
-                    }
-                }
-            }
-            finally
-            {
-                Raylib.CloseWindow();
-            }
+            Draw(machine, 0);
         }
 
         private static QMachine<char> CreateMachine(Random? random = null)
@@ -125,14 +83,14 @@ namespace Examples.Visual
                 Random = random ?? new Random(),
                 SolverInit = QSLSolver.DefaultSolver<char>(new DefaultSolver<char>.SolverParameter
                 {
-                    BackTrackingEnabled = true
+                    BackTrackingEnabled = false
                 })
             })
             .WithConstraintLayer(new ConstraintLayerParameter<char>
             {
                 GeneralConstraints = CreateTerrainConstraints()
             })
-            .GenerateField((Width, Height, 1), domain);
+            .GenerateField((Settings.GridSize, Settings.GridSize, 1), domain);
 
             CollapseBorder(machine);
             SeedBiomeAnchors(machine);
@@ -144,9 +102,9 @@ namespace Examples.Visual
         {
             var layer = CartesianStateLayer<char>.On(state);
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Settings.GridSize; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = 0; x < Settings.GridSize; x++)
                 {
                     var cell = layer[(x, y, 0)];
                     var color = cell?.Value.TryGetValue(out var value) == true
@@ -202,8 +160,8 @@ namespace Examples.Visual
                 .Propagate(new Propagator<char>(variables =>
                 {
                     var changes = 0;
-                    var centerX = (Width - 1) / 2.0;
-                    var centerY = (Height - 1) / 2.0;
+                    var centerX = (Settings.GridSize - 1) / 2.0;
+                    var centerY = (Settings.GridSize - 1) / 2.0;
 
                     foreach (var variable in variables)
                     {
@@ -234,23 +192,23 @@ namespace Examples.Visual
 
         private static void CollapseBorder(QMachine<char> machine)
         {
-            for (int x = 0; x < Width; x++)
+            for (int x = 0; x < Settings.GridSize; x++)
             {
                 machine.At(x, 0, 0).Value = Tile.DeepWater;
-                machine.At(x, Height - 1, 0).Value = Tile.DeepWater;
+                machine.At(x, Settings.GridSize - 1, 0).Value = Tile.DeepWater;
             }
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Settings.GridSize; y++)
             {
                 machine.At(0, y, 0).Value = Tile.DeepWater;
-                machine.At(Width - 1, y, 0).Value = Tile.DeepWater;
+                machine.At(Settings.GridSize - 1, y, 0).Value = Tile.DeepWater;
             }
         }
 
         private static void SeedBiomeAnchors(QMachine<char> machine)
         {
-            var centerX = Width / 2;
-            var centerY = Height / 2;
+            var centerX = Settings.GridSize / 2;
+            var centerY = Settings.GridSize / 2;
 
             machine.At(centerX, centerY, 0).Value = Tile.Peak;
             machine.At(centerX - 3, centerY + 2, 0).Value = Tile.Forest;

@@ -14,31 +14,19 @@ using qon.QSL;
 
 namespace qon.Layers.StateLayers
 {
-    public class MutationLayerParameter<TQ> where TQ : notnull
+    public class ValueMutationLayer<TQ> : BaseLayer<TQ, ValueMutationLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>, IStateLayer<TQ> where TQ : notnull
     {
-        //FUTURE: "required" modifier for all such parameters in C# awaits
-        public MutationFunction<TQ>? MutationFunction { get; set; }
+        private Optional<TQ>[]? _bestSample;
 
-        public Func<Field<TQ>, int>? Fitness { get; set; }
-
-        public Func<Field<TQ>, bool>? Validation { get; set; }
-    }
-
-    [Obsolete("Use ValueMutationLayer")]
-    public class MutationLayer<TQ> : BaseLayer<TQ, MutationLayer<TQ>, MachineState<TQ>>, ILayer<TQ, MachineState<TQ>>, IStateLayer<TQ> where TQ : notnull
-    {
-        private Field<TQ>? _bestSample;
-
-        //OBSOLETE: TODO: Add collision protection
-        private Dictionary<Field<TQ>, HashSet<Field<TQ>>> _sampleHistory = new Dictionary<Field<TQ>, HashSet<Field<TQ>>>();
+        private Dictionary<Optional<TQ>[], HashSet<Optional<TQ>[]>> _sampleHistory = new();
 
         public MutationLayerParameter<TQ> Parameter = new();
 
-        public List<Field<TQ>> Samples { get; set; } = new();
+        public List<(Optional<TQ>[] values, int fitness)> Samples { get; set; } = new();
 
-        public MutationLayer() {}
+        public ValueMutationLayer() {}
 
-        public MutationLayer(MutationLayerParameter<TQ> parameter)
+        public ValueMutationLayer(MutationLayerParameter<TQ> parameter)
         {
             Parameter = parameter;
         }
@@ -49,12 +37,13 @@ namespace qon.Layers.StateLayers
         {
             var mutationFunction = ExceptionHelper.ThrowIfFieldIsNull(Parameter.MutationFunction, nameof(Parameter.MutationFunction));
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
+            ExceptionHelper.ThrowIfInternalValueIsNull(Parameter.Fitness);
 
-            Samples = mutationFunction.ApplyTo(field).Select(f => f.Copy()).ToList();
+            Samples = mutationFunction.ApplyTo(field).Select(f => (f.ToValueArray(), Parameter.Fitness(f))).ToList();
 
-            if (Machine.Solver.BackTrackingEnabled && _sampleHistory.TryGetValue(field, out var usedSamples))
+            if (Machine.Solver.BackTrackingEnabled && _sampleHistory.TryGetValue(field.ToValueArray(), out var usedSamples))
             {
-                Samples.RemoveAll(f => usedSamples.Contains(f));
+                Samples.RemoveAll(f => usedSamples.Contains(f.values));
 
                 if (Samples.Count == 0)
                 {
@@ -78,15 +67,16 @@ namespace qon.Layers.StateLayers
             int fitness = int.MaxValue;
             int pos = 0;
             int index = 0;
-            Field<TQ> bestSample = new Field<TQ>(Machine);
+            Optional<TQ>[]? bestSample = null;
 
             foreach (var sample in Samples)
             {
-                var localFitness = Parameter.Fitness(sample);
+                var localFitness = sample.fitness;
+
                 if (localFitness < fitness && localFitness >= 0)
                 {
                     fitness = localFitness;
-                    bestSample = sample;
+                    bestSample = sample.values;
                     pos = index;
                 }
 
@@ -95,23 +85,25 @@ namespace qon.Layers.StateLayers
 
             _bestSample = bestSample;
 
-            Samples.RemoveAt(pos);
+            ExceptionHelper.ThrowIfInternalValueIsNull(_bestSample);
 
+            Samples.RemoveAt(pos);
+            var values = field.ToValueArray();
             if (Machine.Solver.BackTrackingEnabled)
             {
-                if (_sampleHistory.TryGetValue(field, out var set))
+                if (_sampleHistory.TryGetValue(values, out var set))
                 {
                     set.Add(_bestSample);
                 }
                 else
                 {
-                    _sampleHistory[field] = new HashSet<Field<TQ>>{_bestSample};
+                    _sampleHistory[values] = new(){_bestSample};
                 }
             }
 
             if (fitness == 0)
             {
-                field.Update(_bestSample.Variables);
+                field.UpdateWithValues(_bestSample);
                 return PreValidationResult.PreValidated;
             }
 
@@ -123,7 +115,7 @@ namespace qon.Layers.StateLayers
             ExceptionHelper.ThrowIfInternalValueIsNull(_bestSample);
             ExceptionHelper.ThrowIfInternalValueIsNull(Machine);
 
-            currentField.Update(_bestSample.Variables);
+            currentField.UpdateWithValues(_bestSample);
         }
 
         public bool Validate(Field<TQ> field)

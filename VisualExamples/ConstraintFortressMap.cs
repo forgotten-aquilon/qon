@@ -17,9 +17,6 @@ namespace Examples.Visual
 {
     internal static class ConstraintFortressMap
     {
-        private const int Width = 27;
-        private const int Height = 27;
-
         private static class Tile
         {
             public const char Grass = Pixel.GreenPixel;
@@ -69,46 +66,7 @@ namespace Examples.Visual
             var machine = CreateMachine();
             using var solver = machine.Solver;
 
-            var simulationFinished = !solver.MoveNext();
-            var canvasWidth = Width * Settings.PixelSize;
-            var canvasHeight = Height * Settings.PixelSize;
-
-            Raylib.InitWindow(canvasWidth, canvasHeight + Settings.InfoPanelHeight, "Constraint Fortress Map");
-
-            try
-            {
-                while (!Raylib.WindowShouldClose())
-                {
-                    Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.White);
-
-                    DrawTerrain(machine.State);
-
-                    var statusText = simulationFinished ? "Finished" : "Running";
-                    Raylib.DrawText($"{statusText} | Iteration {solver.StepCounter}", 10, canvasHeight + 8, 20, Color.Black);
-
-                    Raylib.EndDrawing();
-
-                    //Task.Run(async () =>
-                    //{
-                    //    await Task.Delay(45);
-                    //}).GetAwaiter().GetResult();
-
-                    if (simulationFinished)
-                    {
-                        continue;
-                    }
-
-                    if (!solver.MoveNext())
-                    {
-                        simulationFinished = true;
-                    }
-                }
-            }
-            finally
-            {
-                Raylib.CloseWindow();
-            }
+            Draw(machine, 0);
         }
 
         private static QMachine<char> CreateMachine(Random? random = null)
@@ -136,14 +94,14 @@ namespace Examples.Visual
                 Random = random ?? new Random(123),
                 SolverInit = QSLSolver.DefaultSolver<char>(new DefaultSolver<char>.SolverParameter
                 {
-                    BackTrackingEnabled = true
+                    BackTrackingEnabled = false
                 })
             })
             .WithConstraintLayer(new ConstraintLayerParameter<char>
             {
                 GeneralConstraints = CreateFortressConstraints()
             })
-            .GenerateField((Width, Height, 1), domain);
+            .GenerateField((Settings.GridSize, Settings.GridSize, 1), domain);
 
             SeedKeep(machine);
             SeedTowers(machine);
@@ -156,9 +114,9 @@ namespace Examples.Visual
         {
             var layer = CartesianStateLayer<char>.On(state);
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Settings.GridSize; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = 0; x < Settings.GridSize; x++)
                 {
                     var cell = layer[(x, y, 0)];
                     var color = cell?.Value.TryGetValue(out var value) == true
@@ -215,8 +173,8 @@ namespace Examples.Visual
                 .Propagate(new Propagator<char>(variables =>
                 {
                     var changes = 0;
-                    var centerX = Width / 2;
-                    var centerY = Height / 2;
+                    var centerX = Settings.GridSize / 2;
+                    var centerY = Settings.GridSize / 2;
 
                     foreach (var variable in variables)
                     {
@@ -248,8 +206,8 @@ namespace Examples.Visual
 
         private static void SeedKeep(QMachine<char> machine)
         {
-            var centerX = Width / 2;
-            var centerY = Height / 2;
+            var centerX = Settings.GridSize / 2;
+            var centerY = Settings.GridSize / 2;
 
             for (int y = centerY - 1; y <= centerY + 1; y++)
             {
@@ -262,8 +220,8 @@ namespace Examples.Visual
 
         private static void SeedTowers(QMachine<char> machine)
         {
-            var centerX = Width / 2;
-            var centerY = Height / 2;
+            var centerX = Settings.GridSize / 2;
+            var centerY = Settings.GridSize / 2;
             var towerOffset = 6;
 
             machine.At(centerX - towerOffset, centerY - towerOffset, 0).Value = Tile.Tower;
@@ -274,15 +232,15 @@ namespace Examples.Visual
 
         private static void SeedRoadsAndBridges(QMachine<char> machine)
         {
-            var centerX = Width / 2;
-            var centerY = Height / 2;
+            var centerX = Settings.GridSize / 2;
+            var centerY = Settings.GridSize / 2;
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Settings.GridSize; y++)
             {
                 SeedAxisTile(machine, centerX, y, centerX, centerY);
             }
 
-            for (int x = 0; x < Width; x++)
+            for (int x = 0; x < Settings.GridSize; x++)
             {
                 SeedAxisTile(machine, x, centerY, centerX, centerY);
             }

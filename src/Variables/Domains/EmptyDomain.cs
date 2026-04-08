@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Helpers;
+using qon.QSL;
+using System;
+using System.Collections.Generic;
 
 namespace qon.Variables.Domains
 {
@@ -69,6 +70,16 @@ namespace qon.Variables.Domains
         public IEnumerable<TQ> GetValues()
         {
             throw new InternalLogicException("Should never be called");
+        }
+
+        public bool Equals(IDomain<TQ> other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

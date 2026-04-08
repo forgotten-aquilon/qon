@@ -1,57 +1,28 @@
-﻿using System;
-using System.Linq;
-using qon.Exceptions;
+﻿using qon.Exceptions;
 using qon.Functions.Filters;
 using qon.Functions.Propagators;
 using qon.Machines;
+using qon.QSL;
 using qon.Variables;
+using System;
+using System.Linq;
 
 namespace qon.Functions.Constraints
 {
-    public class Constraint<TQ> : ConstraintBase<TQ> where TQ : notnull
+    public class Constraint<TQ> : IPreparation<TQ> where TQ : notnull
     {
-        protected Propagator<TQ> Propagator { get; set; }
+        private readonly QLink<TQ>[] _links;
+        private readonly Propagator<TQ> _propagator;
 
-        public Constraint(Filter<TQ> grouping,
-            Propagator<TQ> method) : base(grouping)
+        public Constraint(QLink<TQ>[] links, Propagator<TQ> propagator)
         {
-            Propagator = method;
+            _links = links;
+            _propagator = propagator;
         }
 
-        public Constraint(QPredicate<TQ> selecting,
-            Propagator<TQ> method) : base(selecting)
+        public Result Execute(Field<TQ> _)
         {
-            Propagator = method;
-        }
-
-        public override Result Execute(Field<TQ> field)
-        {
-            switch (FilteringType)
-            {
-                case FilteringType.Grouping:
-                    var changes = 0;
-                    var groups = field.GroupBy(x => GroupingAggregator!.ApplyTo(x));
-
-                    foreach (var group in groups)
-                    {
-                        var result = Propagator.ApplyTo(group.ToArray());
-                        changes += result.ChangesAmount;
-
-                        if (result.Failed)
-                        {
-                            return result;
-                        }
-                    }
-
-                    return Result.Success(changes);
-
-                case FilteringType.Selecting:
-                    var aggregation = field.Where(SelectingAggregator!.ApplyTo).ToList();
-
-                    return Propagator.ApplyTo(aggregation);
-                default:
-                    throw new NonExhaustiveExpressionException(typeof(FilteringType), FilteringType);
-            }
+            return _propagator.ApplyTo(_links.Select(l => l.Object));
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿using qon.Layers.StateLayers;
+﻿using qon.Events;
+using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
 using qon.QSL;
 using qon.Helpers;
 using qon.Variables;
 using qon.Variables.Domains;
-using qon.Variables.Events;
 
 namespace qon.Tests.VariableTests
 {

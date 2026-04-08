@@ -1,18 +1,29 @@
-﻿using qon.Functions.Mutations;
+﻿using System.Collections;
+using System.Collections.Generic;
+using qon.Functions.Mutations;
 using qon.Helpers;
 using qon.Layers.StateLayers;
 using qon.Layers.VariableLayers;
 using qon.Machines;
+using qon.Variables.Domains;
 
 namespace qon.QSL
 {
     public static class Mutations
     {
-        public static VariableMutation<TQ> RandomFromDomain<TQ>() where TQ : notnull
+        public static VariableMutation<TQ> RandomFromDomain<TQ>(IDomain<TQ> domain) where TQ : notnull
         {
             return new(v =>
             {
-                v.Value = DomainLayer<TQ>.On(v).GetRandomValue(v.Machine.Random);
+                v.Value = domain.GetRandomValue(v.Machine.Random);
+            });
+        }
+
+        public static VariableMutation<TQ> RandomFromCollection<TQ>(ICollection<TQ> collection) where TQ : notnull
+        {
+            return new(v =>
+            {
+                v.Value = collection.RandomItem(v.Machine.Random);
             });
         }
 
@@ -36,7 +47,7 @@ namespace qon.QSL
 
         public static QMachine<TQ> WithMutation<TQ>(this QMachine<TQ> machine, MutationLayerParameter<TQ> parameter) where TQ : notnull
         {
-            MutationLayer<TQ>.GetOrCreate(machine.State).Parameter = parameter;
+            ValueMutationLayer<TQ>.GetOrCreate(machine.State).Parameter = parameter;
 
             return machine;
         }

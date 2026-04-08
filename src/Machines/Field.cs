@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using qon.QSL;
+using qon.Exceptions;
 
 namespace qon.Machines
 {
@@ -65,6 +66,16 @@ namespace qon.Machines
         public void Update(Field<TQ> anotherField)
         {
             Variables = anotherField.Variables;
+        }
+
+        public void UpdateWithValues(Optional<TQ>[] values)
+        {
+            ExceptionHelper.ThrowIfPredicateFalse(values.Length, length => length == Count, "Value count should match field size.");
+
+            for (int i = 0; i < values.Length; i++)
+            {
+                Variables[i].Value = values[i];
+            }
         }
 
         public int Add(QObject<TQ> @object)
@@ -156,7 +167,7 @@ namespace qon.Machines
                 return this.SequenceEqual(other);
             }
 
-            return base.Equals(obj);
+            return false;
         }
 
         public IEnumerator<QObject<TQ>> GetEnumerator()

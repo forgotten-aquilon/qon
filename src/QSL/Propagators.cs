@@ -44,6 +44,44 @@ namespace qon.QSL
             return new Propagator<TQ>(AllDistinctPropagator);
         }
 
+        public static Result AllEqualPropagator<TQ>(IEnumerable<QObject<TQ>> variables) where TQ : notnull
+        {
+            int changes = 0;
+            var allVariables = variables.ToArray();
+            var decided = allVariables.Where(x => x.OnDomainLayer().State != ValueState.Uncertain).Select(y => y.Value.Value).ToList();
+
+            var distinctVariables = decided.ToHashSet();
+
+            if (distinctVariables.Count == 0)
+            {
+                foreach (var variable in allVariables) if (variable.OnDomainLayer().State == ValueState.Uncertain)
+                {
+                    changes += DomainLayer<TQ>.On(variable).RemoveValues(distinctVariables);
+                    changes += ConstraintLayer<TQ>.TryCollapseVariable(variable).HasValue ? 1 : 0;
+                }
+            }
+            else if (distinctVariables.Count == 1)
+            {
+                var value = distinctVariables.First();
+                foreach (var variable in allVariables) if (variable.OnDomainLayer().State == ValueState.Uncertain)
+                {
+                    changes++;
+                    variable.Value = value;
+                }
+            }
+            else
+            {
+                return Result.HasErrors();
+            }
+
+            return Result.Success(changes);
+        }
+
+        public static Propagator<TQ> AllEqual<TQ>() where TQ : notnull
+        {
+            return new Propagator<TQ>(AllEqualPropagator);
+        }
+
         public static Propagator<TQ> ReduceDomainTo<TQ>(HashSet<TQ> filteringCollection) where TQ : notnull
         {
             return new Propagator<TQ>(variables =>

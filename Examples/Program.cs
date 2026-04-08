@@ -1,6 +1,7 @@
 #pragma warning disable
 
 using System;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Examples
 {
@@ -16,7 +17,7 @@ namespace Examples
                     ? parsedExampleNumber
                     : DefaultExampleNumber;
 
-            switch (9)
+            switch (exampleNumber)
             {
                 case 1:
                     NumberExample.Run();

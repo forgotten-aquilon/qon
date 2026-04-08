@@ -40,7 +40,7 @@ namespace qon.QSL
 
             int index = random.Next(size);
 
-            if (collection is List<T> list)
+            if (collection is IList<T> list)
             {
                 return list[index];
             }
@@ -48,6 +48,11 @@ namespace qon.QSL
             if (collection is T[] array)
             {
                 return array[index];
+            }
+
+            if (collection is HashSet<T> set)
+            {
+                return set.ElementAt(index);
             }
 
             int i = 0;
@@ -64,32 +69,12 @@ namespace qon.QSL
 
         public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this ICollection<T>? collection)
         {
-            if (collection is null)
-            {
-                return true;
-            }
-
-            if (collection.Count == 0)
-            {
-                return true;
-            }
-
-            return false;
+            return collection is not { Count: > 0 };
         }
 
         public static bool IsNullOrEmpty<TQ>([NotNullWhen(false)] this Field<TQ>? field) where TQ : notnull
         {
-            if (field is null)
-            {
-                return true;
-            }
-
-            if (field.Count == 0)
-            {
-                return true;
-            }
-
-            return false;
+            return field is not { Count:>0 };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,6 +88,31 @@ namespace qon.QSL
             value = new();
             dict[key] = value;
             return value;
+        }
+
+        public static bool DictionaryEquality<TKey, TValue>(Dictionary<TKey, TValue> d1, Dictionary<TKey, TValue> d2)
+        {
+            if (d1.Count != d2.Count)
+            {
+                return false;
+            }
+
+            foreach (var pair in d1)
+            {
+                if (!d2.TryGetValue(pair.Key, out var value2) || !object.Equals(pair.Value, value2))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static IEnumerable<char> GetCharRange(char leftSymbol, char rightSymbol)
+        {
+            var diff = ExceptionHelper.ThrowIfPredicateFalse(rightSymbol - leftSymbol, diff => diff > 0);
+
+            return Enumerable.Range(leftSymbol, diff + 1).Select(n => (char)n);
         }
 
         #endregion

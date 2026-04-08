@@ -23,7 +23,7 @@ namespace Examples
 
             var machine = QMachine<char>.Create(new()
             {
-                Random = new Random(2),  
+                Random = new Random(),  
             })
                 .WithConstraintLayer(new()
                 {

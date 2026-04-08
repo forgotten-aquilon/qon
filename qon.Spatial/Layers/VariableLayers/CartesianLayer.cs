@@ -29,12 +29,17 @@ namespace qon.Layers.VariableLayers
 
         public override bool Equals(ILayer<TQ, QObject<TQ>> other)
         {
+            if (base.Equals(other))
+            {
+                return true;
+            }
+
             if (other is CartesianLayer<TQ> otherLayer)
             {
                 return this.X == otherLayer.X && this.Y == otherLayer.Y && this.Z == otherLayer.Z;
             }
 
-            return base.Equals(other);
+            return false;
         }
     }
 }

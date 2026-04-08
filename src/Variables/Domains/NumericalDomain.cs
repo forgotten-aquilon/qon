@@ -1,10 +1,11 @@
-﻿using System;
+﻿using qon.Exceptions;
+using qon.Helpers;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using qon.Exceptions;
-using qon.Helpers;
 
 namespace qon.Variables.Domains
 {
@@ -16,6 +17,8 @@ namespace qon.Variables.Domains
 
     public struct Interval<TQ> where TQ : notnull
     {
+        public static readonly IComparer<TQ> Comparer = Comparer<TQ>.Default;
+
         public TQ Start { get; set; }
         public TQ End { get; set; }
 
@@ -61,22 +64,28 @@ namespace qon.Variables.Domains
 
         public Interval(TQ start, TQ end)
         {
+            if (Comparer.Compare(start, end) > 0)
+            {
+                throw new InternalLogicException($"Start({start}) should be greater than end({end})");
+            }
+
             Start = start;
             End = end;
         }
 
         public Interval((TQ minValue, TQ maxValue) value) : this(value.minValue, value.maxValue)
         {
+
         }
 
         public bool ContainsValue(TQ value)
         {
-            if (NumericalDomain<TQ>.Compare(Start, End) == 0 && NumericalDomain<TQ>.Compare(Start, value) == 0)
+            if (Comparer.Compare(Start, End) == 0 && Comparer.Compare(Start, value) == 0)
                 return true;
 
-            var leftCheck = NumericalDomain<TQ>.Compare(Start, value);
+            var leftCheck = Comparer.Compare(Start, value);
 
-            var rightCheck = NumericalDomain<TQ>.Compare(End, value);
+            var rightCheck = Comparer.Compare(End, value);
 
             return rightCheck > leftCheck;
         }
@@ -84,14 +93,42 @@ namespace qon.Variables.Domains
         public override string ToString() => $"[{Start}..{End}]";
     }
 
+    public class IntervalComp<TQ> : IComparer<Interval<TQ>> where TQ : notnull
+    {
+        public static IntervalComp<TQ> Instance => Lazy.Value;
+
+        private static readonly Lazy<IntervalComp<TQ>> Lazy = new(() => new IntervalComp<TQ>());
+
+        private IntervalComp(){}
+
+        public int Compare(Interval<TQ> x, Interval<TQ> y)
+        {
+            if (Interval<TQ>.Comparer.Compare(y.Start, x.End) > 0)
+            {
+                return 1;
+            }
+
+            if (Interval<TQ>.Comparer.Compare(y.Start, x.Start) == 0 && Interval<TQ>.Comparer.Compare(y.End, x.End) == 0)
+            {
+                return 0;
+            }
+
+            if (Interval<TQ>.Comparer.Compare(x.Start, y.End) > 0)
+            {
+                return -1;
+            }
+
+            throw new InternalLogicException("This Comparer is used strictly for sorting of nonoverlapping intervals");
+        }
+    }
+
     public class NumericalDomain<TQ> : IDomain<TQ> where TQ : notnull //FUTURE: Refactor this shit with INumber<TQ> as soon as available in Unity3D
     {
-        private static readonly IComparer<TQ> Comparer = Comparer<TQ>.Default;
-
         private readonly bool _isSigned = true;
         private readonly Type _type = typeof(TQ);
+        private readonly Cache<double> _entropy;
 
-        public readonly List<Interval<TQ>> Domain = new();
+        public List<Interval<TQ>> Domain { get; private set; } = new();
 
         public NumericalDomain()
         {
@@ -109,6 +146,7 @@ namespace qon.Variables.Domains
             }
 
             Domain.Add(new Interval<TQ>(GetLimits()));
+            _entropy = new(CalculateEntropy);
         }
 
         public NumericalDomain(IEnumerable<Interval<TQ>> intervals)
@@ -127,6 +165,7 @@ namespace qon.Variables.Domains
             }
 
             Domain = intervals.Select(x => x).ToList();
+            _entropy = new(CalculateEntropy);
         }
 
         #region IDomain<TQ> interface
@@ -191,16 +230,16 @@ namespace qon.Variables.Domains
 
             Interval<TQ> interval = Domain[position];
 
-            if (Compare(interval.Start, interval.End) == 0)
+            if (Interval<TQ>.Comparer.Compare(interval.Start, interval.End) == 0)
             {
                 Domain.RemoveAt(position);
             }
-            else if (Compare(interval.End, item) == 0)
+            else if (Interval<TQ>.Comparer.Compare(interval.End, item) == 0)
             {
                 interval.End = UnaryOperation(item, Operation.Decrement);
                 Domain[position] = interval;
             }
-            else if (Compare(interval.Start, item) == 0)
+            else if (Interval<TQ>.Comparer.Compare(interval.Start, item) == 0)
             {
                 interval.Start = UnaryOperation(item, Operation.Increment);
                 Domain[position] = interval;
@@ -213,6 +252,8 @@ namespace qon.Variables.Domains
                 Domain.Insert(position + 1, rightInterval);
             }
 
+            _entropy.Changed();
+
             return 1;
         }
 
@@ -224,6 +265,11 @@ namespace qon.Variables.Domains
             foreach (var v in items.Distinct().OrderBy(x => x))
                 changeCount += Remove(v);
 
+            if (changeCount > 0)
+            {
+                _entropy.Changed();
+            }
+
             return changeCount;
         }
 
@@ -231,15 +277,13 @@ namespace qon.Variables.Domains
         public void Clear()
         {
             Domain.Clear();
+            _entropy.Changed();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double GetEntropy()
         {
-            if (IsEmpty())
-                throw new InternalLogicException("Should not be called in this case");
-
-            return Math.Log(TrueSize(), 2);
+            return _entropy;
         }
 
         //FUTURE: C# 10 supports random long
@@ -293,7 +337,7 @@ namespace qon.Variables.Domains
                 for (TQ x = r.Start;; x = UnaryOperation(x, Operation.Increment))
                 {
                     yield return x;
-                    if (Compare(x, r.End) == 0)
+                    if (Interval<TQ>.Comparer.Compare(x, r.End) == 0)
                         break;
                 }
             }
@@ -313,6 +357,16 @@ namespace qon.Variables.Domains
         //}
 
         #endregion
+
+        public bool Equals(IDomain<TQ> other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         public override string ToString()
         {
@@ -361,7 +415,7 @@ namespace qon.Variables.Domains
 
             while (!Domain[mid].ContainsValue(value) && low <= high)
             {
-                if (Compare(value, Domain[mid].End) > 0)
+                if (Interval<TQ>.Comparer.Compare(value, Domain[mid].End) > 0)
                 {
                     low = mid + 1;
                 }
@@ -418,19 +472,22 @@ namespace qon.Variables.Domains
             return Domain.Select(x => x.Length).Aggregate((a, b) => a + b);
         }
 
-        public static int Compare(TQ leftObject, TQ rightObject)
-        {
-            return Comparer.Compare(leftObject, rightObject);
-        }
-
         public static TQ Min(TQ obj1, TQ obj2)
         {
-            return (Compare(obj1, obj2) < 0) ? obj1 : obj2;
+            return (Interval<TQ>.Comparer.Compare(obj1, obj2) < 0) ? obj1 : obj2;
         }
 
         public static TQ Max(TQ obj1, TQ obj2)
         {
-            return (Compare(obj1, obj2) > 0) ? obj1 : obj2;
+            return (Interval<TQ>.Comparer.Compare(obj1, obj2) > 0) ? obj1 : obj2;
+        }
+
+        private double CalculateEntropy()
+        {
+            if (IsEmpty())
+                throw new InternalLogicException("Should not be called in this case");
+
+            return Math.Log(TrueSize(), 2);
         }
     }
 }
